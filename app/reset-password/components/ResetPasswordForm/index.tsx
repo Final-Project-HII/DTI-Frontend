@@ -13,6 +13,7 @@ import { ArrowBigLeft, ArrowLeft } from 'lucide-react';
 import { AiOutlineMail } from 'react-icons/ai';
 import SendResetPasswordLink from '@/hooks/SendResetPasswordLink';
 import GenerateNewVerificationModal from '@/components/GenerateNewVerificationModal';
+import Modal from '@/components/Modal';
 type resetPasswordData = {
   email: string
 }
@@ -28,7 +29,7 @@ const ResetPasswordForm = () => {
   const [email, setEmail] = useState<string>("")
   const router = useRouter();
   const { isLoading, AddNewResetPasswordLink } = SendResetPasswordLink();
-  const { register, handleSubmit, formState: { errors }, setError } = useForm<resetPasswordData>({
+  const { register, handleSubmit, formState: { errors }, setError, reset } = useForm<resetPasswordData>({
     resolver: zodResolver(loginSchema),
   });
 
@@ -51,7 +52,7 @@ const ResetPasswordForm = () => {
         setIsNotRegistered(true);
         setTimeout(() => {
           setIsNotRegistered(false);
-          router.push('/login');
+          reset()
         }, 6000);
       } else {
         setEmail(data.email);
@@ -97,25 +98,10 @@ const ResetPasswordForm = () => {
       </div>)}
 
       {isSuccessfull && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex justify-center items-center z-20 p-5">
-          <div className="bg-white p-10 lg:p-20 rounded-md shadow-md flex flex-col gap-3 sm:max-w-[600px] ">
-            <Image src={logoV3} width={200} height={200} alt='logoV3' />
-            <h2 className="text-2xl font-bold">Reset Password Link Sent</h2>
-            <p className="text-base"> A reset password link has been sent to your email. Please check your inbox to reset your account password.</p>
-          </div>
-        </div>
+        <Modal title='Reset Password Link Sent!' description='A reset password link has been sent to your email. Please check your inbox to reset your account password.' />
       )}
-      {/* {isNotVerified && (
-        <GenerateNewVerificationModal email={email} />
-      )} */}
       {isNotRegistered && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex justify-center items-center z-20 p-5">
-          <div className="bg-white p-10 lg:p-20 rounded-md shadow-md flex flex-col gap-3 sm:max-w-[600px] ">
-            <Image src={logoV3} width={200} height={200} alt='logoV3' />
-            <h2 className="text-2xl font-bold">Your account is not registered yet!</h2>
-            <p className="text-base"> Please register your account first and verify it first, if you want to reset your password.</p>
-          </div>
-        </div>
+        <Modal title='Your Account Is Not Registered Yet!' description='Please register your account first and verify it first, if you want to reset your password.' />
       )}
     </div>
   )

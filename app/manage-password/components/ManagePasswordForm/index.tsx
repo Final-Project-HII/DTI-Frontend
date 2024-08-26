@@ -12,7 +12,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import SetNewPassword from '@/hooks/SetNewPassword';
 import CheckVerificationLinkValid from '@/hooks/CheckVerificationLinkValid';
 import GenerateNewVerificationModal from '@/components/GenerateNewVerificationModal';
-import VerifiedModal from '@/components/VerifiedModal';
+import Modal from '@/components/Modal';
 
 type managePasswordData = {
   password: string
@@ -139,10 +139,10 @@ const ManagePasswordForm = () => {
           </div>
 
           {showVerifiedModal && (
-            <VerifiedModal />
+            <Modal title='Your Account Is Verified!' description='You can now login with your Hii Mart account.' />
           )}
         </>
-      ) : verificationStatus === 'Verified' ? <VerifiedModal /> : (
+      ) : verificationStatus === 'Verified' ? <Modal title='Your Account Is Verified!' description='You can now login with your Hii Mart account.' /> : (
         <GenerateNewVerificationModal email={email} description='The verification link has expired. Please request a new verification link.' title='Verification Link Has Expired!' />
       )}
     </div>

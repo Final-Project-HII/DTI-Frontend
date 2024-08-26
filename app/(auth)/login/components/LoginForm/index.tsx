@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import qr from '@/public/QR.png'
 import { useForm } from "react-hook-form";
 import { z, ZodType } from "zod";
@@ -8,6 +8,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from 'next/link';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { AiOutlineMail } from 'react-icons/ai';
+import { signIn } from 'next-auth/react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import Modal from '@/components/Modal';
+import GenereteNewVerificationModalLogin from '@/components/GenereteNewVerificationModalLogin';
+import { setCookie } from 'cookies-next';
 
 type loginData = {
   email: string
@@ -22,18 +27,74 @@ const loginSchema: ZodType<loginData> = z.object({
     .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character')
 });
 const LoginForm = () => {
-  const { register, handleSubmit, formState: { errors }, setError } = useForm<loginData>({
+  const { register, handleSubmit, formState: { errors }, setError, reset } = useForm<loginData>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [errorModal, setErrorModal] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [isNotVerified, setIsNotVerified] = useState(false);
+  const [email, setEmail] = useState("")
   const togglePasswordVisibility = () => {
     setShowPassword(prevState => !prevState);
   };
+  const router = useRouter();
+  const param = useSearchParams();
+
+  useEffect(() => {
+    const errorParam = param.get('error');
+    if (errorParam == "email_not_found") {
+      setIsRegistered(true)
+      setTimeout(() => setIsRegistered(false), 4000);
+      window.history.replaceState(null, '', '/login');
+    } else if (errorParam == "email_not_verified") {
+      const emailParam = param.get('email');
+      if (emailParam !== null) {
+        setEmail(emailParam);
+      }
+      setIsNotVerified(true)
+    } else if (errorParam == "password_not_correct") {
+      setErrorModal(true)
+      setTimeout(() => setErrorModal(false), 4000);
+      window.history.replaceState(null, '', '/login');
+    }
+  }, [param]);
+
+
+
+  const handleSocialLogin = async () => {
+    try {
+      const result = await signIn("google", {
+        state: "login"
+      });
+      console.log(result)
+    } catch (error) {
+      throw error
+    }
+
+  }
 
 
   const onSubmit = async (data: loginData) => {
-    console.log("SUCCESS", data);
+    try {
+      setCookie('auth_action', "login")
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+      });
+    } catch (error) {
+      console.error("An unexpected error occurred:", error);
+    }
   }
+
+  const closeModal = () => {
+    setIsNotVerified(false);
+    router.push("/login")
+  };
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="w-4/5 max-w-[425px] bg-white p-6 rounded-lg shadow-md lg:w-full">
@@ -94,7 +155,7 @@ const LoginForm = () => {
           <div className="flex-grow border-t border-gray-300"></div>
         </div>
 
-        <button className="flex items-center justify-center w-full border border-gray-300 rounded-md p-2 hover:bg-gray-50 transition duration-300">
+        <button onClick={handleSocialLogin} className="flex items-center justify-center w-full border border-gray-300 rounded-md p-2 hover:bg-gray-50 transition duration-300">
           <Image
             src="https://www.svgrepo.com/show/475656/google-color.svg"
             alt="Google Logo"
@@ -112,6 +173,9 @@ const LoginForm = () => {
           </Link>
         </div>
       </div>
+      {errorModal && <Modal title="Password Is Wrong!" description='Please input your password correctly.' />}
+      {isRegistered && <Modal title="Email is not registered yet!" description='Please register your email first, before you login.' />}
+      {isNotVerified && <GenereteNewVerificationModalLogin email={email} title="You Have Not Verified Your Account Yet!" description='Please verify your account first before you can login with ' closeModal={closeModal} reset={reset} />}
     </div>
   )
 }

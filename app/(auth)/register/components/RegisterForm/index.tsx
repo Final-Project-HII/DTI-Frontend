@@ -8,9 +8,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from 'next/link';
 import login from '@/app/(auth)/login/page';
 import logoV3 from "@/public/LogoV3.png"
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AiOutlineMail, AiOutlinePhone, AiOutlineUser } from 'react-icons/ai';
 import RegisterNewUser from '@/hooks/RegisterNewUser';
+import Modal from '@/components/Modal';
+import { signIn } from 'next-auth/react';
+import { setCookie } from 'cookies-next';
 
 type registerData = {
   email: string
@@ -36,15 +39,39 @@ const RegisterForm = () => {
   const { register, handleSubmit, formState: { errors }, setError } = useForm<registerData>({
     resolver: zodResolver(loginSchema),
   });
+  const param = useSearchParams();
 
   useEffect(() => {
     if (isRegistered) {
       setTimeout(() => {
         setIsRegistered(false);
         router.push('/login');
-      }, 6000); // 6 seconds
+      }, 6000);
     }
   }, [isRegistered, router]);
+
+  useEffect(() => {
+    const errorParam = param.get('error');
+    if (errorParam === "email_already_registered") {
+      setEmailExist(true);
+      setTimeout(() => {
+        setEmailExist(false);
+      }, 4000);
+      window.history.replaceState(null, '', '/register');
+    } else if (errorParam === "null") {
+      setIsRegistered(true);
+    }
+  }, [param]);
+
+
+  const handleGoogleSignUp = async () => {
+    try {
+      setCookie('auth_action', "register")
+      const response = await signIn('google');
+    } catch (error) {
+      throw error
+    }
+  };
 
   const onSubmit = async (data: registerData) => {
     try {
@@ -129,7 +156,7 @@ const RegisterForm = () => {
             height={20}
             className="mr-2"
           />
-          <span className="text-gray-700 text-sm">Register with Google</span>
+          <span className="text-gray-700 text-sm" onClick={handleGoogleSignUp}>Register with Google</span>
         </button>
         <div className="text-center w-full text-sm mt-4">
           <span>Have an account? </span>
@@ -139,23 +166,11 @@ const RegisterForm = () => {
         </div>
       </div>
       {isRegistered && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex justify-center items-center z-20 p-5">
-          <div className="bg-white p-10 lg:p-20 rounded-md shadow-md flex flex-col gap-3 sm:max-w-[600px] ">
-            <Image src={logoV3} width={200} height={200} alt='logoV3' />
-            <h2 className="text-2xl font-bold">Verification Link Sent</h2>
-            <p className="text-base"> A verification link has been sent to your email. Please check your inbox to verify your account.</p>
-          </div>
-        </div>
-      )}
+        <Modal title="Verification Link Sent!" description=' A verification link has been sent to your email. Please check your inbox to verify your account.' />
 
+      )}
       {emailExist && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex justify-center items-center z-20 p-5">
-          <div className="bg-white p-10 lg:p-20 rounded-md shadow-md flex flex-col gap-3 sm:max-w-[600px] ">
-            <Image src={logoV3} width={200} height={200} alt='logoV3' />
-            <h2 className="text-2xl font-bold">Email has already been registered!</h2>
-            <p className="text-base"> Please input another email for registration.</p>
-          </div>
-        </div>
+        <Modal title="Email Has Already Been Registered!" description='Please input another email for registration.' />
       )}
     </div>
   )

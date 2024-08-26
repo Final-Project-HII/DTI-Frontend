@@ -1,8 +1,7 @@
 import SendNewVerificationLink from '@/hooks/SendNewVerificationLink';
 import React, { useEffect, useState } from 'react'
-import NewVerificationLinkModal from './NewVerificationLinkModal';
 import { useRouter } from 'next/navigation';
-import VerificationLinkExistModal from './VerificationLinkExistModal';
+import Modal from './Modal';
 
 type GenerateNewVerificationModalProps = {
   email: string | null;
@@ -17,7 +16,7 @@ const GenerateNewVerificationModal: React.FC<GenerateNewVerificationModalProps> 
   const handleNewLink = async () => {
     try {
       const result = await AddNewVerificationLink(email);
-      if (result == true) {
+      if (result) {
         setShowNewVerificationLinkModal(true);
         setTimeout(() => {
           router.push('/login');
@@ -37,7 +36,7 @@ const GenerateNewVerificationModal: React.FC<GenerateNewVerificationModalProps> 
           {isLoading ? "Loading ... " : "Request New Link"}
         </button>
       </div>
-      {showNewVerificationLinkModal && <NewVerificationLinkModal />}
+      {showNewVerificationLinkModal && <Modal title='Verification Link Sent!' description=' A verification link has already send to your email. Please check your latest inbox to verify your account.' />}
     </>
   );
 }
