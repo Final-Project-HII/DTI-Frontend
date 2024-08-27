@@ -68,6 +68,7 @@ const LoginForm = () => {
 
   const handleSocialLogin = async () => {
     try {
+      setCookie('auth_action', "login")
       const result = await signIn("google", {
         state: "login"
       });
@@ -81,7 +82,6 @@ const LoginForm = () => {
 
   const onSubmit = async (data: loginData) => {
     try {
-      setCookie('auth_action', "login")
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,

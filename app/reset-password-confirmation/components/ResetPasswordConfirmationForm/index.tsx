@@ -13,7 +13,6 @@ import CheckResetPasswordLinkValid from '@/hooks/CheckResetPasswordLinkValid';
 import GenerateNewVerificationModal from '@/components/GenerateNewVerificationModal';
 import GenerateNewResetPasswordLinkModal from '@/components/GenerateNewResetPasswordLinkModal';
 import SetNewPassword from '@/hooks/SetNewPassword';
-import VerifiedModal from '@/components/VerifiedModal';
 import Modal from '@/components/Modal';
 
 type resetPasswordData = {

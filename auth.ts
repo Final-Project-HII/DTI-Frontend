@@ -89,8 +89,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           console.log(data2)
           if (data2.success) {
             return '/'
-          } else {
-            return '/register?error=email_already_registered'
           }
         }
 
@@ -110,9 +108,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           user.error = dataLogin.error
         } else {
           user.role = dataLogin.role
+          user.accessToken = dataLogin.accessToken
         }
       }
-      console.log(user)
 
       if (user.error === 'Email Not Found') {
         return '/login?error=email_not_found'
@@ -123,6 +121,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user.error === 'Invalid Credentials') {
         return '/login?error=password_not_correct'
       }
+      const useCookies = cookies()
+      useCookies.set('Sid', user.accessToken)
 
       return '/'
     },
