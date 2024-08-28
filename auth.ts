@@ -86,9 +86,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
           )
           const data2 = await response.json()
-          console.log(data2)
-          if (data2.success) {
-            return '/'
+          if (!data2.success) {
+            return '/register?error=email_already_registered'
           }
         }
 
