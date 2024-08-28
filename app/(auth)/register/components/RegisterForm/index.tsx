@@ -67,7 +67,7 @@ const RegisterForm = () => {
   const handleGoogleSignUp = async () => {
     try {
       setCookie('auth_action', "register")
-      const response = await signIn('google');
+      await signIn('google');
     } catch (error) {
       throw error
     }
