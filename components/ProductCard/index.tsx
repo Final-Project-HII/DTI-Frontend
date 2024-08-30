@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from '@/components/ui/badge';
-import product1 from '@/public/product_image_dummy.png'
+import product1 from '@/public/payment_easy.webp.png'
 import Image from 'next/image';
 
 const ProductCard: React.FC = () => {
@@ -35,7 +35,7 @@ const ProductCard: React.FC = () => {
           height={30}
           src={product.productImages[0]?.imageUrl || '/placeholder.jpg'}
           alt={product.name}
-          className="object-cover rounded-md w-full"
+          className="object-fit rounded-md w-full h-48"
         />
         <Badge className="absolute top-3 right-3 bg-white text-blue-600 hover:bg-white">
           {product.categoryName}

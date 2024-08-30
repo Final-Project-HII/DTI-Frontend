@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react';
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Navigation } from 'swiper/modules';
+import { Pagination, Navigation, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import promoBanner from '@/utils/PromoBanner';
@@ -38,12 +38,16 @@ const Carousel = () => {
               slidesPerView: 1.3,
             },
           }}
+          autoplay={{
+            delay: 4000,
+            disableOnInteraction: false
+          }}
           pagination={{
             clickable: true,
             bulletClass: 'swiper-pagination-bullet',
             bulletActiveClass: 'swiper-pagination-bullet-active',
           }}
-          modules={[Pagination, Navigation]}
+          modules={[Pagination, Navigation, Autoplay]}
           className="relative"
         >
           {promoBanner.map((banner) => (

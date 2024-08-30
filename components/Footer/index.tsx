@@ -28,30 +28,30 @@ const Footer = () => {
       <div className="grid grid-cols-1 gap-10 lg:gap-20 lg:grid-cols-5">
         <div className="flex flex-col gap-4 col-span-2">
           <Image alt="logo" src={logo} width={150} height={150} />
-          <p className='text-xs text-gray-500'>Hii Mart, Your one-stop destination for all your shopping needs. Explore a wide range of products with fast delivery and secure checkout, bringing convenience right to your doorstep.</p>
+          <p className='text-base text-gray-500'>Hii Mart, Your one-stop destination for all your shopping needs. Explore a wide range of products with fast delivery and secure checkout, bringing convenience right to your doorstep.</p>
         </div>
         <div className="flex flex-col gap-4 col-span-2 lg:justify-self-center">
-          <h1 className='font-bold text-sm'>Customer Service</h1>
+          <h1 className='font-bold text-xl'>Customer Service</h1>
           <div className="flex flex-col gap-3 text-gray-500">
             <div className="flex items-center gap-2">
               <BsTelephone size={20} />
-              <div className="flex flex-col text-xs">
+              <div className="flex flex-col text-base">
                 <h2>(021) 1523322</h2>
                 <h2>(Monday - Sunday, 08.00 - 17.00 WIB)</h2>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <MailIcon size={20} />
-              <div className="flex flex-col text-xs">
+              <div className="flex flex-col text-base">
                 <h2>HiiMart@gmail.com</h2>
               </div>
             </div>
           </div>
         </div>
         <div className="flex flex-col gap-4 ">
-          <h1 className='font-bold text-sm'>Shopping Security</h1>
+          <h1 className='font-bold text-xl'>Shopping Security</h1>
           <Image alt="verifyLogo" src={verifyLogo} width={100} height={100} />
-          <h2 className='font-bold text-sm'>Find Us In</h2>
+          <h2 className='font-bold text-xl'>Find Us In</h2>
           <div className="logo flex gap-2 items-end">
             <IoLogoFacebook className='text-blue-800' size={20} />
             <AiFillTikTok size={20} />
@@ -61,7 +61,7 @@ const Footer = () => {
       </div>
       <div className="flex flex-col gap-8 mt-8 lg:mt-4">
         <div className="payment flex flex-col gap-4">
-          <h2 className='font-bold text-sm'>Payment Method</h2>
+          <h2 className='font-bold text-xl'>Payment Method</h2>
           <div className="flex flex-wrap gap-8 items-center">
             <Image src={bni} alt='BNI' width={50} height={80} className='object-cover' />
             <Image src={bca} alt='BCA' width={60} height={80} />
@@ -76,7 +76,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="service flex flex-col gap-4">
-          <h2 className='font-bold text-sm'>Delivery Service</h2>
+          <h2 className='font-bold text-xl'>Delivery Service</h2>
           <div className="flex  flex-wrap gap-4">
             <Image src={pos} alt='pos Indonesia' width={60} height={30} />
             <Image src={jne} alt='JNE Indonesia' width={60} height={30} />
