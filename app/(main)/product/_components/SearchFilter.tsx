@@ -37,7 +37,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
                 placeholder="Search products..."
                 defaultValue={searchTerm}
                 onChange={onSearchChange}
-                className="flex-grow"
+                className="flex-grow "
             />
             <Select value={categoryName} onValueChange={onCategoryChange}>
                 <SelectTrigger className="w-[180px]">

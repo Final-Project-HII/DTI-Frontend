@@ -67,7 +67,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 <p className="text-xs ">Weight: {product.weight}g</p>
                 <p className="text-xs">Category: {product.categoryName}</p>
             </CardContent>
-            <CardFooter className="px-4 pb-4 mt-auto">
+            <CardFooter className="px-4 pb-4 mt-auto ">
                 <Button className="w-full border border-blue-600 text-blue-600">+ Add to Cart</Button>
             </CardFooter>
         </Card>

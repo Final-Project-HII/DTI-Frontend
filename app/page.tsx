@@ -6,6 +6,7 @@ const page = () => {
       welcome to hiimart
     </div>
   )
+
 }
 
 export default page
