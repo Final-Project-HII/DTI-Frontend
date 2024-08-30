@@ -2,3 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #eeeeee;
+}
+
+.swiper-pagination-bullet {
+  border: 1.8px solid #0079c2;
+  background-color: white !important;
+  width: 13px !important; /* Increase the width */
+  height: 13px !important;
+  opacity: 1 !important;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #0079c2 !important;
+}
+
