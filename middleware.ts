@@ -9,7 +9,13 @@ export default auth((req: any) => {
   const path = reqUrl.pathname;
 
   console.log(req.auth?.user.role);
-  const publicRoutes = ["/login", "/register", "/reset-password"];
+  const publicRoutes = [
+    "/login",
+    "/register",
+    "/reset-password",
+    "/cartdetail",
+    "/"
+  ];
   if (publicRoutes.includes(path)) {
     return NextResponse.next();
   }
