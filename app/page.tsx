@@ -7,16 +7,20 @@ import CategoryList from "./_components/CategoryList";
 import ReasonToShop from "./_components/ReasonToShop";
 import DownloadApp from "./_components/DownloadApp";
 import ProductList from "./_components/ProductList";
+import Header from '@/components/Header';
 
 const page = () => {
   return (
     <>
-      <Carousel />
-      <CategoryList />
-      <ProductList />
-      <ReasonToShop />
-      <DownloadApp />
-      <Footer />
+      <Header />
+      <div className="pt-20">
+        <Carousel />
+        <CategoryList />
+        <ProductList />
+        <ReasonToShop />
+        <DownloadApp />
+        <Footer />
+      </div>
     </>
   );
 }

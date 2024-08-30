@@ -37,11 +37,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     };
 
     return (
-        <Card className="flex flex-col h-full">
+        <Card className="flex flex-col h-full bg-white hover:scale-105 ease-in-out duration-300">
             <Link href={`/product/${product.id}_${product.name.replace(/\s+/g, '-').toLowerCase()}`} passHref>
                 <CardHeader className="relative p-0 mb-4">
                     <img
-                        src={product.productImages[0]?.imageUrl || '/placeholder.jpg'}
+                        src={product.productImages[0]?.imageUrl || '/header.svg'}
                         alt={product.name}
                         className="w-full h-[150px] lg:h-[200px] object-cover rounded-md"
                     />
@@ -68,7 +68,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 <p className="text-xs">Category: {product.categoryName}</p>
             </CardContent>
             <CardFooter className="px-4 pb-4 mt-auto">
-                <Button className="w-full border border-blue-600 text-blue-600">+ Add to Cart</Button>
+                <Button className="w-full border border-blue-600 text-blue-600 bg-transparent hover:bg-transparent">+ Add to Cart</Button>
             </CardFooter>
         </Card>
     );
