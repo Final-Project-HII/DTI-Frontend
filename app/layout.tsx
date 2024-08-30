@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/Header";
+import Providers from "./providers";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 
-const inter = Inter({ subsets: ["latin"] });
+
+const JakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,10 +21,17 @@ export default async function RootLayout({
 }>) {
   const session = await auth();
   return (
+
     <html lang="en">
-      <SessionProvider session={session} refetchInterval={120}>
-        <body className={inter.className}>{children}</body>
-      </SessionProvider>
-    </html>
+      <body className={JakartaSans.className}>
+        <SessionProvider session={session} refetchInterval={120}>
+          <Providers>
+
+            {children}
+          </Providers>
+        </SessionProvider>
+      </body>
+    </html >
+
   );
 }
