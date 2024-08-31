@@ -24,10 +24,10 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <SessionProvider session={session} refetchInterval={120}>
-      <body className={JakartaSans.className}>
-        <Providers>
-          {children}
-        </Providers>
+        <body className={JakartaSans.className}>
+          <Providers>
+            {children}
+          </Providers>
         </body>
       </SessionProvider>
     </html>

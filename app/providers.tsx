@@ -8,7 +8,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient({
         defaultOptions: {
             queries: {
-                // Disable automatic refetching on window focus
                 refetchOnWindowFocus: false,
             },
         },
