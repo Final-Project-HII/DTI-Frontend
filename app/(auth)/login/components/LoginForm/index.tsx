@@ -96,7 +96,7 @@ const LoginForm = () => {
     router.push("/login")
   };
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center pt-10 pb-20">
       <div className="w-4/5 max-w-[425px] bg-white p-6 rounded-lg shadow-md lg:w-full">
         <div className="flex justify-between items-center">
           <h1 className='text-2xl font-bold mb-4'>Login</h1>

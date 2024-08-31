@@ -39,6 +39,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }),
           })
           const data = await response.json()
+          console.log(data)
 
           // const useCookies = cookies()
           // useCookies.set('Sid', data.accessToken)
@@ -125,14 +126,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       return '/'
     },
-    async session({ token, session }) {
-      if (token.email) session.user.email = token.email
-      if (token.role) session.user.role = token.role
-      if (token.accessToken) session.user.accessToken = token.accessToken
-      return session
-    },
     async jwt({ token, user }) {
-      // console.log(token)
       if (user) {
         token.id = user.id
         if (user && user.email) {
@@ -143,6 +137,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.accessToken = user.accessToken
       }
       return token
+    },
+    async session({ token, session }) {
+      console.log(session)
+      if (token.email) session.user.email = token.email
+      if (token.role) session.user.role = token.role
+      if (token.accessToken) session.user.accessToken = token.accessToken
+      return session
     },
   },
 
