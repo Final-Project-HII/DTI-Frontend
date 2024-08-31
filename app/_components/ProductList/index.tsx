@@ -7,6 +7,7 @@ import { Navigation, Pagination } from 'swiper/modules';
 // Import Swiper styles
 import 'swiper/css';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { SkeletonCardHome } from '@/components/SkeletonCardHome';
 
 const ProductList = () => {
   const [isBeginning, setIsBeginning] = useState(true);
@@ -46,7 +47,9 @@ const ProductList = () => {
         >
           {[...Array(10)].map((_, index) => (
             <SwiperSlide key={index}>
-              <ProductCard />
+
+              {/* <ProductCard /> */}
+              <SkeletonCardHome />
             </SwiperSlide>
           ))}
           <button

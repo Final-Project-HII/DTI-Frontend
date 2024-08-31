@@ -6,6 +6,8 @@ import Header from "@/components/Header";
 import Providers from "./providers";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
+import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
 
 
 
@@ -24,10 +26,12 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <SessionProvider session={session} refetchInterval={120}>
-      <body className={JakartaSans.className}>
-        <Providers>
-          {children}
-        </Providers>
+        <body className={JakartaSans.className}>
+          <NavBar />
+          <Providers>
+            {children}
+          </Providers>
+          <Footer />
         </body>
       </SessionProvider>
     </html>
