@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/app/hooks/useCart";
 import { useSession, signOut } from "next-auth/react";
+import SignOutButton from "./SignOutBtn";
 
 const Navbar: React.FC = () => {
   const router = useRouter();
@@ -69,6 +70,24 @@ const Navbar: React.FC = () => {
               </>
             )}
           </Button>
+          <Button
+            variant="outline"
+            className="flex items-center"
+            onClick={handleAuthClick}
+          >
+            {status === "authenticated" ? (
+              <>
+                <LogOut className="mr-2" />
+                Logout
+              </>
+            ) : (
+              <>
+                <LogIn className="mr-2" />
+                Login
+              </>
+            )}
+          </Button>
+          <SignOutButton />
         </div>
       </div>
     </nav>
