@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useCart } from "../hooks/useCart";
-
+import { useSession } from "next-auth/react";
 import {
   Card,
   CardContent,
@@ -11,11 +11,11 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
+import NavBar from "@/components/NavBar";
 
 const CartPage: React.FC = () => {
-  const userId = 72;
-  const { cartItems, updateQuantity, removeItem } = useCart(userId);
+  const { data: session, status } = useSession();
+  const { cartItems, isLoading, updateQuantity, removeItem } = useCart();
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -23,9 +23,17 @@ const CartPage: React.FC = () => {
   );
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
+  if (status === "loading" || isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (status === "unauthenticated") {
+    return <div>Please log in to view your cart.</div>;
+  }
+
   return (
     <>
-      <Navbar />
+      <NavBar />
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Keranjang</h1>
         {cartItems.length === 0 ? (

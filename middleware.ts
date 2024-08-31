@@ -11,7 +11,12 @@ export default auth((req: any) => {
 
   console.log(req.auth?.user);
   console.log("ini auth", req.auth);
-  const publicRoutes = ["/login", "/register", "/reset-password", "/"];
+  const publicRoutes = [
+    "/login",
+    "/register",
+    "/reset-password",
+    "/",
+  ];
   if (publicRoutes.includes(path)) {
     return NextResponse.next();
   }
@@ -24,4 +29,3 @@ export default auth((req: any) => {
 
   return NextResponse.next();
 });
-

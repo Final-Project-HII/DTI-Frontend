@@ -2,59 +2,76 @@ import axios from "axios";
 import { ApiResponse, Product } from "@/types/product";
 import { Category } from "@/types/category";
 
-const BASE_URL = "http://localhost:8080/api/v1";
+const BASE_URL = "http://localhost:8080/api/";
+
+const axiosInstance = axios.create({
+  baseURL: BASE_URL,
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token'); // Or however you store your token
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 export const fetchProducts = async () => {
-  const response = await axios.get(`${BASE_URL}/products`);
+  const response = await axiosInstance.get("/products");
   return response.data;
 };
 
-export const fetchCartItems = async (userId: number) => {
-  const response = await axios.get(`${BASE_URL}/carts/${userId}`);
+export const fetchCartItems = async (token: string) => {
+  const response = await axiosInstance.get("/carts", {
+    headers: { Authorization: `Bearer ${token}` }
+  });
   return response.data.items;
 };
 
 export const addToCartApi = async (
-  userId: number,
+  token: string,
   productId: number,
   quantity: number
 ) => {
-  const response = await axios.post(`${BASE_URL}/cart-items/add`, {
-    id: userId,
+  const response = await axiosInstance.post("/cart-items/add", {
     productId,
     quantity,
+  }, {
+    headers: { Authorization: `Bearer ${token}` }
   });
   return response.data;
 };
 
 export const updateCartItemQuantityApi = async (
-  userId: number,
+  token: string,
   productId: number,
   quantity: number
 ) => {
-  const response = await axios.put(
-    `${BASE_URL}/cart-items/${userId}/item/${productId}`,
-    { quantity }
+  const response = await axiosInstance.put(
+    `/cart-items/item/${productId}`,
+    { quantity },
+    { headers: { Authorization: `Bearer ${token}` } }
   );
   return response.data;
 };
 
-export const removeCartItemApi = async (userId: number, productId: number) => {
-  await axios.delete(`${BASE_URL}/cart-items/${userId}/item/${productId}`);
-}; // <-- Added missing closing brace here
+export const removeCartItemApi = async (token: string, productId: number) => {
+  await axiosInstance.delete(`/cart-items/item/${productId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
 
-// Renamed this function to avoid duplicate function name
 export const fetchFilteredProducts = async (
   params: URLSearchParams
 ): Promise<ApiResponse> => {
-  const response = await axios.get<ApiResponse>(
-    `${BASE_URL}/product?${params.toString()}`
+  const response = await axiosInstance.get<ApiResponse>(
+    `/product?${params.toString()}`
   );
   return response.data;
 };
 
 export const createProduct = async (formData: FormData): Promise<Product> => {
-  const response = await axios.post(`${BASE_URL}/product/create`, formData, {
+  const response = await axiosInstance.post("/product/create", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -66,8 +83,8 @@ export const updateProduct = async (
   id: number,
   formData: FormData
 ): Promise<Product> => {
-  const response = await axios.put(
-    `${BASE_URL}/product/update/${id}`,
+  const response = await axiosInstance.put(
+    `/product/update/${id}`,
     formData,
     {
       headers: {
@@ -79,16 +96,16 @@ export const updateProduct = async (
 };
 
 export const deleteProduct = async (id: number): Promise<void> => {
-  await axios.delete(`${BASE_URL}/product/delete/${id}`);
+  await axiosInstance.delete(`/product/delete/${id}`);
 };
 
 export const fetchCategories = async (): Promise<Category[]> => {
-  const response = await axios.get<Category[]>(`${BASE_URL}/category`);
+  const response = await axiosInstance.get<Category[]>("/category");
   return response.data;
 };
 
 export const createCategory = async (name: string): Promise<Category> => {
-  const response = await axios.post(`${BASE_URL}/category/create`, { name });
+  const response = await axiosInstance.post("/category/create", { name });
   return response.data;
 };
 
@@ -96,12 +113,12 @@ export const updateCategory = async (
   id: number,
   name: string
 ): Promise<Category> => {
-  const response = await axios.put(`${BASE_URL}/category/update/${id}`, {
+  const response = await axiosInstance.put(`/category/update/${id}`, {
     name,
   });
   return response.data;
 };
 
 export const deleteCategory = async (id: number): Promise<void> => {
-  await axios.delete(`${BASE_URL}/category/delete/${id}`);
+  await axiosInstance.delete(`/category/delete/${id}`);
 };

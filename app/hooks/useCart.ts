@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { CartItem } from "../types";
+import { useSession } from "next-auth/react";
 import {
   fetchCartItems,
   addToCartApi,
@@ -8,13 +9,14 @@ import {
   removeCartItemApi,
 } from "../../utils/api";
 
-export const useCart = (userIdentifier: number | string | undefined) => {
+export const useCart = () => {
+  const { data: session, status } = useSession();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadCartItems = async () => {
-      if (!userIdentifier || typeof userIdentifier !== "number") {
+      if (status !== "authenticated" || !session?.user?.accessToken) {
         setCartItems([]);
         setIsLoading(false);
         return;
@@ -22,7 +24,7 @@ export const useCart = (userIdentifier: number | string | undefined) => {
 
       try {
         setIsLoading(true);
-        const items = await fetchCartItems(userIdentifier);
+        const items = await fetchCartItems(session.user.accessToken);
         setCartItems(items);
       } catch (error) {
         console.error("Failed to fetch cart items:", error);
@@ -32,15 +34,15 @@ export const useCart = (userIdentifier: number | string | undefined) => {
     };
 
     loadCartItems();
-  }, [userIdentifier]);
+  }, [session, status]);
 
   const addToCart = async (productId: number, quantity: number) => {
-    if (!userIdentifier || typeof userIdentifier !== "number") {
+    if (status !== "authenticated" || !session?.user?.accessToken) {
       throw new Error("User not authenticated");
     }
 
     try {
-      const newItem = await addToCartApi(userIdentifier, productId, quantity);
+      const newItem = await addToCartApi(session.user.accessToken, productId, quantity);
       setCartItems((prevItems) => {
         const existingItemIndex = prevItems.findIndex(
           (item) => item.productId === productId
@@ -60,12 +62,12 @@ export const useCart = (userIdentifier: number | string | undefined) => {
   };
 
   const updateQuantity = async (productId: number, newQuantity: number) => {
-    if (!userIdentifier || typeof userIdentifier !== "number") {
+    if (status !== "authenticated" || !session?.user?.accessToken) {
       throw new Error("User not authenticated");
     }
 
     try {
-      await updateCartItemQuantityApi(userIdentifier, productId, newQuantity);
+      await updateCartItemQuantityApi(session.user.accessToken, productId, newQuantity);
       setCartItems((prevItems) =>
         prevItems.map((item) =>
           item.productId === productId
@@ -80,12 +82,12 @@ export const useCart = (userIdentifier: number | string | undefined) => {
   };
 
   const removeItem = async (productId: number) => {
-    if (!userIdentifier || typeof userIdentifier !== "number") {
+    if (status !== "authenticated" || !session?.user?.accessToken) {
       throw new Error("User not authenticated");
     }
 
     try {
-      await removeCartItemApi(userIdentifier, productId);
+      await removeCartItemApi(session.user.accessToken, productId);
       setCartItems((prevItems) =>
         prevItems.filter((item) => item.productId !== productId)
       );
