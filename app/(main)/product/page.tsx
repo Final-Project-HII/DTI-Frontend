@@ -167,7 +167,7 @@ export default function ProductSearchPage() {
 
     return (
         <div className="w-full mx-auto p-4 mt-16 lg:p-16">
-            <div className="flex flex-col md:flex-row gap-8">
+            <div className="flex flex-col md:flex-row gap-4">
                 <aside className="w-full md:w-1/4 p-4">
                     <ProductFilter
                         categoryName={categoryName}
@@ -179,7 +179,7 @@ export default function ProductSearchPage() {
                         onSortDirectionChange={handleSortDirectionChange}
                     />
                 </aside>
-                <div className='w-full'>
+                <div className='w-full bg-white p-8 rounded-lg'>
                     <h1 className="text-3xl font-bold mb-6">Product Search</h1>
                     <SearchFilters
                         searchTerm={searchTerm}
@@ -201,7 +201,7 @@ export default function ProductSearchPage() {
                         </Alert>
                     )}
 
-                    <div className="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+                    <div className="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 ">
                         {isLoading
                             ? Array.from({ length: pageSize }).map((_, index) => (
                                 <SkeletonCard key={index} />

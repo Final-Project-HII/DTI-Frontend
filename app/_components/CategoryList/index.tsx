@@ -6,6 +6,7 @@ import { FreeMode } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/free-mode'
 import CategoryDummyData from '@/utils/CategoryDummyData'
+import SkeletonCardCategory from '@/components/SkeletonCardCategory'
 
 const CategoryList = () => {
   return (
@@ -33,12 +34,13 @@ const CategoryList = () => {
         >
           {CategoryDummyData.map((data, index) => (
             <SwiperSlide key={index} className="w-auto">
-              <div className='flex flex-col gap-2 items-center'>
+              <SkeletonCardCategory />
+              {/* <div className='flex flex-col gap-2 items-center'>
                 <div className="bg-white items-center p-5 w-24 rounded-xl shadow-md">
                   <Image src={data.img} width={1000} height={1000} alt='' className='w-96 size-14 h-full' />
                 </div>
                 <h2>{data.title}</h2>
-              </div>
+              </div> */}
             </SwiperSlide>
           ))}
         </Swiper>

@@ -7,17 +7,19 @@ import CategoryList from "./_components/CategoryList";
 import ReasonToShop from "./_components/ReasonToShop";
 import DownloadApp from "./_components/DownloadApp";
 import ProductList from "./_components/ProductList";
+import Header from '@/components/Header';
+import NavBar from '@/components/NavBar';
 
 const page = () => {
   return (
-    <>
+    <main className='pt-28'>
       <Carousel />
       <CategoryList />
       <ProductList />
       <ReasonToShop />
       <DownloadApp />
       <Footer />
-    </>
+    </main>
   );
 }
 
