@@ -3,7 +3,9 @@ import RegisterForm from './components/RegisterForm'
 
 const register = () => {
   return (
-    <RegisterForm />
+    <main className='mt-28'>
+      <RegisterForm />
+    </main>
   )
 }
 
