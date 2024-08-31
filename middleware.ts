@@ -25,23 +25,3 @@ export default auth((req: any) => {
   return NextResponse.next();
 });
 
-////////////////////////////////////////////////////////////////////////
-
-// export async function middleware(request: NextRequest) {
-//   const session = await auth;
-//   console.log("session", session.name);
-//   // const userRoles = session.?.userRoles
-//   // console.log(request);
-//   // console.log("ini auth", session)
-//   if (request.nextUrl.pathname.startsWith("/cartdetail")) {
-//     if (!session) {
-//       console.log("no session");
-//       return NextResponse.redirect(new URL("/login", request.url));
-//     }
-//     return NextResponse.next();
-//   }
-// }
-
-// export const config = {
-//   matcher: ["/", "/login", "/register", "/reset-password", "/cartdetail"],
-// };
