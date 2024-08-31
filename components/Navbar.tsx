@@ -15,19 +15,11 @@ const Navbar: React.FC = () => {
   const itemCount = getCartItemCount();
 
   const handleCartClick = () => {
-    if (status === "authenticated") {
-      router.push("/cartdetail");
-    } else {
-      router.push("/login");
-    }
+    router.push("/cartdetail");
   };
 
   const handleAuthClick = () => {
-    if (status === "authenticated") {
-      signOut();
-    } else {
-      router.push("/login");
-    }
+    signOut();
   };
 
   return (
@@ -47,7 +39,11 @@ const Navbar: React.FC = () => {
           </Button>
         </div>
         <div className="flex items-center space-x-4">
-          <Button variant="outline" className="flex items-center" onClick={handleCartClick}>
+          <Button
+            variant="outline"
+            className="flex items-center"
+            onClick={handleCartClick}
+          >
             <ShoppingCart className="mr-2" />
             Cart
             {itemCount > 0 && (
@@ -56,7 +52,11 @@ const Navbar: React.FC = () => {
               </Badge>
             )}
           </Button>
-          <Button variant="outline" className="flex items-center" onClick={handleAuthClick}>
+          <Button
+            variant="outline"
+            className="flex items-center"
+            onClick={handleAuthClick}
+          >
             {status === "authenticated" ? (
               <>
                 <LogOut className="mr-2" />
