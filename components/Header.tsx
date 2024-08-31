@@ -1,63 +1,3 @@
-// import React from 'react';
-// import Link from 'next/link';
-// import { LayoutGrid, Search, ShoppingCart } from 'lucide-react';
-// import { Badge } from './ui/badge';
-
-// const Header = () => {
-//     const itemCount = 5;
-
-//     return (
-//         <header
-//             className="text-white h-20 pt-5 bg-no-repeat bg-cover"
-//             style={{
-//                 backgroundImage: 'url("/header.svg")',
-//                 // transform: 'rotate(90deg)', // Rotate the background image 90 degrees
-//                 transformOrigin: 'center', // Ensure the rotation happens around the center
-//             }}
-//         >
-//             <div className="container mx-auto flex justify-between items-center h-full">
-//                 <div className="text-3xl font-bold text-blue-600  italic flex gap-4">
-//                     <Link href="/">Click</Link>
-//                 </div>
-//                 <img src="/hiimart v6.png" alt="" className='w-28 mx-4' />
-//                 <div className="flex gap-1">
-//                     <LayoutGrid />
-//                     <Link href="/" className='not-italic text-lg'>Category</Link>
-//                 </div>
-//                 <div className='bg-white rounded-md flex h-10 w-full justify-between mx-4'>
-//                     <p className='p-2 text-gray-500 '>Mau beli apa hari ini</p>
-//                     <button className='bg-yellow-300 text-white p-auto rounded-lg m-1 px-4 mx-4'><Search className='text-blue-600' /></button>
-//                 </div>
-//                 <nav>
-//                     <ul className="flex space-x-4">
-//                         {/* <li>
-//                             <Link href="/">Home</Link>
-//                         </li> */}
-//                         <li>
-//                             <div className="relative">
-//                                 <ShoppingCart className="w-8 h-8 text-blue-600" /> {/* Ikon Lucide */}
-//                                 <Badge
-//                                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full"
-//                                     variant="default"
-//                                 >
-//                                     {itemCount}
-//                                 </Badge>
-//                             </div>
-//                         </li>
-//                         <li>
-//                             <Link href="/about" className='text-blue-600 bg-white border-2 border-blue-600 rounded-lg p-2 px-4 font-bold italic'>Login</Link>
-//                         </li>
-//                         <li>
-//                             <Link href="/about" className='text-white bg-blue-600  rounded-lg p-2 px-4 font-bold italic'>Login</Link>
-//                         </li>
-//                     </ul>
-//                 </nav>
-//             </div>
-//         </header>
-//     );
-// };
-
-// export default Header;
 import React from 'react';
 import Link from 'next/link';
 import { LayoutGrid, Search, ShoppingCart, Menu, ChevronDown } from 'lucide-react';
@@ -128,8 +68,10 @@ const Header = () => {
 
                     <div className="flex items-center lg:space-x-4 space-x-1">
                         <div className="hidden lg:flex space-x-2">
-                            <Button variant="outline" className="bg-white text-blue-600 hover:bg-blue-50">Sign Up</Button>
-                            <Button className="bg-blue-600 text-white hover:bg-blue-700">Login</Button>
+                            <Button variant="outline" className="bg-white text-blue-600 hover:bg-blue-50">
+                                <Link href="/login">Sign In</Link>
+                            </Button>
+                            <Button className="bg-blue-600 text-white hover:bg-blue-700"><Link href="/register">Sign Up</Link></Button>
                         </div>
                         <Button variant="ghost" size="icon" className="relative">
                             <ShoppingCart className="h-6 w-6 text-blue-600" />
@@ -144,8 +86,8 @@ const Header = () => {
                             <SheetContent className="bg-white">
                                 <nav className="flex flex-col space-y-4">
                                     <Link href="/" className="text-lg font-semibold text-blue-600">Home</Link>
-                                    <Button className="w-full bg-blue-600 text-white hover:bg-blue-700">Sign Up</Button>
-                                    <Button className="w-full bg-white text-blue-600 border border-blue-600 hover:bg-blue-50">Login</Button>
+                                    <Button className="w-full bg-blue-600 text-white hover:bg-blue-700"><Link href="/login">Sign In</Link></Button>
+                                    <Button className="w-full bg-white text-blue-600 border border-blue-600 hover:bg-blue-50"><Link href="/register">Sign Up</Link></Button>
                                 </nav>
                             </SheetContent>
                         </Sheet>
