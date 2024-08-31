@@ -39,11 +39,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }),
           })
           const data = await response.json()
-          console.log(data)
-
-          // const useCookies = cookies()
-          // useCookies.set('Sid', data.accessToken)
-          // console.log(response)
           if (!response.ok) {
             return {
               error: data.error,
@@ -124,7 +119,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const useCookies = cookies()
       useCookies.set('Sid', user.accessToken)
 
-      return '/'
+      return true
     },
     async jwt({ token, user }) {
       if (user) {
@@ -139,7 +134,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token
     },
     async session({ token, session }) {
-      console.log(session)
       if (token.email) session.user.email = token.email
       if (token.role) session.user.role = token.role
       if (token.accessToken) session.user.accessToken = token.accessToken

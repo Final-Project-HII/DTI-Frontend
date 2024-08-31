@@ -70,7 +70,7 @@ const LoginForm = () => {
     try {
       setCookie('auth_action', "login")
       const result = await signIn("google", {
-        state: "login"
+        callbackUrl: '/'
       });
       console.log(result)
     } catch (error) {
@@ -85,6 +85,7 @@ const LoginForm = () => {
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
+        callbackUrl: '/'
       });
     } catch (error) {
       console.error("An unexpected error occurred:", error);
