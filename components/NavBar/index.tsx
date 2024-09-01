@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+
 import {
   LayoutGrid,
   Search,
@@ -26,9 +28,12 @@ import SearchSheet from "../SearchSheet";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import SignOutButton from "../SignOutBtn";
+import { useCart } from "@/app/hooks/useCart";
 
 const NavBar = () => {
-  const itemCount = 5;
+  const { data: session } = useSession();
+  const { getCartItemCount } = useCart();
+  const [itemCount, setItemCount] = useState(0);
   const categories = [
     "Electronics",
     "Clothing",
@@ -42,6 +47,14 @@ const NavBar = () => {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const [isFocused, setIsFocused] = useState(false);
+
+  useEffect(() => {
+    if (session) {
+      setItemCount(getCartItemCount());
+    } else {
+      setItemCount(0);
+    }
+  }, [session, getCartItemCount]);
 
   const handleFocus = () => {
     setIsFocused(true);
@@ -151,27 +164,33 @@ const NavBar = () => {
               <Link href="/cartdetail">
                 <Button variant="ghost" size="icon" className="relative">
                   <ShoppingCart className="h-6 w-6 text-blue-600" />
-                  <Badge className="absolute -top-2 -right-2 bg-red-500">
-                    {itemCount}
-                  </Badge>
+                  {session && itemCount > 0 && (
+                    <Badge className="absolute -top-2 -right-2 bg-red-500">
+                      {itemCount}
+                    </Badge>
+                  )}
                 </Button>
               </Link>
               <div className="hidden lg:flex space-x-2">
-                <Link href="/register">
-                  {" "}
-                  <Button
-                    variant="outline"
-                    className="bg-white text-blue-600 hover:bg-blue-50"
-                  >
-                    Sign Up
-                  </Button>
-                </Link>
-                <Link href="/login">
-                  <Button className="bg-blue-600 text-white hover:bg-blue-700">
-                    Login
-                  </Button>
-                </Link>
-                <SignOutButton />
+                {!session ? (
+                  <>
+                    <Link href="/register">
+                      <Button
+                        variant="outline"
+                        className="bg-white text-blue-600 hover:bg-blue-50"
+                      >
+                        Sign Up
+                      </Button>
+                    </Link>
+                    <Link href="/login">
+                      <Button className="bg-blue-600 text-white hover:bg-blue-700">
+                        Login
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <SignOutButton />
+                )}
               </div>
             </div>
           </div>
@@ -191,7 +210,6 @@ const NavBar = () => {
               320: {
                 slidesPerView: 4,
               },
-
               768: {
                 slidesPerView: 6,
               },
