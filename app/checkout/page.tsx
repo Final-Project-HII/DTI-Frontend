@@ -18,6 +18,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import NavBar from "@/components/NavBar";
+import Link from "next/link";
 
 const CheckoutPage: React.FC = () => {
   const { data: session } = useSession();
@@ -115,7 +116,9 @@ const CheckoutPage: React.FC = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full">Pilih Pembayaran</Button>
+                  <Link href="/payment">
+                    <Button className="w-full">Pilih Pembayaran</Button>
+                  </Link>
                 </CardFooter>
               </Card>
             </div>
