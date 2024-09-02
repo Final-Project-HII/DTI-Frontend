@@ -67,7 +67,9 @@ const RegisterForm = () => {
   const handleGoogleSignUp = async () => {
     try {
       setCookie('auth_action', "register")
-      await signIn('google');
+      await signIn('google', {
+        callbackUrl: '/'
+      });
     } catch (error) {
       throw error
     }
@@ -89,7 +91,7 @@ const RegisterForm = () => {
     }
   }
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center pt-10 pb-20">
       <div className="w-4/5 max-w-[400px] bg-white p-6 rounded-lg shadow-md lg:w-full">
         <div className="flex justify-between items-center">
           <h1 className='text-2xl font-bold mb-4'>Register</h1>
