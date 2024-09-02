@@ -135,16 +135,16 @@ const NavBar = () => {
         <div className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${openHamburgerMenu ? "translate-y-full h-screen" : "translate-y-0 overflow-hidden"}`}>
           {data?.user.role == 'USER' ? (
             <>
-              <div className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100">
+              <div className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 hover:bg-blue-600 group">
                 <div className="flex gap-4 items-center">
                   <Image src={avatar} width={25} height={25} className='rounded-full object-fit h-7 w-7' alt='' />
-                  <h3 className='font-semibold text-sm text-black'>Hai, Hendry Tjahaja Surijanto Putra</h3>
+                  <h3 className='font-semibold text-sm text-black group-hover:text-white'>Hai, Hendry Tjahaja Surijanto Putra</h3>
                 </div>
-                <FaEdit width={20} height={20} className='text-black' />
+                <FaEdit width={20} height={20} className='text-black group-hover:text-white' />
               </div>
-              <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100">
+              <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group">
                 <LogOutIcon width={25} height={25} className='text-red-600' />
-                <h3 className='text-sm text-black'>Logout</h3>
+                <h3 className='text-sm text-black group-hover:text-white'>Logout</h3>
               </div>
             </>
           ) : (

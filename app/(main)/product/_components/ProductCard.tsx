@@ -41,22 +41,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <Card className="flex flex-col h-full bg-white hover:scale-105 ease-in-out duration-300">
             <Link href={`/product/${product.id}_${product.name.replace(/\s+/g, '-').toLowerCase()}`} passHref>
                 <CardHeader className="relative p-0 mb-4">
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> bd89223185d91a3c0551cfd66454a99bdce88de1
                     <Image
                         width={200}
                         height={200}
                         src={product.productImages[0]?.imageUrl || '/placeholder.jpg'}
-=======
-                    <img
-                        src={product.productImages[0]?.imageUrl || '/header.svg'}
->>>>>>> 74689e7eed19bd30dcb10a5a1a6c46446c53c966
-=======
-                    <img
-                        src={product.productImages[0]?.imageUrl || '/header.svg'}
->>>>>>> 74689e7eed19bd30dcb10a5a1a6c46446c53c966
+
                         alt={product.name}
                         className="w-full h-[150px] lg:h-[200px] object-fit rounded-md"
                     />
@@ -72,15 +61,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 <p className="text-xs">Category: {product.categoryName}</p>
             </CardContent>
             <CardFooter className="px-4 pb-4 mt-auto">
-<<<<<<< HEAD
-<Button className="w-full border-2 border-blue-600 text-blue-600 bg-white hover:bg-blue-600 hover:text-white"> + Add to Cart</Button>
-=======
-<<<<<<< HEAD
                 <Button className="w-full border-2 border-blue-600 text-blue-600 bg-white hover:bg-blue-600 hover:text-white"> + Add to Cart</Button>
-=======
-                <Button className="w-full border border-blue-600 text-blue-600 bg-transparent hover:bg-transparent">+ Add to Cart</Button>
->>>>>>> 74689e7eed19bd30dcb10a5a1a6c46446c53c966
->>>>>>> bd89223185d91a3c0551cfd66454a99bdce88de1
             </CardFooter >
         </Card >
     );
