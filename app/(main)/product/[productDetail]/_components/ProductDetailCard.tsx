@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Minus, Plus } from 'lucide-react';
 import { ProductDetailSkeleton } from './ProductDetailSkeleton';
 import { ImageWithLoading } from "./ImageWithLoading";
+import YouMayLike from "@/app/(main)/product/[productDetail]/_components/YouMayLike";
 
 interface ProductImage {
     id: number;
@@ -64,7 +65,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     }
 
     return (
-        <div className="w-full lg:py-32 p-4 pt-24 md:pt-24 lg:p-16 bg-gray-50">
+        <div className="w-full lg:pt-32 p-4 pt-24 md:pt-24 lg:p-16 bg-gray-50">
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-8">
                 <div className="space-y-4">
                     <Card className="w-full bg-white overflow-hidden p-2">
@@ -178,6 +179,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                         </CardContent>
                     </Card>
                 </div>
+            </div>
+            <div className='mt-6'>
+                <YouMayLike category={product.categoryName} />
+                <YouMayLike />
             </div>
         </div>
     );
