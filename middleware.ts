@@ -10,7 +10,7 @@ export default auth((req: any) => {
   const path = reqUrl.pathname;
 
   console.log(req.auth?.user);
-  console.log("ini auth", req.auth);
+  // console.log("ini auth", req.auth);
   const publicRoutes = [
     "/login",
     "/register",

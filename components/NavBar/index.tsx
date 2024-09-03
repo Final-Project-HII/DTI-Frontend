@@ -1,8 +1,19 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import avatar from "@/public/promo1.jpg";
+import { useMediaQuery } from "@uidotdev/usehooks";
+import Image from "next/image";
 import Link from "next/link";
+import { FaEdit } from "react-icons/fa";
+import { IoIosListBox } from "react-icons/io";
+import "swiper/css";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import CategoryDropdown from "./_components/CategoryDropdown";
+import CategorySwiper from "./_components/CategorySwiper";
+import SearchInput from "./_components/SearchInput";
+import SearchSheet from "./_components/SearchSheet";
 import { useSession } from "next-auth/react";
-
+import React, { useEffect, useState } from "react";
 import {
   LayoutGrid,
   Search,
@@ -17,14 +28,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "../ui/sheet";
-import { Badge } from "../ui/badge";
-import { IoIosListBox } from "react-icons/io";
+
 import { FaSearch, FaTimes } from "react-icons/fa";
-import { useMediaQuery } from "@uidotdev/usehooks";
-import SearchSheet from "../SearchSheet";
+
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import SignOutButton from "../SignOutBtn";
@@ -32,8 +40,6 @@ import { useCart } from "@/app/hooks/useCart";
 
 const NavBar = () => {
   const { data: session } = useSession();
-  const { getCartItemCount } = useCart();
-  const [itemCount, setItemCount] = useState(0);
   const categories = [
     "Electronics",
     "Clothing",
@@ -45,8 +51,13 @@ const NavBar = () => {
     "Home & Garden",
   ];
   const [open, setOpen] = useState(false);
-  const isDesktop = useMediaQuery("(min-width: 1024px)");
   const [isFocused, setIsFocused] = useState(false);
+  const [openHamburgerMenu, setOpenHamburgerMenu] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [openDropdownMenu, setOpenDropdownMenu] = useState(false);
+  const { getCartItemCount } = useCart();
+  const [itemCount, setItemCount] = useState(0);
+  const { data } = useSession();
 
   useEffect(() => {
     if (session) {
@@ -65,14 +76,32 @@ const NavBar = () => {
   };
 
   const toggleMenu = () => {
-    setOpen(!open);
+    setOpenHamburgerMenu((prev) => !prev);
+  };
+
+  const handleToggleDropdown = () => {
+    setOpenDropdownMenu((prev) => !prev);
   };
 
   useEffect(() => {
-    if (isDesktop && open) {
-      setOpen(false);
+    const checkIsDesktop = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+
+    checkIsDesktop();
+    window.addEventListener("resize", checkIsDesktop);
+
+    return () => window.removeEventListener("resize", checkIsDesktop);
+  }, []);
+
+  useEffect(() => {
+    if (isDesktop && openHamburgerMenu) {
+      setOpenHamburgerMenu(false);
     }
-  }, [isDesktop, open]);
+    if (!isDesktop && openDropdownMenu) {
+      setOpenDropdownMenu(false);
+    }
+  }, [isDesktop, openHamburgerMenu]);
 
   return (
     <header className="fixed top-0 w-full z-50 text-white bg-no-repeat bg-cover">
@@ -133,7 +162,6 @@ const NavBar = () => {
                 </DropdownMenu>
               </div>
             </div>
-
             <div className="flex-grow mx-1 lg:mx-4 max-w-xl hidden lg:block">
               <div className="relative">
                 <Input
@@ -210,6 +238,7 @@ const NavBar = () => {
               320: {
                 slidesPerView: 4,
               },
+
               768: {
                 slidesPerView: 6,
               },
