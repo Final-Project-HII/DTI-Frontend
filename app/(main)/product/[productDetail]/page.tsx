@@ -27,6 +27,7 @@ export interface ProductDataResponse {
     weight: number;
     categoryId: number;
     categoryName: string;
+    totalStock: number;
     productImages: {
         id: number;
         productId: number;
