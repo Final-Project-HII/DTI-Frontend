@@ -16,7 +16,9 @@ const page = () => {
       <div className="pt-20">
         <Carousel />
         <CategoryList />
-        <ProductList />
+        <ProductList category="Food" />
+        <ProductList category="Drink" />
+        <ProductList category="Fresh" />
         <ReasonToShop />
         <DownloadApp />
         <Footer />

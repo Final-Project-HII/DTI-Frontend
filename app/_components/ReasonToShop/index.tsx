@@ -9,7 +9,7 @@ import payment_directly from '@/public/payment_store.webp.png'
 
 const ReasonToShop = () => {
   return (
-    <div className=' px-5 py-10 bg-white text-center flex flex-col gap-6 lg:px-64'>
+    <div className=' px-5 py-10 bg-white text-center flex flex-col gap-6 lg:px-64 mt-3'>
       <h1 className='text-2xl font-semibold'>Why Shop at Hii Mart?</h1>
       <div className="grid grid-cols-2 gap-4 justify-center items-center lg:grid-cols-5">
         <div className="flex flex-col gap-2 items-center ">
