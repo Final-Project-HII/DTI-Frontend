@@ -445,7 +445,7 @@ export default function ProductSearchPage() {
                 </Alert>
             )}
 
-            <Table>
+            <Table className='bg-white p-4 rounded-md'>
                 <TableHeader>
                     <TableRow>
                         <TableHead>No</TableHead>

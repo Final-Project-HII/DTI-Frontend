@@ -59,7 +59,7 @@ const AdminLeftNavbar: React.FC = () => {
     const pathname = usePathname();
 
     return (
-        <div className=" w-64 min-h-screen flex flex-col bg-gradient-to-b from-yellow-300 to-yellow-400 text-blue-900 relative overflow-hidden">
+        <div className=" w-64 min-h-screen flex flex-col bg-gradient-to-b from-gray-300 to-gray-400 text-blue-900 relative overflow-hidden">
             {/* Decorative shapes */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500 rounded-full opacity-10 transform translate-x-16 -translate-y-16"></div>
             <div className="absolute bottom-0 left-0 w-40 h-40 bg-blue-600 rounded-full opacity-10 transform -translate-x-20 translate-y-20"></div>

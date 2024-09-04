@@ -68,8 +68,10 @@ const Header = () => {
 
                     <div className="flex items-center lg:space-x-4 space-x-1">
                         <div className="hidden lg:flex space-x-2">
-                            <Button variant="outline" className="bg-white text-blue-600 hover:bg-blue-50">Sign Up</Button>
-                            <Button className="bg-blue-600 text-white hover:bg-blue-700">Login</Button>
+                            <Button variant="outline" className="bg-white text-blue-600 hover:bg-blue-50">
+                                <Link href="/login">Sign In</Link>
+                            </Button>
+                            <Button className="bg-blue-600 text-white hover:bg-blue-700"><Link href="/register">Sign Up</Link></Button>
                         </div>
                         <Button variant="ghost" size="icon" className="relative">
                             <ShoppingCart className="h-6 w-6 text-blue-600" />
@@ -84,8 +86,8 @@ const Header = () => {
                             <SheetContent className="bg-white">
                                 <nav className="flex flex-col space-y-4">
                                     <Link href="/" className="text-lg font-semibold text-blue-600">Home</Link>
-                                    <Button className="w-full bg-blue-600 text-white hover:bg-blue-700">Sign Up</Button>
-                                    <Button className="w-full bg-white text-blue-600 border border-blue-600 hover:bg-blue-50">Login</Button>
+                                    <Button className="w-full bg-blue-600 text-white hover:bg-blue-700"><Link href="/login">Sign In</Link></Button>
+                                    <Button className="w-full bg-white text-blue-600 border border-blue-600 hover:bg-blue-50"><Link href="/register">Sign Up</Link></Button>
                                 </nav>
                             </SheetContent>
                         </Sheet>
