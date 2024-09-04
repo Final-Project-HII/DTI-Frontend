@@ -72,7 +72,7 @@ body {
   margin: 0;
   padding: 0;
   background-color: #eeeeee;
-} 
+}
 
 .swiper-pagination-bullet {
   border: 1.8px solid #0079c2;
@@ -84,4 +84,10 @@ body {
 
 .swiper-pagination-bullet-active {
   background-color: #0079c2 !important;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1; /* optional, to maintain the background color */
 }
