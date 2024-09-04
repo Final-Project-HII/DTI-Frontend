@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useCart } from "../hooks/useCart";
+import { useCart } from "../../hooks/useCart";
 import { useSession } from "next-auth/react";
 
 import {

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { useCart } from "@/app/hooks/useCart";
+import { useCart } from "@/hooks/useCart";
 
 interface ProductCardProps {
   product: Product;

@@ -1,13 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import { CartItem } from "../types";
+import { CartItem } from "../app/types";
 import { useSession } from "next-auth/react";
 import {
   fetchCartItems,
   addToCartApi,
   updateCartItemQuantityApi,
   removeCartItemApi,
-} from "../../utils/api";
+} from "../utils/api";
 
 export const useCart = () => {
   const { data: session, status } = useSession();
@@ -42,7 +42,11 @@ export const useCart = () => {
     }
 
     try {
-      const newItem = await addToCartApi(session.user.accessToken, productId, quantity);
+      const newItem = await addToCartApi(
+        session.user.accessToken,
+        productId,
+        quantity
+      );
       setCartItems((prevItems) => {
         const existingItemIndex = prevItems.findIndex(
           (item) => item.productId === productId
@@ -67,7 +71,11 @@ export const useCart = () => {
     }
 
     try {
-      await updateCartItemQuantityApi(session.user.accessToken, productId, newQuantity);
+      await updateCartItemQuantityApi(
+        session.user.accessToken,
+        productId,
+        newQuantity
+      );
       setCartItems((prevItems) =>
         prevItems.map((item) =>
           item.productId === productId

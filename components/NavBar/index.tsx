@@ -36,7 +36,7 @@ import { FaSearch, FaTimes } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import SignOutButton from "../SignOutBtn";
-import { useCart } from "@/app/hooks/useCart";
+import { useCart } from "@/hooks/useCart";
 
 const NavBar = () => {
   const { data: session } = useSession();

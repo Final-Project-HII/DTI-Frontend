@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Minus, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCart } from "@/app/hooks/useCart";
+import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/components/ui/use-toast";
 
 interface ProductImage {
