@@ -45,7 +45,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         width={200}
                         height={200}
                         src={product.productImages[0]?.imageUrl || '/placeholder.jpg'}
-
                         alt={product.name}
                         className="w-full h-[150px] lg:h-[200px] object-fit rounded-md"
                     />
@@ -57,8 +56,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <CardContent className="px-4 pb-4 flex-grow mb-0">
                 <CardTitle className="mb-2 text-md">{product.name}</CardTitle>
                 <p className="font-bold text-orange-500 my-2 text-base">Rp {product.price.toLocaleString()}</p>
-                <p className="text-xs ">Weight: {product.weight}g</p>
-                <p className="text-xs">Category: {product.categoryName}</p>
+                {/* <p className="text-xs ">Weight: {product.weight}g</p>
+                <p className="text-xs">Category: {product.categoryName}</p> */}
             </CardContent>
             <CardFooter className="px-4 pb-4 mt-auto">
                 <Button className="w-full border-2 border-blue-600 text-blue-600 bg-white hover:bg-blue-600 hover:text-white"> + Add to Cart</Button>
