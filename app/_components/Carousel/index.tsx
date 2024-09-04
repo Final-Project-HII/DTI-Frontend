@@ -50,8 +50,8 @@ const Carousel = () => {
           modules={[Pagination, Navigation, Autoplay]}
           className="relative"
         >
-          {promoBanner.map((banner) => (
-            <SwiperSlide>
+          {promoBanner.map((banner, index) => (
+            <SwiperSlide key={index}>
               <Image src={banner.img} alt='banner'
                 className='h-full w-full rounded-xl'
               />
