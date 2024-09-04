@@ -21,6 +21,7 @@ import {
   Menu,
   ChevronDown,
   ArrowLeft,
+  LogOutIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -67,13 +68,6 @@ const NavBar = () => {
     }
   }, [session, getCartItemCount]);
 
-  const handleFocus = () => {
-    setIsFocused(true);
-  };
-
-  const handleBlur = () => {
-    setIsFocused(false);
-  };
 
   const toggleMenu = () => {
     setOpenHamburgerMenu((prev) => !prev);
@@ -106,9 +100,8 @@ const NavBar = () => {
   return (
     <header className="fixed top-0 w-full z-50 text-white bg-no-repeat bg-cover">
       <div className="relative">
-        {/* Main navbar content */}
         <div
-          className="relative z-20 text-white bg-no-repeat bg-cover py-4"
+          className="relative z-40 text-white bg-no-repeat bg-cover py-4"
           style={{ backgroundImage: 'url("/header.svg")' }}
         >
           <div className="flex px-4 items-center justify-between lg:px-10">
@@ -136,51 +129,17 @@ const NavBar = () => {
               <div className="hidden lg:block lg:text-2xl font-bold text-blue-600 italic">
                 <Link href="/">Click</Link>
               </div>
-              <img src="/hiimart v6.png" alt="HiiMart Logo" className="w-24 h-auto hidden lg:block" />
+              <img
+                src="/hiimart v6.png"
+                alt="HiiMart Logo"
+                className="w-24 h-auto hidden lg:block"
+              />
               <div className="hidden lg:block">
                 <CategoryDropdown />
               </div>
-              <div className="hidden lg:block">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="text-blue-600">
-                      <LayoutGrid className="mr-2 h-5 w-5" />
-                      Category
-                      <ChevronDown className="ml-2 h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-white">
-                    {categories.map((category, index) => (
-                      <DropdownMenuItem key={index}>
-                        <Link href={`/category/${category.toLowerCase()}`}>
-                          {category}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
             </div>
             <div className="flex-grow mx-1 lg:mx-4 max-w-xl hidden lg:block">
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="Search products..."
-                  className="w-full pl-3 pr-16 py-2 rounded-md text-black"
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                />
-                <Button
-                  size="sm"
-                  className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-yellow-300 hover:bg-yellow-400 rounded-lg p-1 px-3 mx-2"
-                >
-                  {isFocused ? (
-                    <FaTimes className="h-5 w-5 text-blue-600" />
-                  ) : (
-                    <Search className="h-5 w-5 text-blue-600" />
-                  )}
-                </Button>
-              </div>
+              <SearchInput />
             </div>
 
             <div className="flex items-center lg:space-x-4 space-x-1">
@@ -198,27 +157,72 @@ const NavBar = () => {
                   )}
                 </Button>
               </Link>
-              <div className="hidden lg:flex space-x-2">
-                {!session ? (
-                  <>
-                    <Link href="/register">
-                      <Button
-                        variant="outline"
-                        className="bg-white text-blue-600 hover:bg-blue-50"
-                      >
-                        Sign Up
-                      </Button>
-                    </Link>
-                    <Link href="/login">
-                      <Button className="bg-blue-600 text-white hover:bg-blue-700">
-                        Login
-                      </Button>
-                    </Link>
-                  </>
-                ) : (
-                  <SignOutButton />
-                )}
-              </div>
+
+              {data?.user.role == "USER" ? (
+                <div className=" items-center w-32 relative hidden lg:flex">
+                  <div
+                    className="flex items-center hover:bg-gray-50 hover:bg-opacity-40 gap-2 px-1 py-[2px]"
+                    onClick={handleToggleDropdown}
+                  >
+                    <Image
+                      src={avatar}
+                      width={25}
+                      height={25}
+                      className="rounded-full object-fit h-7 w-7"
+                      alt=""
+                    />
+                    <h3 className="font-semibold text-sm text-black line-clamp-1">
+                      Hendry Tjahaja Surijanto Putra
+                    </h3>
+                    <ChevronDown
+                      height={40}
+                      width={40}
+                      className="text-black"
+                    />
+                  </div>
+                  {openDropdownMenu && (
+                    <div className="absolute bottom-0 w-60  translate-y-full -left-full bg-white rounded-xl  ">
+                      <div className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 group hover:bg-blue-600">
+                        <div className="flex gap-4 items-center">
+                          <h3 className="font-semibold text-xs text-black line-clamp-1 group-hover:text-white">
+                            Hai, Hendry Tjahaja Surijanto Putra
+                          </h3>
+                        </div>
+                        <FaEdit
+                          width={20}
+                          height={20}
+                          className="text-blue-600 group-hover:text-white"
+                        />
+                      </div>
+                      <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group">
+                        <LogOutIcon
+                          width={16}
+                          height={16}
+                          className="text-red-600"
+                        />
+                        <SignOutButton />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="hidden lg:flex space-x-2">
+                  <Link href="/register">
+                    {" "}
+                    <Button
+                      variant="outline"
+                      className="bg-white text-blue-600 hover:bg-blue-50"
+                    >
+                      Sign Up
+                    </Button>
+                  </Link>
+                  <Link href="/login">
+                    <Button className="bg-blue-600 text-white hover:bg-blue-700">
+                      Login
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -228,27 +232,58 @@ const NavBar = () => {
                          ${isDesktop ? "-translate-y-full" : "-translate-y-0"}
                          ${isDesktop ? "z-10" : "z-30"}`}
         >
-          <Swiper
-            spaceBetween={10}
-            slidesPerView={6}
-            freeMode={true}
-            grabCursor={true}
-            breakpoints={{
-              320: {
-                slidesPerView: 4,
-              },
-
-              768: {
-                slidesPerView: 6,
-              },
-            }}
-          >
-            {categories.map((category, index) => (
-              <SwiperSlide key={index} className="w-auto">
-                <h2 className="text-black">{category}</h2>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <CategorySwiper />
+        </div>
+        <div
+          className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${
+            openHamburgerMenu
+              ? "translate-y-full h-screen"
+              : "translate-y-0 overflow-hidden"
+          }`}
+        >
+          {data?.user.role == "USER" ? (
+            <>
+              <div className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 hover:bg-blue-600 group">
+                <div className="flex gap-4 items-center">
+                  <Image
+                    src={avatar}
+                    width={25}
+                    height={25}
+                    className="rounded-full object-fit h-7 w-7"
+                    alt=""
+                  />
+                  <h3 className="font-semibold text-sm text-black group-hover:text-white">
+                    Hai, Hendry Tjahaja Surijanto Putra
+                  </h3>
+                </div>
+                <FaEdit
+                  width={20}
+                  height={20}
+                  className="text-black group-hover:text-white"
+                />
+              </div>
+              <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group">
+                <LogOutIcon width={25} height={25} className="text-red-600" />
+                <SignOutButton />
+              </div>
+            </>
+          ) : (
+            <>
+              <Link href="/login" onClick={() => setOpenHamburgerMenu(false)}>
+                <h1 className="text-blue-600 border-b-2 border-gray-100 px-5 py-4 hover:text-white hover:bg-blue-600">
+                  Login
+                </h1>
+              </Link>
+              <Link
+                href="/register"
+                onClick={() => setOpenHamburgerMenu(false)}
+              >
+                <h1 className="text-blue-600 border-b-2 border-gray-100 px-5 py-4  hover:text-white hover:bg-blue-600">
+                  Register
+                </h1>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>
