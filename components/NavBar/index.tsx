@@ -136,11 +136,10 @@ const NavBar = () => {
               <div className="hidden lg:block lg:text-2xl font-bold text-blue-600 italic">
                 <Link href="/">Click</Link>
               </div>
-              <img
-                src="/hiimart v6.png"
-                alt="HiiMart Logo"
-                className="w-24 h-auto hidden lg:block"
-              />
+              <img src="/hiimart v6.png" alt="HiiMart Logo" className="w-24 h-auto hidden lg:block" />
+              <div className="hidden lg:block">
+                <CategoryDropdown />
+              </div>
               <div className="hidden lg:block">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
