@@ -22,7 +22,7 @@ import {
   useReactTable
 } from "@tanstack/react-table"
 import { PlusIcon } from "lucide-react"
-import React from 'react'
+import React, { useState } from 'react'
 import { FaSearch } from 'react-icons/fa'
 import AddWarehouseForm from "../../AddWarehoseForm"
 import CityComboBox from "./components/CityComboBox"
@@ -37,11 +37,11 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   )
-  const [selectedCity, setSelectedCity] = React.useState<string | undefined>(undefined)
+  const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined)
   const table = useReactTable({
     data,
     columns,
@@ -68,7 +68,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4  justify-between mb-5">
+      <div className="flex items-center py-4 gap-4 justify-between mb-5 flex-col lg:flex-row">
         <div className="flex gap-3 items-end">
           <h1 className="text-2xl font-bold">Warehouse List</h1>
         </div>
