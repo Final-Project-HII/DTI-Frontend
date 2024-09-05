@@ -42,6 +42,7 @@ export function DataTable<TData, TValue>({
     []
   )
   const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined)
+
   const table = useReactTable({
     data,
     columns,

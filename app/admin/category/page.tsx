@@ -111,7 +111,7 @@ export default function CategoryManagementPage() {
                 </Alert>
             )}
 
-            <Table className="w-full">
+            <Table className="w-full className='bg-white p-4 rounded-md'">
                 <TableHeader>
                     <TableRow >
                         <TableHead>ID</TableHead>

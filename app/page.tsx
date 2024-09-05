@@ -12,14 +12,19 @@ import NavBar from '@/components/NavBar';
 
 const page = () => {
   return (
-    <main className='pt-28'>
-      <Carousel />
-      <CategoryList />
-      <ProductList />
-      <ReasonToShop />
-      <DownloadApp />
-      <Footer />
-    </main>
+    <>
+      <Header />
+      <div className="pt-20">
+        <Carousel />
+        <CategoryList />
+        <ProductList category="Food" />
+        <ProductList category="Drink" />
+        <ProductList category="Fresh" />
+        <ReasonToShop />
+        <DownloadApp />
+        <Footer />
+      </div>
+    </>
   );
 }
 

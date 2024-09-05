@@ -27,6 +27,7 @@ export interface ProductDataResponse {
     weight: number;
     categoryId: number;
     categoryName: string;
+    totalStock: number;
     productImages: {
         id: number;
         productId: number;
@@ -63,4 +64,5 @@ export default function ProductPage({ params }: { params: { productDetail: strin
     if (!product) return <div>No product found</div>;
 
     return <ProductDetail product={product} />;
+
 }
