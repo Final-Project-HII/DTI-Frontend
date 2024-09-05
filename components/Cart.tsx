@@ -1,4 +1,4 @@
-import { CartItem } from "@/app/types";
+import { CartItem } from "@/types/cartitem";
 import React from "react";
 
 interface CartProps {

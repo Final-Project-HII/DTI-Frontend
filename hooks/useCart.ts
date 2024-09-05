@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { CartItem } from "../app/types";
+
 import { useSession } from "next-auth/react";
 import {
   fetchCartItems,
@@ -8,6 +8,7 @@ import {
   updateCartItemQuantityApi,
   removeCartItemApi,
 } from "../utils/api";
+import { CartItem } from "@/types/cartitem";
 
 export const useCart = () => {
   const { data: session, status } = useSession();

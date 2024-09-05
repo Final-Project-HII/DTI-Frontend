@@ -9,7 +9,7 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token'); // Or however you store your token
+  const token = localStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -17,13 +17,13 @@ axiosInstance.interceptors.request.use((config) => {
 });
 
 export const fetchProducts = async () => {
-  const response = await axiosInstance.get("/products");
+  const response = await axiosInstance.get("/product");
   return response.data;
 };
 
 export const fetchCartItems = async (token: string) => {
   const response = await axiosInstance.get("/carts", {
-    headers: { Authorization: `Bearer ${token}` }
+    headers: { Authorization: `Bearer ${token}` },
   });
   return response.data.items;
 };
@@ -33,12 +33,16 @@ export const addToCartApi = async (
   productId: number,
   quantity: number
 ) => {
-  const response = await axiosInstance.post("/cart-items/add", {
-    productId,
-    quantity,
-  }, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await axiosInstance.post(
+    "/cart-items/add",
+    {
+      productId,
+      quantity,
+    },
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
   return response.data;
 };
 
@@ -57,7 +61,7 @@ export const updateCartItemQuantityApi = async (
 
 export const removeCartItemApi = async (token: string, productId: number) => {
   await axiosInstance.delete(`/cart-items/item/${productId}`, {
-    headers: { Authorization: `Bearer ${token}` }
+    headers: { Authorization: `Bearer ${token}` },
   });
 };
 
@@ -83,15 +87,11 @@ export const updateProduct = async (
   id: number,
   formData: FormData
 ): Promise<Product> => {
-  const response = await axiosInstance.put(
-    `/product/update/${id}`,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  );
+  const response = await axiosInstance.put(`/product/update/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };
 
