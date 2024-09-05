@@ -31,13 +31,13 @@ const DataTablePagination = <TData,>({ table }: PaginationProps<TData>) => {
   };
 
   return (
-    <div className="flex items-center justify-between px-2">
-      <div className="flex-1 text-sm text-muted-foreground">
+    <div className="flex items-center justify-between px-2 mt-5 lg:mt-0">
+      <div className="flex-1 text-sm text-muted-foreground hidden lg:block">
         Showing {table.getRowModel().rows.length} of {table.getCoreRowModel().rows.length} row(s).
       </div>
-      <div className="flex items-center space-x-6 lg:space-x-8">
-        <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
+      <div className="flex items-center space-x-12 lg:space-x-8">
+        <div className="flex items-center space-x-1">
+          <p className="font-medium text-xs lg:text-sm">Rows per page</p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
