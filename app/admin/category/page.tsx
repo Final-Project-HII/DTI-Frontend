@@ -1,29 +1,28 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Trash2, Edit, Plus } from 'lucide-react';
+import { AlertCircle, Trash2, Edit, Plus, Upload } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import Image from 'next/image';
 
 interface Category {
     id: number;
     name: string;
-    imageUrl: string;
+    categoryImage: string;
     products: number[];
     createdAt: string;
     updatedAt: string;
 }
-const categoryImages = [
-    "/api/placeholder/50/50?text=Food",
-    "/api/placeholder/50/50?text=Electronics",
-    "/api/placeholder/50/50?text=Clothing",
-    "/api/placeholder/50/50?text=Books",
-    "/api/placeholder/50/50?text=Toys",
-];
+
+interface CategoryRequestDto {
+    name: string;
+}
+
 
 const BASE_URL = 'http://localhost:8080';
 
@@ -31,8 +30,10 @@ export default function CategoryManagementPage() {
     const queryClient = useQueryClient();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [newCategoryName, setNewCategoryName] = useState('');
+    const [newCategory, setNewCategory] = useState<CategoryRequestDto>({ name: '' });
+    const [newCategoryImage, setNewCategoryImage] = useState<File | null>(null);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+    const [editingCategoryImage, setEditingCategoryImage] = useState<File | null>(null);
 
     const fetchCategories = async (): Promise<Category[]> => {
         const response = await axios.get<Category[]>(`${BASE_URL}/category`);
@@ -45,26 +46,46 @@ export default function CategoryManagementPage() {
     });
 
     const createCategoryMutation = useMutation({
-        mutationFn: async (name: string) => {
-            const response = await axios.post(`${BASE_URL}/category/create`, { name });
+        mutationFn: async ({ categoryData, image }: { categoryData: CategoryRequestDto; image: File | null }) => {
+            const formData = new FormData();
+            formData.append('categoriesData', JSON.stringify(categoryData));
+            if (image) {
+                formData.append('image', image);
+            }
+            const response = await axios.post(`${BASE_URL}/category/create`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             return response.data;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['categories'] });
             setIsAddModalOpen(false);
-            setNewCategoryName('');
+            setNewCategory({ name: '' });
+            setNewCategoryImage(null);
         },
     });
 
     const updateCategoryMutation = useMutation({
-        mutationFn: async ({ id, name }: { id: number; name: string }) => {
-            const response = await axios.put(`${BASE_URL}/category/update/${id}`, { name });
+        mutationFn: async ({ id, categoryData, image }: { id: number; categoryData: CategoryRequestDto; image: File | null }) => {
+            const formData = new FormData();
+            formData.append('categoriesData', JSON.stringify(categoryData));
+            if (image) {
+                formData.append('image', image);
+            }
+            const response = await axios.put(`${BASE_URL}/category/update/${id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             return response.data;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['categories'] });
             setIsEditModalOpen(false);
             setEditingCategory(null);
+            setEditingCategoryImage(null);
         },
     });
 
@@ -77,15 +98,22 @@ export default function CategoryManagementPage() {
         },
     });
 
+    const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>, setImage: React.Dispatch<React.SetStateAction<File | null>>) => {
+        if (e.target.files && e.target.files[0]) {
+            setImage(e.target.files[0]);
+        }
+    }, []);
+
     const handleAddCategory = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        createCategoryMutation.mutate(newCategoryName);
+        createCategoryMutation.mutate({ categoryData: newCategory, image: newCategoryImage });
     };
 
     const handleUpdateCategory = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (editingCategory) {
-            updateCategoryMutation.mutate({ id: editingCategory.id, name: editingCategory.name });
+            const categoryData: CategoryRequestDto = { name: editingCategory.name };
+            updateCategoryMutation.mutate({ id: editingCategory.id, categoryData, image: editingCategoryImage });
         }
     };
 
@@ -94,7 +122,6 @@ export default function CategoryManagementPage() {
             deleteCategoryMutation.mutate(id);
         }
     };
-
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-3xl font-bold mb-6">Category Management</h1>
@@ -111,9 +138,9 @@ export default function CategoryManagementPage() {
                 </Alert>
             )}
 
-            <Table className="w-full className='bg-white p-4 rounded-md'">
+            <Table className="w-full bg-white p-4 rounded-md">
                 <TableHeader>
-                    <TableRow >
+                    <TableRow>
                         <TableHead>ID</TableHead>
                         <TableHead className='text-center'>Category Image</TableHead>
                         <TableHead>Name</TableHead>
@@ -133,7 +160,15 @@ export default function CategoryManagementPage() {
                             <TableRow key={category.id}>
                                 <TableCell>{category.id}</TableCell>
                                 <TableCell className='flex justify-center'>
-                                    <img src='/header.svg' alt='category.name' className="w-12 h-12 object-cover rounded" />
+                                    <div className="bg-white flex items-center justify-center p-1 w-14 h-14 rounded-xl shadow-md">
+                                        <Image
+                                            src={category.categoryImage ? category.categoryImage.startsWith('http') ? category.categoryImage : `https://res.cloudinary.com/dcjjcs49e/image/upload/${category.categoryImage}` : "/food.png"}
+                                            alt={category.name}
+                                            width={48}
+                                            height={48}
+                                            className="object-contain"
+                                        />
+                                    </div>
                                 </TableCell>
                                 <TableCell>{category.name}</TableCell>
                                 <TableCell className='text-center'>{category.products.length}</TableCell>
@@ -158,7 +193,6 @@ export default function CategoryManagementPage() {
                 </TableBody>
             </Table>
 
-
             {/* Add Category Modal */}
             <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
                 <DialogContent className="sm:max-w-[425px] bg-white">
@@ -167,11 +201,30 @@ export default function CategoryManagementPage() {
                     </DialogHeader>
                     <form onSubmit={handleAddCategory} className="space-y-4">
                         <Input
-                            value={newCategoryName}
-                            onChange={(e) => setNewCategoryName(e.target.value)}
+                            value={newCategory.name}
+                            onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
                             placeholder="Category Name"
                             required
                         />
+                        <div className="flex items-center space-x-2">
+                            <Input
+                                type="file"
+                                onChange={(e) => handleFileChange(e, setNewCategoryImage)}
+                                accept="image/*"
+                            />
+                            <Upload className="h-4 w-4" />
+                        </div>
+                        {newCategoryImage && (
+                            <div className="mt-2">
+                                <Image
+                                    src={URL.createObjectURL(newCategoryImage)}
+                                    alt="New category preview"
+                                    width={100}
+                                    height={100}
+                                    className="object-contain"
+                                />
+                            </div>
+                        )}
                         <Button type="submit" disabled={createCategoryMutation.isPending} className="w-full bg-blue-600 text-white">
                             {createCategoryMutation.isPending ? 'Adding...' : 'Add Category'}
                         </Button>
@@ -193,6 +246,35 @@ export default function CategoryManagementPage() {
                                 placeholder="Category Name"
                                 required
                             />
+                            <div className="flex items-center space-x-2">
+                                <Input
+                                    type="file"
+                                    onChange={(e) => handleFileChange(e, setEditingCategoryImage)}
+                                    accept="image/*"
+                                />
+                                <Upload className="h-4 w-4" />
+                            </div>
+                            {editingCategoryImage ? (
+                                <div className="mt-2">
+                                    <Image
+                                        src={URL.createObjectURL(editingCategoryImage)}
+                                        alt="Editing category preview"
+                                        width={100}
+                                        height={100}
+                                        className="object-contain"
+                                    />
+                                </div>
+                            ) : editingCategory.categoryImage && (
+                                <div className="mt-2">
+                                    <Image
+                                        src={editingCategory.categoryImage.startsWith('http') ? editingCategory.categoryImage : `https://res.cloudinary.com/dcjjcs49e/image/upload/${editingCategory.categoryImage}`}
+                                        alt="Current category image"
+                                        width={100}
+                                        height={100}
+                                        className="object-contain"
+                                    />
+                                </div>
+                            )}
                             <Button type="submit" disabled={updateCategoryMutation.isPending} className="w-full bg-blue-600 text-white">
                                 {updateCategoryMutation.isPending ? 'Updating...' : 'Update Category'}
                             </Button>

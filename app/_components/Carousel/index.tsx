@@ -9,6 +9,7 @@ import promoBanner from '@/utils/PromoBanner';
 import Image from 'next/image';
 import { ArrowLeft, ArrowLeftCircle, ArrowRightCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import SkeletonCarousel from '@/components/SkeletonCarousel';
 
 
 
@@ -54,6 +55,7 @@ const Carousel = () => {
             <SwiperSlide key={index}>
               <Image src={banner.img} alt='banner'
                 className='h-full w-full rounded-xl'
+                placeholder='blur'
               />
             </SwiperSlide>
           ))}

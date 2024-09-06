@@ -48,7 +48,7 @@ const ProductCard: React.FC = () => {
         <p className="text-sm">Category: {product.categoryName}</p>
       </CardContent>
       <CardFooter>
-        <Button className="w-full border-2 border-blue-600 text-blue-600"> + Add to Cart</Button>
+        <Button className="w-full border-2 border-blue-600 text-blue-600 bg-white hover:bg-blue-600 hover:text-white"> + Add to Cart</Button>
       </CardFooter>
     </Card>
   );

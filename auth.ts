@@ -26,7 +26,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       authorize: async (credentialsPromise) => {
         try {
-          const credentials = (await await credentialsPromise) as {
+          const credentials = (await credentialsPromise) as {
             email: string
             password: string
           }
@@ -39,10 +39,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }),
           })
           const data = await response.json()
-
-          // const useCookies = cookies()
-          // useCookies.set('Sid', data.accessToken)
-          // console.log(response)
           if (!response.ok) {
             return {
               error: data.error,
@@ -123,16 +119,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const useCookies = cookies()
       useCookies.set('Sid', user.accessToken)
 
-      return '/'
-    },
-    async session({ token, session }) {
-      if (token.email) session.user.email = token.email
-      if (token.role) session.user.role = token.role
-      if (token.accessToken) session.user.accessToken = token.accessToken
-      return session
+      return true
     },
     async jwt({ token, user }) {
-      // console.log(token)
       if (user) {
         token.id = user.id
         if (user && user.email) {
@@ -143,6 +132,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.accessToken = user.accessToken
       }
       return token
+    },
+    async session({ token, session }) {
+      if (token.email) session.user.email = token.email
+      if (token.role) session.user.role = token.role
+      if (token.accessToken) session.user.accessToken = token.accessToken
+      return session
     },
   },
 

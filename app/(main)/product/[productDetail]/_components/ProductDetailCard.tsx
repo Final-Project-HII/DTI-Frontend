@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Minus, Plus } from 'lucide-react';
+import { Minus, Plus, ShoppingBag } from 'lucide-react';
 import { ProductDetailSkeleton } from './ProductDetailSkeleton';
 import { ImageWithLoading } from "./ImageWithLoading";
 import YouMayLike from "@/app/(main)/product/[productDetail]/_components/YouMayLike";
@@ -56,16 +56,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
         setQuantity(Math.min(product.totalStock, quantity + 1));
     };
 
-    const formatPrice = (price: number): string => {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(price);
-    };
-
     if (isLoading) {
         return <ProductDetailSkeleton />;
     }
 
     return (
-        <div className="w-full lg:pt-32 p-4 pt-24 md:pt-24 lg:p-16 bg-gray-50">
+        <div className="w-full lg:pt-32 p-4 pt-24 md:pt-24 lg:p-16 ">
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-8">
                 <div className="space-y-4">
                     <Card className="w-full bg-white overflow-hidden p-2">
@@ -107,15 +103,21 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                     <Card className="w-full bg-white">
                         <CardContent className="p-6">
                             <div className="space-y-6">
-                                <div className="flex justify-between items-start border-b pb-4">
-                                    <h1 className="text-xl md:text-2xl lg:text-2xl font-bold text-gray-800">{product.name}</h1>
+                                <div className=" border-b pb-2">
+                                    <h1 className="text-xl md:text-2xl lg:text-2xl font-bold text-gray-800 mb-4">{product.name}</h1>
+                                    <div className='flex items-center space-x-2'>
+                                        {/* <Badge variant="secondary" className="bg-yellow-100 text-orange-500 text-xs md:text-sm">14%</Badge>
+                                        <p className="text-sm md:text-base text-gray-500 line-through">
+                                            Rp {Math.round(product.price * 1.14).toLocaleString('id-ID')}
+                                        </p> */}
+                                        <div className="flex items-center text-xs text-blue-600 mb-2 bg-red-100 rounded-xl p-1 px-5">
+                                            <ShoppingBag className="w-5 h-5 mr-1" />
+                                            <span className='text-black'>Hiimart Store</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="space-y-1">
-                                    <div className='flex items-center space-x-2'>
-                                        <Badge variant="secondary" className="bg-yellow-100 text-orange-500 text-xs md:text-sm">14%</Badge>
-                                        <p className="text-sm md:text-base text-gray-500 line-through">{formatPrice(product.price * 1.14)}</p>
-                                    </div>
-                                    <p className="text-xl md:text-2xl lg:text-3xl font-bold text-orange-500">{formatPrice(product.price)}</p>
+                                    <p className="text-xl md:text-2xl lg:text-3xl font-bold text-orange-500">Rp {product.price.toLocaleString()}</p>
                                 </div>
                                 <div className='flex items-center justify-between flex-wrap gap-4'>
                                     <div className="flex items-center space-x-4">
