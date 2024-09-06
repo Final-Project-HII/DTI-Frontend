@@ -181,7 +181,7 @@ export default function ProductSearchPage() {
                     />
                 </aside>
                 <div className='w-full bg-white p-8 rounded-lg'>
-                    <h1 className="text-3xl font-bold mb-6">Product Search</h1>
+                    {/* <h1 className="text-3xl font-bold mb-6">Product Search</h1> */}
                     <SearchFilters
                         searchTerm={searchTerm}
                         categoryName={categoryName}

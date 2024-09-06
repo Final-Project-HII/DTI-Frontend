@@ -10,6 +10,7 @@ import 'swiper/css';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import axios from 'axios';
 // import { Product } from '@/types/product';
+import { useQuery } from '@tanstack/react-query';
 
 
 const BASE_URL = 'http://localhost:8080';
@@ -98,7 +99,9 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
         >
           {products?.map((product) => (
             <SwiperSlide key={product.id}>
-              <ProductCard key={product.id} product={product} />
+              <div className="h-full">
+                <ProductCard product={product} />
+              </div>
             </SwiperSlide>
           ))}
           <button

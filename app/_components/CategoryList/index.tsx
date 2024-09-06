@@ -15,7 +15,7 @@ const BASE_URL = 'http://localhost:8080';
 interface Category {
   id: number;
   name: string;
-  // imageUrl: string;
+  categoryImage: string;
 }
 const fetchCategories = async (): Promise<Category[]> => {
   const response = await axios.get<Category[]>(`${BASE_URL}/category`);
@@ -60,10 +60,16 @@ const CategoryList = () => {
                 {/* http://localhost:3000/product?page=0&categoryName=Milk */}
                 <Link href={`/product?page=0&categoryName=${category.name}`}>
                   <div className="bg-white items-center p-5 w-24 rounded-xl shadow-md">
-                    <Image src="/food.png" width={1000} height={1000} alt={category.name} className='w-96 size-14 h-full' />
+                    <Image
+                      src={category.categoryImage ? category.categoryImage.startsWith('http') ? category.categoryImage : `https://res.cloudinary.com/dcjjcs49e/image/upload/${category.categoryImage}` : "/food.png"}
+                      width={1000}
+                      height={1000}
+                      alt={category.name}
+                      className='w-96 size-14'
+                    />
                   </div>
                 </Link>
-                <h2>{category.name}</h2>
+                <h2 className="text-center">{category.name}</h2>
               </div>
             </SwiperSlide>
           ))}

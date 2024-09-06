@@ -15,6 +15,7 @@ import CategorySwiper from './_components/CategorySwiper';
 import SearchInput from './_components/SearchInput';
 import SearchSheet from './_components/SearchSheet';
 import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 
 const NavBar = () => {
   const itemCount = 5;
@@ -22,6 +23,8 @@ const NavBar = () => {
   const [isDesktop, setIsDesktop] = useState(false);
   const [openDropdownMenu, setOpenDropdownMenu] = useState(false);
   const { data } = useSession();
+  const searchParams = useSearchParams();
+  const defaultSearchTerm = searchParams.get('search') || '';
 
 
   const toggleMenu = () => {
@@ -81,7 +84,7 @@ const NavBar = () => {
               </div>
             </div>
             <div className="flex-grow mx-1 lg:mx-4 max-w-xl hidden lg:block">
-              <SearchInput />
+              <SearchInput defaultSearchTerm={searchParams.get('search') || ''} />
             </div>
 
             <div className="flex items-center lg:space-x-4 space-x-1">
