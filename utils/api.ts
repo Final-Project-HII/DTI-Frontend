@@ -1,6 +1,7 @@
 import axios from "axios";
 import { ApiResponse, Product } from "@/types/product";
 import { Category } from "@/types/category";
+import { Order } from "@/types/order";
 
 const BASE_URL = "http://localhost:8080/api/";
 
@@ -121,4 +122,9 @@ export const updateCategory = async (
 
 export const deleteCategory = async (id: number): Promise<void> => {
   await axiosInstance.delete(`/category/delete/${id}`);
+};
+
+export const fetchOrders = async (): Promise<Order[]> => {
+  const response = await axiosInstance.get<Order[]>("/orders");
+  return response.data;
 };
