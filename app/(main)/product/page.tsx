@@ -1,24 +1,18 @@
 
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { useDebouncedCallback } from 'use-debounce';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from '@/components/ui/badge';
-import { ProductCard } from './_components/ProductCard';
-import { SkeletonCard } from './_components/SkeletonCard';
-import { SearchFilters } from './_components/SearchFilter';
-import { Pagination } from './_components/Pagination';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 import ProductFilter from './_components/NavFilter';
+import { Pagination } from './_components/Pagination';
+import { ProductCard } from './_components/ProductCard';
+import { SearchFilters } from './_components/SearchFilter';
+import { SkeletonCard } from './_components/SkeletonCard';
 
 interface ProductImage {
     id: number;
