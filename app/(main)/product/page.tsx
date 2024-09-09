@@ -195,9 +195,23 @@ export default function ProductSearchPage() {
     updateSearchParams({ search: value });
   };
 
+  const handleCategoryChange = (newCategory: string) =>
+    updateSearchParams({ categoryName: newCategory });
+  const handleSortChange = (newSortBy: string) => {
+    if (newSortBy === "related") {
+      updateSearchParams({ sortBy: newSortBy, sortDirection: undefined });
+    } else {
+      updateSearchParams({ sortBy: newSortBy });
+    }
+  };
+
+  const handleSortDirectionChange = (newDirection: string) =>
+    updateSearchParams({ sortDirection: newDirection });
+  const handlePageChange = (newPage: number) =>
+    updateSearchParams({ page: newPage.toString() });
 
     useEffect(() => {
-        // Prefetch next page
+
         if (data && currentPage + 1 < data.totalPages) {
             queryClient.prefetchQuery({
                 queryKey: ['products', (currentPage + 1).toString(), pageSize.toString(), categoryName, sortBy, sortDirection, searchTerm] as const,
@@ -266,7 +280,5 @@ export default function ProductSearchPage() {
             </div>
 
         </div>
-      </div>
-    </div>
   );
 }
