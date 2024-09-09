@@ -10,14 +10,19 @@ import ProductList from "./_components/ProductList";
 
 const page = () => {
   return (
-    <main className='pt-28'>
-      <Carousel />
-      <CategoryList />
-      <ProductList />
-      <ReasonToShop />
-      <DownloadApp />
-      <Footer />
-    </main>
+    <>
+      <div className="pt-20">
+        <NavBar />
+        <Carousel />
+        <CategoryList />
+        <ProductList category="Food" />
+        <ProductList category="Snack" />
+        <ProductList category="Drink" />
+        <ReasonToShop />
+        <DownloadApp />
+        <Footer />
+      </div>
+    </>
   );
 }
 

@@ -28,8 +28,24 @@ export interface ProductDataResponse {
   categoryName: string;
   productImages: {
     id: number;
+
     productId: number;
     imageUrl: string;
+    name: string;
+    description: string;
+    price: number;
+    weight: number;
+    categoryId: number;
+    categoryName: string;
+    totalStock: number;
+    productImages: {
+        id: number;
+        productId: number;
+        imageUrl: string;
+        createdAt: string;
+        updatedAt: string;
+    }[];
+
     createdAt: string;
     updatedAt: string;
   }[];
@@ -70,5 +86,8 @@ export default function ProductPage({
   if (isError) return <div>Error: {error.message}</div>;
   if (!product) return <div>No product found</div>;
 
-  return <ProductDetail product={product} />;
+
+    return <ProductDetail product={product} />;
+
 }
+

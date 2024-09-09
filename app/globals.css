@@ -85,3 +85,13 @@ body {
 .swiper-pagination-bullet-active {
   background-color: #0079c2 !important;
 }
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1; /* optional, to maintain the background color */
+}
+
+.select-trigger .icon {
+  display: none !important;
+}

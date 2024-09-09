@@ -1,6 +1,7 @@
 "use client";
 import avatar from "@/public/promo1.jpg";
 import { useMediaQuery } from "@uidotdev/usehooks";
+
 import Image from "next/image";
 import Link from "next/link";
 import { FaEdit } from "react-icons/fa";
@@ -38,6 +39,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import SignOutButton from "../SignOutBtn";
 import { useCart } from "@/hooks/useCart";
+import { useSearchParams } from 'next/navigation';
+
 
 const NavBar = () => {
   const { data: session } = useSession();
@@ -59,6 +62,8 @@ const NavBar = () => {
   const { getCartItemCount } = useCart();
   const [itemCount, setItemCount] = useState(0);
   const { data } = useSession();
+  const searchParams = useSearchParams();
+  const defaultSearchTerm = searchParams.get('search') || '';
 
   useEffect(() => {
     if (session) {
@@ -139,7 +144,7 @@ const NavBar = () => {
               </div>
             </div>
             <div className="flex-grow mx-1 lg:mx-4 max-w-xl hidden lg:block">
-              <SearchInput />
+              <SearchInput defaultSearchTerm={searchParams.get('search') || ''} />
             </div>
 
             <div className="flex items-center lg:space-x-4 space-x-1">

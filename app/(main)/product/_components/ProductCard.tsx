@@ -1,31 +1,30 @@
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import React from 'react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from '@/components/ui/badge';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { useCart } from "@/hooks/useCart";
+import { ShoppingBag } from "lucide-react";
+
 
 interface ProductCardProps {
   product: Product;
 }
 
 interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  weight: number;
-  categoryId: number;
-  categoryName: string;
-  productImages: ProductImage[];
-  createdAt: string;
-  updatedAt: string;
+
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    weight: number;
+    categoryId: number;
+    categoryName: string;
+    totalStock: number;
+    productImages: ProductImage[];
+    createdAt: string;
+    updatedAt: string;
+
 }
 
 interface ProductImage {
@@ -37,62 +36,41 @@ interface ProductImage {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addToCart } = useCart();
 
-  const handleAddToCart = async () => {
-    try {
-      await addToCart(product.id, 1);
-      alert("Product added to cart!");
-    } catch (error) {
-      console.error("Failed to add product to cart:", error);
-      alert("Failed to add product to cart.");
-    }
-  };
-
-  const truncateDescription = (description: string, maxLength: number) => {
-    if (description.length > maxLength) {
-      return description.slice(0, maxLength) + "...";
-    }
-    return description;
-  };
-
-  return (
-    <Card className="flex flex-col h-full bg-white hover:scale-105 ease-in-out duration-300">
-      <Link
-        href={`/product/${product.id}_${product.name
-          .replace(/\s+/g, "-")
-          .toLowerCase()}`}
-        passHref
-      >
-        <CardHeader className="relative p-0 mb-4">
-          <Image
-            width={200}
-            height={200}
-            src={product.productImages[0]?.imageUrl || "/placeholder.jpg"}
-            alt={product.name}
-            className="w-full h-[150px] lg:h-[200px] object-fit rounded-md"
-          />
-          <Badge className="absolute top-3 right-3 bg-white text-blue-600">
-            {product.categoryName}
-          </Badge>
-        </CardHeader>
-      </Link>
-      <CardContent className="px-4 pb-4 flex-grow mb-0">
-        <CardTitle className="mb-2 text-md">{product.name}</CardTitle>
-        <p className="font-bold text-orange-500 my-2 text-base">
-          Rp {product.price.toLocaleString()}
-        </p>
-        <p className="text-xs ">Weight: {product.weight}g</p>
-        <p className="text-xs">Category: {product.categoryName}</p>
-      </CardContent>
-      <CardFooter className="px-4 pb-4 mt-auto">
-        <Button
-          className="w-full border-2 border-blue-600 text-blue-600 bg-white hover:bg-blue-600 hover:text-white"
-          onClick={handleAddToCart}
-        >
-          + Add to Cart
-        </Button>
-      </CardFooter>
-    </Card>
-  );
+    return (
+        <Card className="flex flex-col h-full bg-white hover:shadow-lg transition-shadow duration-300">
+            <Link href={`/product/${product.id}_${product.name.replace(/\s+/g, '-').toLowerCase()}`} passHref>
+                <CardHeader className="relative p-0 h-48">
+                    <Image
+                        src={product.productImages[0]?.imageUrl || '/placeholder.jpg'}
+                        alt={product.name}
+                        layout="fill"
+                        objectFit="cover"
+                        className="rounded-t-lg"
+                    />
+                    <Badge className="absolute top-3 right-3 bg-white text-blue-600">
+                        {product.categoryName}
+                    </Badge>
+                </CardHeader>
+            </Link>
+            <CardContent className="flex-grow flex flex-col p-4">
+                <CardTitle className="text-md mb-2 line-clamp-2 h-12">{product.name}</CardTitle>
+                <div className="flex items-center text-xs text-blue-600 mb-2">
+                    <ShoppingBag className="w-3 h-3 mr-1" />
+                    <span>Hiimart Store</span>
+                </div>
+                <p className="font-bold text-orange-500 text-lg mt-auto">Rp {product.price.toLocaleString()}</p>
+                <p className="text-xs text-gray-500">Weight: {product.weight}g</p>
+            </CardContent>
+            <CardFooter className="p-4 pt-0">
+                <Button
+                    className="w-full border border-blue-600 text-blue-600 bg-transparent hover:bg-blue-50"
+                    disabled={product.totalStock === 0}
+                >
+                    {product.totalStock === 0 ? 'Out of Stock' : '+ Add to Cart'}
+                </Button>
+            </CardFooter>
+        </Card>
+    );
 };
+
