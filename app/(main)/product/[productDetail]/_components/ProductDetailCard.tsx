@@ -1,62 +1,82 @@
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Minus, Plus } from 'lucide-react';
-import { Skeleton } from "@/components/ui/skeleton";
+import { Minus, Plus, ShoppingBag } from 'lucide-react';
+import { ProductDetailSkeleton } from './ProductDetailSkeleton';
+import { ImageWithLoading } from "./ImageWithLoading";
+import YouMayLike from "@/app/(main)/product/[productDetail]/_components/YouMayLike";
+
 
 interface ProductImage {
-    id: number;
-    imageUrl: string;
+  id: number;
+  imageUrl: string;
 }
 
 interface Product {
+
     id: number;
     name: string;
     price: number;
     description: string;
     categoryName: string;
+    totalStock: number;
+    weight: number;
     productImages: ProductImage[];
 }
 
 interface ProductDetailProps {
-    product: Product;
+  product: Product;
 }
 
-interface ImageWithLoadingProps {
-    src: string;
-    alt: string;
-    layout: "fixed" | "fill" | "responsive" | "intrinsic";
-    objectFit: "contain" | "cover" | "fill" | "none" | "scale-down";
-    className?: string;
-    onClick?: () => void;
-}
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
-    const [quantity, setQuantity] = useState(1);
-    const [mainImage, setMainImage] = useState(product?.productImages[0]);
-    const [isLoading, setIsLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
+  const [mainImage, setMainImage] = useState(product?.productImages[0]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { addToCart, updateQuantity, cartItems } = useCart();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
 
     useEffect(() => {
-        // Simulate loading
-        const timer = setTimeout(() => setIsLoading(false), 2000);
-        return () => clearTimeout(timer);
-    }, []);
+        // Reset quantity to 1 or max stock when product changes
+        setQuantity(product.totalStock > 0 ? 1 : 0);
+    }, [product]);
+
 
     const handleAddToCart = () => {
         console.log(`Added ${quantity} ${product.name}(s) to cart`);
     };
-
-    const formatPrice = (price: number): string => {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(price);
+    const decreaseQuantity = () => {
+        setQuantity(Math.max(1, quantity - 1));
     };
 
-    if (isLoading) {
-        return <ProductDetailSkeleton />;
-    }
+    const increaseQuantity = () => {
+        setQuantity(Math.min(product.totalStock, quantity + 1));
+    };
+
+
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+    }).format(price);
+  };
+
+  if (isLoading) {
+    return <ProductDetailSkeleton />;
+  }
+
+  const cartItem = cartItems.find((item) => item.productId === product.id);
+  const isInCart = !!cartItem;
 
     return (
-        <div className="w-full lg:py-32 p-4 pt-24 md:pt-24 lg:p-16 bg-gray-50">
+        <div className="w-full lg:pt-32 p-4 pt-24 md:pt-24 lg:p-16 ">
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-8">
                 <div className="space-y-4">
                     <Card className="w-full bg-white overflow-hidden p-2">
@@ -92,21 +112,35 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                                 </CardContent>
                             </Card>
                         ))}
+
                     </div>
+                  </div>
+                  <Button
+                    onClick={handleAddToCart}
+                    className="h-12 px-6 text-white text-sm md:text-base lg:text-lg bg-blue-600 hover:bg-blue-700 transition-colors duration-300"
+                  >
+                    + Cart
+                  </Button>
                 </div>
                 <div className='space-y-4'>
                     <Card className="w-full bg-white">
                         <CardContent className="p-6">
                             <div className="space-y-6">
-                                <div className="flex justify-between items-start border-b pb-4">
-                                    <h1 className="text-xl md:text-2xl lg:text-2xl font-bold text-gray-800">{product.name}</h1>
+                                <div className=" border-b pb-2">
+                                    <h1 className="text-xl md:text-2xl lg:text-2xl font-bold text-gray-800 mb-4">{product.name}</h1>
+                                    <div className='flex items-center space-x-2'>
+                                        {/* <Badge variant="secondary" className="bg-yellow-100 text-orange-500 text-xs md:text-sm">14%</Badge>
+                                        <p className="text-sm md:text-base text-gray-500 line-through">
+                                            Rp {Math.round(product.price * 1.14).toLocaleString('id-ID')}
+                                        </p> */}
+                                        <div className="flex items-center text-xs text-blue-600 mb-2 bg-red-100 rounded-xl p-1 px-5">
+                                            <ShoppingBag className="w-5 h-5 mr-1" />
+                                            <span className='text-black'>Hiimart Store</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="space-y-1">
-                                    <div className='flex items-center space-x-2'>
-                                        <Badge variant="secondary" className="bg-yellow-100 text-orange-500 text-xs md:text-sm">14%</Badge>
-                                        <p className="text-sm md:text-base text-gray-500 line-through">{formatPrice(product.price * 1.14)}</p>
-                                    </div>
-                                    <p className="text-xl md:text-2xl lg:text-3xl font-bold text-orange-500">{formatPrice(product.price)}</p>
+                                    <p className="text-xl md:text-2xl lg:text-3xl font-bold text-orange-500">Rp {product.price.toLocaleString()}</p>
                                 </div>
                                 <div className='flex items-center justify-between flex-wrap gap-4'>
                                     <div className="flex items-center space-x-4">
@@ -115,8 +149,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                                onClick={decreaseQuantity}
                                                 className="text-blue-600"
+                                                disabled={quantity <= 1 || product.totalStock === 0}
                                                 aria-label="Decrease quantity"
                                             >
                                                 <Minus className="h-4 w-4" />
@@ -125,19 +160,22 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                onClick={() => setQuantity(quantity + 1)}
+                                                onClick={increaseQuantity}
                                                 className="text-blue-600"
+                                                disabled={quantity >= product.totalStock}
                                                 aria-label="Increase quantity"
                                             >
                                                 <Plus className="h-4 w-4" />
                                             </Button>
                                         </div>
+                                        <span className='text-xs md:text-sm'>from <strong className='text-blue-800'> {product.totalStock} </strong> items in stock</span>
                                     </div>
                                     <Button
                                         onClick={handleAddToCart}
                                         className="h-12 px-6 text-white text-sm md:text-base lg:text-lg bg-blue-600 hover:bg-blue-700 transition-colors duration-300"
+                                        disabled={product.totalStock === 0}
                                     >
-                                        + Cart
+                                        {product.totalStock === 0 ? 'Out of Stock' : '+ Cart'}
                                     </Button>
                                 </div>
                             </div>
@@ -159,98 +197,23 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                     <Card className="w-full bg-white">
                         <CardContent className="p-6">
                             <div className="space-y-2">
-                                <h3 className="font-semibold text-sm md:text-base lg:text-lg text-gray-800">Deskripsi Produk</h3>
+                                <h3 className="font-semibold text-sm md:text-base lg:text-lg text-gray-800 mb-4">Deskripsi Produk</h3>
+                                <p className="text-xs md:text-sm lg:text-base font-medium text-gray-600">weight: {product.weight} gram</p>
                                 <p className="text-xs md:text-sm lg:text-base text-gray-600">{product.description}</p>
                             </div>
                         </CardContent>
                     </Card>
                 </div>
             </div>
-        </div>
-    );
-};
-
-const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({ src, alt, layout, objectFit, className, onClick }) => {
-    const [isLoading, setIsLoading] = useState(true);
-
-    return (
-        <div className="relative w-full h-full">
-            {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-lg">
-                    <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                </div>
-            )}
-            <Image
-                src={src}
-                alt={alt}
-                layout={layout}
-                objectFit={objectFit}
-                className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-                onLoadingComplete={() => setIsLoading(false)}
-                onClick={onClick}
-            />
-        </div>
-    );
-};
-
-const ProductDetailSkeleton = () => {
-    return (
-        <div className="w-full lg:py-32 p-4 md:p-8 lg:p-16 bg-gray-50">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-8">
-                <div className="space-y-4">
-                    <Skeleton className="w-full aspect-square rounded-lg" />
-                    <div className="grid grid-cols-4 gap-2">
-                        {[...Array(4)].map((_, index) => (
-                            <Skeleton key={index} className="w-full aspect-square rounded-md" />
-                        ))}
-                    </div>
-                </div>
-                <div className='space-y-4'>
-                    <Card className="w-full bg-white">
-                        <CardContent className="p-6">
-                            <div className="space-y-6">
-                                <div className="flex justify-between items-start border-b pb-4">
-                                    <Skeleton className="h-8 w-3/4" />
-                                </div>
-                                <div className="space-y-2">
-                                    <div className='flex items-center space-x-2'>
-                                        <Skeleton className="h-6 w-12" />
-                                        <Skeleton className="h-4 w-24" />
-                                    </div>
-                                    <Skeleton className="h-10 w-1/2" />
-                                </div>
-                                <div className='flex items-center justify-between flex-wrap gap-4'>
-                                    <Skeleton className="h-12 w-32" />
-                                    <Skeleton className="h-12 w-32" />
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card className="w-full bg-white">
-                        <CardContent className="p-6">
-                            <div className='flex items-center space-x-4'>
-                                <Skeleton className="w-16 h-16 md:w-20 md:h-20 rounded-full" />
-                                <div>
-                                    <Skeleton className="h-6 w-24 mb-2" />
-                                    <Skeleton className="h-4 w-32" />
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card className="w-full bg-white">
-                        <CardContent className="p-6">
-                            <div className="space-y-2">
-                                <Skeleton className="h-6 w-40 mb-2" />
-                                <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-4 w-3/4" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+            <div className='mt-6'>
+                <YouMayLike category={product.categoryName} />
+                <YouMayLike />
             </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
+
 
 export default ProductDetail;
