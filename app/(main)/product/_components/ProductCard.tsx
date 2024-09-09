@@ -6,11 +6,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
 
+
 interface ProductCardProps {
-    product: Product;
+  product: Product;
 }
 
 interface Product {
+
     id: number;
     name: string;
     description: string;
@@ -22,17 +24,19 @@ interface Product {
     productImages: ProductImage[];
     createdAt: string;
     updatedAt: string;
+
 }
 
 interface ProductImage {
-    id: number;
-    productId: number;
-    imageUrl: string;
-    createdAt: string;
-    updatedAt: string;
+  id: number;
+  productId: number;
+  imageUrl: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+
     return (
         <Card className="flex flex-col h-full bg-white hover:shadow-lg transition-shadow duration-300">
             <Link href={`/product/${product.id}_${product.name.replace(/\s+/g, '-').toLowerCase()}`} passHref>
@@ -69,3 +73,4 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </Card>
     );
 };
+

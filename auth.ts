@@ -26,7 +26,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       authorize: async (credentialsPromise) => {
         try {
-          const credentials = (await credentialsPromise) as {
+          const credentials = ( await await credentialsPromise) as {
             email: string
             password: string
           }

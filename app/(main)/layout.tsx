@@ -6,10 +6,11 @@ import DownloadApp from "@/app/_components/DownloadApp";
 import NavBar from '@/components/NavBar';
 
 export interface ProductLayoutProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export default function Layout({ children }: ProductLayoutProps) {
+
     return (
         <div >
             <NavBar />

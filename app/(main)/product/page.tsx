@@ -1,34 +1,46 @@
+"use client";
 
-'use client';
-
-import { useState, useCallback, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { useDebouncedCallback } from 'use-debounce';
+import { useState, useCallback, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useDebouncedCallback } from "use-debounce";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from '@/components/ui/badge';
-import { ProductCard } from './_components/ProductCard';
-import { SkeletonCard } from './_components/SkeletonCard';
-import { SearchFilters } from './_components/SearchFilter';
-import { Pagination } from './_components/Pagination';
-import ProductFilter from './_components/NavFilter';
+import { Badge } from "@/components/ui/badge";
+import { ProductCard } from "./_components/ProductCard";
+import { SkeletonCard } from "./_components/SkeletonCard";
+import { SearchFilters } from "./_components/SearchFilter";
+import { Pagination } from "./_components/Pagination";
+import ProductFilter from "./_components/NavFilter";
 
 interface ProductImage {
-    id: number;
-    productId: number;
-    imageUrl: string;
-    createdAt: string;
-    updatedAt: string;
+  id: number;
+  productId: number;
+  imageUrl: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Product {
+
     id: number;
     name: string;
     description: string;
@@ -40,121 +52,149 @@ interface Product {
     productImages: ProductImage[];
     createdAt: string;
     updatedAt: string;
+
 }
 
 interface ApiResponse {
-    content: Product[];
-    totalPages: number;
-    totalElements: number;
-    size: number;
-    number: number;
-    sort: {
-        empty: boolean;
-        sorted: boolean;
-        unsorted: boolean;
-    };
-    first: boolean;
-    last: boolean;
-    numberOfElements: number;
-    pageable: {
-        pageNumber: number;
-        pageSize: number;
-        sort: {
-            empty: boolean;
-            sorted: boolean;
-            unsorted: boolean;
-        };
-        offset: number;
-        paged: boolean;
-        unpaged: boolean;
-    };
+  content: Product[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+  sort: {
     empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
+  };
+  first: boolean;
+  last: boolean;
+  numberOfElements: number;
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      empty: boolean;
+      sorted: boolean;
+      unsorted: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  empty: boolean;
 }
 interface Category {
-    id: number;
-    name: string;
+  id: number;
+  name: string;
 }
 
-const BASE_URL = 'http://localhost:8080';
-const ALL_CATEGORIES = 'all';
+const BASE_URL = "http://localhost:8080/api";
+const ALL_CATEGORIES = "all";
 
 export default function ProductSearchPage() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const queryClient = useQueryClient();
-    const [categories, setCategories] = useState<Category[]>([]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+  const [categories, setCategories] = useState<Category[]>([]);
 
-    const getParamValue = useCallback((key: string, defaultValue: string) => {
-        return searchParams.get(key) || defaultValue;
-    }, [searchParams]);
+  const getParamValue = useCallback(
+    (key: string, defaultValue: string) => {
+      return searchParams.get(key) || defaultValue;
+    },
+    [searchParams]
+  );
 
-    const searchTerm = getParamValue("search", "");
-    const categoryName = getParamValue("categoryName", ALL_CATEGORIES);
-    const currentPage = parseInt(getParamValue("page", "0"));
-    const pageSize = parseInt(getParamValue("size", "10"));
-    const sortBy = getParamValue("sortBy", "related");
-    const sortDirection = getParamValue("sortDirection", "asc");
+  const searchTerm = getParamValue("search", "");
+  const categoryName = getParamValue("categoryName", ALL_CATEGORIES);
+  const currentPage = parseInt(getParamValue("page", "0"));
+  const pageSize = parseInt(getParamValue("size", "10"));
+  const sortBy = getParamValue("sortBy", "related");
+  const sortDirection = getParamValue("sortDirection", "asc");
 
-    const fetchProducts = async ({ queryKey }: { queryKey: readonly unknown[] }): Promise<ApiResponse> => {
-        const [_, page, size, category, sort, direction, search] = queryKey as [string, string, string, string, string, string, string];
-        const params = new URLSearchParams();
-        params.set('page', page);
-        params.set('size', size);
-        if (category !== ALL_CATEGORIES) params.set('categoryName', category);
-        if (sort !== "related") {
-            params.set('sortBy', sort);
-            params.set('sortDirection', direction);
-        }
-        if (search) params.set('search', search);
+  const fetchProducts = async ({
+    queryKey,
+  }: {
+    queryKey: readonly unknown[];
+  }): Promise<ApiResponse> => {
+    const [_, page, size, category, sort, direction, search] = queryKey as [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string
+    ];
+    const params = new URLSearchParams();
+    params.set("page", page);
+    params.set("size", size);
+    if (category !== ALL_CATEGORIES) params.set("categoryName", category);
+    if (sort !== "related") {
+      params.set("sortBy", sort);
+      params.set("sortDirection", direction);
+    }
+    if (search) params.set("search", search);
 
-        const response = await axios.get<ApiResponse>(`${BASE_URL}/product?${params.toString()}`);
-        return response.data;
-    };
+    const response = await axios.get<ApiResponse>(
+      `${BASE_URL}/product?${params.toString()}`
+    );
+    return response.data;
+  };
 
-    const { data, isLoading, error } = useQuery<ApiResponse, Error, ApiResponse, readonly [string, string, string, string, string, string, string]>({
-        queryKey: ['products', currentPage.toString(), pageSize.toString(), categoryName, sortBy, sortDirection, searchTerm] as const,
-        queryFn: fetchProducts,
-        staleTime: 60000, // 1 minute
-    });
+  const { data, isLoading, error } = useQuery<
+    ApiResponse,
+    Error,
+    ApiResponse,
+    readonly [string, string, string, string, string, string, string]
+  >({
+    queryKey: [
+      "products",
+      currentPage.toString(),
+      pageSize.toString(),
+      categoryName,
+      sortBy,
+      sortDirection,
+      searchTerm,
+    ] as const,
+    queryFn: fetchProducts,
+    staleTime: 60000, // 1 minute
+  });
 
-    useEffect(() => {
-        // Fetch categories
-        axios.get<Category[]>(`${BASE_URL}/category`)
-            .then(response => {
-                setCategories(response.data);
-            })
-            .catch(error => console.error("Failed to fetch categories:", error));
-    }, []);
+  useEffect(() => {
+    // Fetch categories
+    axios
+      .get<Category[]>(`${BASE_URL}/category`)
+      .then((response) => {
+        setCategories(response.data);
+      })
+      .catch((error) => console.error("Failed to fetch categories:", error));
+  }, []);
 
-    const updateSearchParams = useDebouncedCallback((updates: Record<string, string | undefined>) => {
-        const params = new URLSearchParams(searchParams.toString());
-        Object.entries(updates).forEach(([key, value]) => {
-            if (value === undefined || value === ALL_CATEGORIES || value === 'related') {
-                params.delete(key);
-            } else {
-                params.set(key, value);
-            }
-        });
-        if (updates.page === undefined) params.set('page', '0');
-        router.push(`?${params.toString()}`, { scroll: false });
-    }, 1000);
-
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        updateSearchParams({ search: value });
-    };
-
-    const handleCategoryChange = (newCategory: string) => updateSearchParams({ categoryName: newCategory });
-    const handleSortChange = (newSortBy: string) => {
-        if (newSortBy === "related") {
-            updateSearchParams({ sortBy: newSortBy, sortDirection: undefined });
+  const updateSearchParams = useDebouncedCallback(
+    (updates: Record<string, string | undefined>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(updates).forEach(([key, value]) => {
+        if (
+          value === undefined ||
+          value === ALL_CATEGORIES ||
+          value === "related"
+        ) {
+          params.delete(key);
         } else {
-            updateSearchParams({ sortBy: newSortBy });
+          params.set(key, value);
         }
-    };
+      });
+      if (updates.page === undefined) params.set("page", "0");
+      router.push(`?${params.toString()}`, { scroll: false });
+    },
+    1000
+  );
 
-    const handleSortDirectionChange = (newDirection: string) => updateSearchParams({ sortDirection: newDirection });
-    const handlePageChange = (newPage: number) => updateSearchParams({ page: newPage.toString() });
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    updateSearchParams({ search: value });
+  };
+
 
     useEffect(() => {
         // Prefetch next page
@@ -224,6 +264,9 @@ export default function ProductSearchPage() {
                 </div>
 
             </div>
+
         </div>
-    );
+      </div>
+    </div>
+  );
 }

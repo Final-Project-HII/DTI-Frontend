@@ -1,3 +1,4 @@
+
 'use client'
 import Image from 'next/image'
 import React from 'react'
@@ -22,6 +23,7 @@ const fetchCategories = async (): Promise<Category[]> => {
   return response.data;
 };
 
+
 const CategoryList = () => {
   const { data: categories, isLoading, error } = useQuery<Category[], Error>({
     queryKey: ['categories'],
@@ -32,9 +34,11 @@ const CategoryList = () => {
   if (error) return <div>Error loading categories: {error.message}</div>;
 
   return (
+
     <div className="px-5 lg:px-40 mb-7">
       <div className='bg-[#bbddff] p-5 rounded-xl'>
         <h1 className='font-semibold text-lg'>Product Category</h1>
+
         <Swiper
           slidesPerView={10}
           spaceBetween={20}
@@ -54,6 +58,7 @@ const CategoryList = () => {
             },
           }}
         >
+
           {categories?.map((category) => (
             <SwiperSlide key={category.id} className="w-auto">
               <div className='flex flex-col gap-2 items-center'>
@@ -70,13 +75,14 @@ const CategoryList = () => {
                   </div>
                 </Link>
                 <h2 className="text-center">{category.name}</h2>
+
               </div>
             </SwiperSlide>
           ))}
         </Swiper>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CategoryList
+export default CategoryList;

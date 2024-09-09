@@ -7,12 +7,14 @@ import { ProductDetailSkeleton } from './ProductDetailSkeleton';
 import { ImageWithLoading } from "./ImageWithLoading";
 import YouMayLike from "@/app/(main)/product/[productDetail]/_components/YouMayLike";
 
+
 interface ProductImage {
-    id: number;
-    imageUrl: string;
+  id: number;
+  imageUrl: string;
 }
 
 interface Product {
+
     id: number;
     name: string;
     price: number;
@@ -24,20 +26,22 @@ interface Product {
 }
 
 interface ProductDetailProps {
-    product: Product;
+  product: Product;
 }
 
-
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
-    const [quantity, setQuantity] = useState(1);
-    const [mainImage, setMainImage] = useState(product?.productImages[0]);
-    const [isLoading, setIsLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
+  const [mainImage, setMainImage] = useState(product?.productImages[0]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { addToCart, updateQuantity, cartItems } = useCart();
+  const { toast } = useToast();
 
-    useEffect(() => {
-        // Simulate loading
-        const timer = setTimeout(() => setIsLoading(false), 2000);
-        return () => clearTimeout(timer);
-    }, []);
+  useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
 
     useEffect(() => {
         // Reset quantity to 1 or max stock when product changes
@@ -56,9 +60,20 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
         setQuantity(Math.min(product.totalStock, quantity + 1));
     };
 
-    if (isLoading) {
-        return <ProductDetailSkeleton />;
-    }
+
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+    }).format(price);
+  };
+
+  if (isLoading) {
+    return <ProductDetailSkeleton />;
+  }
+
+  const cartItem = cartItems.find((item) => item.productId === product.id);
+  const isInCart = !!cartItem;
 
     return (
         <div className="w-full lg:pt-32 p-4 pt-24 md:pt-24 lg:p-16 ">
@@ -97,7 +112,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                                 </CardContent>
                             </Card>
                         ))}
+
                     </div>
+                  </div>
+                  <Button
+                    onClick={handleAddToCart}
+                    className="h-12 px-6 text-white text-sm md:text-base lg:text-lg bg-blue-600 hover:bg-blue-700 transition-colors duration-300"
+                  >
+                    + Cart
+                  </Button>
                 </div>
                 <div className='space-y-4'>
                     <Card className="w-full bg-white">
@@ -187,10 +210,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                 <YouMayLike />
             </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
-
-
 
 
 export default ProductDetail;
