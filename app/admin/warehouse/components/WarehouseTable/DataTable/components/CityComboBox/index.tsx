@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -14,7 +14,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { FilterIcon } from "lucide-react"
-import { cities } from "@/utils/cities"
+import { getAllCity } from "@/utils/cities"
+import { City } from '@/types/cities'
 
 interface CityFilterProps {
   selectedCity: string | undefined
@@ -23,6 +24,19 @@ interface CityFilterProps {
 
 const CityComboBox: React.FC<CityFilterProps> = ({ selectedCity, setSelectedCity }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+  const [cities, setCities] = useState<City[]>([]);
+  useEffect(() => {
+    const fetchWarehouses = async () => {
+      try {
+        const response = await getAllCity();
+        setCities(response);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchWarehouses();
+  }, []);
+
   return (
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>

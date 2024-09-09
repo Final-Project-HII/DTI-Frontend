@@ -1,11 +1,12 @@
-import axios from "axios";
-import { ApiResponse, Product } from "@/types/product";
-import { Category } from "@/types/category";
-import { Order } from "@/types/order";
+import axios from 'axios'
+import { ApiResponse, Product } from '@/types/product'
+import { Category } from '@/types/category'
+import { Warehouse } from '@/types/warehouse'
+import { WarehouseFormData } from '@/app/admin/warehouse/components/AddWarehoseForm'
 
-const BASE_URL = "http://localhost:8080/api/";
+const BASE_URL = 'http://localhost:8080'
 
-const axiosInstance = axios.create({
+onst axiosInstance = axios.create({
   baseURL: BASE_URL,
 });
 
@@ -128,3 +129,29 @@ export const fetchOrders = async (): Promise<Order[]> => {
   const response = await axiosInstance.get<Order[]>("/orders");
   return response.data;
 };
+
+
+export const getAllWarehouse = async (): Promise<Warehouse[]> => {
+  const response = await axios.get(`${BASE_URL}/api/warehouses`)
+  return response.data.data
+}
+
+export const createWarehouse = async (
+  formData: WarehouseFormData
+): Promise<Warehouse> => {
+  const response = await axios.post(`${BASE_URL}/api/warehouses`, formData)
+  return response.data
+}
+
+export const updateWarehouse = async (
+  id: number,
+  formData: WarehouseFormData
+): Promise<Category> => {
+  const response = await axios.put(`${BASE_URL}/api/warehouses/${id}`, formData)
+  return response.data
+}
+
+export const deleteWarehouse = async (id: number): Promise<void> => {
+  await axios.delete(`${BASE_URL}/api/warehouses/${id}`)
+}
+

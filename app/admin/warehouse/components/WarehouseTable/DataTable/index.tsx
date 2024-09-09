@@ -1,6 +1,6 @@
 'use client'
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import {
   Table,
@@ -31,18 +31,20 @@ import DataTablePagination from "./components/Pagination"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  onDataChange: () => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onDataChange
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   )
   const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined)
-
+  const [openNewWarehouseForm, setOpenNewWarehouseForm] = useState(false);
   const table = useReactTable({
     data,
     columns,
@@ -67,6 +69,11 @@ export function DataTable<TData, TValue>({
     table.getColumn("city")?.setFilterValue(selectedCity || "")
   }, [selectedCity, table])
 
+
+  const handleClose = () => {
+    setOpenNewWarehouseForm(false);
+  };
+
   return (
     <div>
       <div className="flex items-center py-4 gap-4 justify-between mb-5 flex-col lg:flex-row">
@@ -86,12 +93,13 @@ export function DataTable<TData, TValue>({
             <FaSearch className='size-4 absolute left-4 top-0 translate-y-3 text-gray-400' />
             <CityComboBox selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
           </div>
-          <Dialog>
+          <Dialog open={openNewWarehouseForm} onOpenChange={setOpenNewWarehouseForm}>
             <DialogTrigger asChild>
               <Button className="bg-blue-600  flex items-center gap-2"><PlusIcon size={20} /> Add New Warehouse </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-[700px]">
-              <AddWarehouseForm />
+            <DialogTitle></DialogTitle>
+            <DialogContent className="max-w-md lg:max-w-4xl">
+              <AddWarehouseForm onClose={handleClose} onWarehouseAdded={onDataChange} />
             </DialogContent>
           </Dialog>
         </div>
