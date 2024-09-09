@@ -53,7 +53,7 @@ const Carousel = () => {
         >
           {promoBanner.map((banner, index) => (
             <SwiperSlide key={index}>
-              {/* <Image src={banner.img} alt='banner'
+              <Image src={banner.img} alt='banner'
                 className='h-full w-full rounded-xl'
               /> */}
               <SkeletonCarousel />
