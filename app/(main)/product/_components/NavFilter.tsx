@@ -16,6 +16,7 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Category {
     id: number;
@@ -60,6 +61,20 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
     return (
         <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-xs">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Product Filters</h2>
+            <Select value={categoryName} onValueChange={onCategoryChange}>
+                <SelectTrigger className="w-full sm:w-[180px] group">
+                    <SelectValue placeholder="All Categories" />
+                    {/* <ChevronDown className="ml-2 h-4 w-4 shrink-0 transition duration-300 group-data-[state=open]:rotate-180" /> */}
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                    <SelectItem value={ALL_CATEGORIES} className="hover:bg-gray-100 transition duration-150">All Categories</SelectItem>
+                    {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.name} className="hover:bg-gray-100 transition duration-150">
+                            {category.name}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
 
             <Collapsible defaultOpen={true} className="mb-4">
                 <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-gray-100 rounded-md transition-colors duration-200">

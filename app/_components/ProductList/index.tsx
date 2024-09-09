@@ -1,3 +1,4 @@
+
 'use client'
 import React, { useState } from 'react';
 import { ProductCard } from '@/app/(main)/product/_components/ProductCard';
@@ -10,6 +11,7 @@ import 'swiper/css';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import axios from 'axios';
 // import { Product } from '@/types/product';
+import { useQuery } from '@tanstack/react-query';
 
 
 const BASE_URL = 'http://localhost:8080';
@@ -74,11 +76,11 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
           modules={[Navigation, Pagination]}
           spaceBetween={20}
           navigation={{
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
           }}
           slidesPerView={2}
-          className='w-full'
+          className="w-full"
           onSlideChange={(swiper) => {
             setIsBeginning(swiper.isBeginning);
             setIsEnd(swiper.isEnd);
@@ -94,24 +96,30 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
               slidesPerView: 6,
             },
           }}
-
         >
+
           {products?.map((product) => (
             <SwiperSlide key={product.id}>
-              <ProductCard key={product.id} product={product} />
+              <div className="h-full">
+                <ProductCard product={product} />
+              </div>
             </SwiperSlide>
           ))}
           <button
-            className={`absolute swiper-button-prev bottom-1/2 border-2 border-blue-600 left-0 z-10 p-1 bg-white translate-y-1/2 md:p-2 rounded-full font-bold transition-opacity duration-300 ${isBeginning ? 'opacity-0' : 'opacity-100'}`}
-            style={{ pointerEvents: isBeginning ? 'none' : 'auto' }}
+            className={`absolute swiper-button-prev bottom-1/2 border-2 border-blue-600 left-0 z-10 p-1 bg-white translate-y-1/2 md:p-2 rounded-full font-bold transition-opacity duration-300 ${
+              isBeginning ? "opacity-0" : "opacity-100"
+            }`}
+            style={{ pointerEvents: isBeginning ? "none" : "auto" }}
           >
-            <FaChevronLeft className='text-blue-600' />
+            <FaChevronLeft className="text-blue-600" />
           </button>
           <button
-            className={`absolute swiper-button-next bottom-1/2 border-2 border-blue-600 right-0 z-10 p-1 bg-white translate-y-1/2 md:p-2 rounded-full font-bold transition-opacity duration-300 ${isEnd ? 'opacity-0' : 'opacity-100'}`}
-            style={{ pointerEvents: isEnd ? 'none' : 'auto' }}
+            className={`absolute swiper-button-next bottom-1/2 border-2 border-blue-600 right-0 z-10 p-1 bg-white translate-y-1/2 md:p-2 rounded-full font-bold transition-opacity duration-300 ${
+              isEnd ? "opacity-0" : "opacity-100"
+            }`}
+            style={{ pointerEvents: isEnd ? "none" : "auto" }}
           >
-            <FaChevronRight className='text-blue-600' />
+            <FaChevronRight className="text-blue-600" />
           </button>
         </Swiper>
       </div>

@@ -42,6 +42,7 @@ interface Product {
     weight: number;
     categoryId: number;
     categoryName: string;
+    totalStock: number;
     productImages: ProductImage[];
     createdAt: string;
     updatedAt: string;
@@ -113,10 +114,6 @@ export default function ProductSearchPage() {
     const pageSize = parseInt(getParamValue("size", "8"));
     const sortBy = getParamValue("sortBy", "related");
     const sortDirection = getParamValue("sortDirection", "asc");
-    const formatToRupiah = (price: number) => {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(price);
-    };
-
 
     const fetchProducts = async ({ queryKey }: { queryKey: readonly unknown[] }): Promise<ApiResponse> => {
         const [_, page, size, category, sort, direction, search] = queryKey as [string, string, string, string, string, string, string];
@@ -474,12 +471,16 @@ export default function ProductSearchPage() {
                                     )}
                                 </TableCell>
                                 <TableCell>{product.name}</TableCell>
-                                <TableCell>100</TableCell>
+                                <TableCell>{product.totalStock}</TableCell>
                                 <TableCell>20</TableCell>
                                 <TableCell>
-                                    <Badge className="bg-green-100 text-green-700"> • Available</Badge>
+                                    {product.totalStock > 0 ? (
+                                        <Badge className="bg-green-100 text-green-700"> • Available</Badge>
+                                    ) : (
+                                        <Badge className="bg-red-100 text-red-700"> • Out of Stock</Badge>
+                                    )}
                                 </TableCell>
-                                <TableCell>{formatToRupiah(product.price)}</TableCell>
+                                <TableCell>Rp {product.price.toLocaleString()}</TableCell>
                                 <TableCell>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -637,43 +638,6 @@ export default function ProductSearchPage() {
                                 openModalFn={() => openAddCategoryModal('edit')}
                                 categories={categories}
                             />
-                            {/* Add Category Modal */}
-                            <Dialog open={isAddCategoryModalOpen} onOpenChange={setIsAddCategoryModalOpen}>
-                                <DialogContent className="sm:max-w-[425px] bg-white">
-                                    <DialogHeader>
-                                        <DialogTitle>Add New Category</DialogTitle>
-                                    </DialogHeader>
-                                    <form onSubmit={handleAddCategory} className="space-y-4">
-                                        <Input
-                                            value={newCategoryName}
-                                            onChange={(e) => setNewCategoryName(e.target.value)}
-                                            placeholder="Category Name"
-                                            required
-                                        />
-                                        <div className="flex justify-end space-x-2">
-                                            <Button type="button" variant="outline" onClick={() => setIsAddCategoryModalOpen(false)}>
-                                                Cancel
-                                            </Button>
-                                            <Button
-                                                type="submit"
-                                                disabled={createCategoryMutation.status === 'pending'}
-                                                className="bg-blue-600 text-white"
-                                            >
-                                                {createCategoryMutation.status === 'pending' ? 'Adding...' : 'Add Category'}
-                                            </Button>
-                                        </div>
-                                    </form>
-                                </DialogContent>
-                            </Dialog>
-
-                            {createCategoryMutation.isError && (
-                                <Alert variant="destructive" className="mt-4">
-                                    <AlertCircle className="h-4 w-4" />
-                                    <AlertTitle>Error</AlertTitle>
-                                    <AlertDescription>Failed to create category. Please try again.</AlertDescription>
-                                </Alert>
-                            )}
-
                             <div>
                                 <Input
                                     type="file"

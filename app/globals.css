@@ -91,3 +91,7 @@ body {
   top: 0;
   z-index: 1; /* optional, to maintain the background color */
 }
+
+.select-trigger .icon {
+  display: none !important;
+}
