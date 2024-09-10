@@ -1,10 +1,18 @@
 'use client'
-import React, { useEffect, useState } from 'react'
 import { ColumnDef } from "@tanstack/react-table"
-import { DataTable } from './DataTable'
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"
+import { useEffect, useState } from 'react'
+import { DataTable } from './DataTable'
 
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,20 +21,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { deleteWarehouse, getAllWarehouse } from '@/utils/api'
 import { Warehouse } from '@/types/warehouse'
+import { deleteWarehouse, getAllWarehouse } from '@/utils/api'
 import UpdateWarehouseForm from '../UpdateWarehouseForm'
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import DeleteModal from "@/components/DeleteModal"
 
 const WarehouseTable = () => {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -130,23 +128,7 @@ const WarehouseTable = () => {
     <div className="container mx-auto py-10">
       <DataTable columns={columns} data={warehouses} onDataChange={fetchWarehouses} />
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent className="max-w-sm mx-auto p-6 lg:max-w-lg">
-          <AlertDialogHeader>
-            <AlertDialogTitle className='text-red-600 text-center'>Are You Sure?</AlertDialogTitle>
-            <hr />
-            <AlertDialogDescription className='text-center'>
-              Are you sure you want to delete the warehouse?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="flex w-full items-center lg:flex-row gap-2 justify-center">
-            <Button onClick={handleCloseDeleteModal} className='bg-[#BE202F] text-white font-bold px-6 py-3 w-full lg:w-auto lg:px-10 lg:py-5'>
-              No
-            </Button>
-            <Button onClick={handleDeleteWarehouse} className='bg-[#4DB163] text-white font-bold px-6 py-3 w-full lg:w-auto lg:px-10 lg:py-5'>
-              Yes
-            </Button>
-          </div>
-        </AlertDialogContent>
+        <DeleteModal onConfirm={handleDeleteWarehouse} onClose={handleCloseDeleteModal} description="Are you sure you want to delete the warehouse ?" />
       </AlertDialog>
       <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
         <DialogTitle></DialogTitle>
