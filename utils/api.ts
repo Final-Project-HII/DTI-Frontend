@@ -1,7 +1,7 @@
 import axios from "axios";
 import { ApiResponse, Product } from "@/types/product";
 import { Category } from "@/types/category";
-import { Order } from "@/types/order";
+import { Order, OrderItem } from "@/types/order";
 
 const BASE_URL = "http://localhost:8080/api/";
 
@@ -127,4 +127,24 @@ export const deleteCategory = async (id: number): Promise<void> => {
 export const fetchOrders = async (): Promise<Order[]> => {
   const response = await axiosInstance.get<Order[]>("/orders");
   return response.data;
+};
+
+export const createOrder = async (): Promise<OrderItem> => {
+  try {
+      const response = await axios.post(BASE_URL);
+      return response.data;
+  } catch (error) {
+      console.error('Error creating order:', error);
+      throw error;
+  }
+};
+
+export const getOrder = async (orderId: number): Promise<Order> => {
+  try {
+      const response = await axios.get<Order>(`${BASE_URL}/${orderId}`);
+      return response.data;
+  } catch (error) {
+      console.error('Error fetching order:', error);
+      throw error;
+  }
 };
