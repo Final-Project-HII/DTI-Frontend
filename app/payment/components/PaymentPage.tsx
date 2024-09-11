@@ -13,8 +13,8 @@ import { useRouter } from "next/navigation";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-const CLOUDINARY_UPLOAD_PRESET = "your_upload_preset";
-const CLOUDINARY_CLOUD_NAME = "your_cloud_name";
+const CLOUDINARY_UPLOAD_PRESET = "finproHII";
+const CLOUDINARY_CLOUD_NAME = "djyevwtie";
 
 const PaymentPage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<string>("");
@@ -89,6 +89,40 @@ const PaymentPage: React.FC = () => {
 
         router.push("/payment-process");
       } else if (paymentMethod === "PAYMENT_PROOF") {
+        if (!proofImageUrl) {
+          toast({
+            title: "Error",
+            description: "Please upload proof of payment.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+        const response = await axios.post(
+          `${API_BASE_URL}/payments/manual`,
+          null,
+          {
+            params: {
+              orderId: latestOrder.id,
+              proofImageUrl: proofImageUrl,
+            },
+            headers: { Authorization: `Bearer ${session.user.accessToken}` },
+          }
+        );
+
+        console.log("Manual payment response:", response.data);
+
+        const paymentDetails = {
+          method: "PAYMENT_PROOF",
+          orderId: latestOrder.id,
+          proofImageUrl: proofImageUrl,
+          status: response.data.status || "PENDING",
+          timestamp: new Date().toISOString(),
+        };
+
+        localStorage.setItem("paymentDetails", JSON.stringify(paymentDetails));
+
+        router.push("/payment-process");
       }
     } catch (error) {
       console.error("Error processing payment:", error);
@@ -118,7 +152,7 @@ const PaymentPage: React.FC = () => {
 
       try {
         const response = await axios.post(
-          `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+          `https://api.cloudinary.com/v1_1/djyevwtie/image/upload`,
           formData
         );
 

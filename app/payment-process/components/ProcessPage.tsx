@@ -106,6 +106,7 @@ const PaymentProcessPage: React.FC = () => {
             Back to Home
           </Button>
         </CardContent>
+        
       </Card>
     </div>
   );
