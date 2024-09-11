@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useOrders } from "@/hooks/useOrder";
 import { useCart } from "@/hooks/useCart";
+import { useRouter } from "next/navigation";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
@@ -21,11 +22,16 @@ const PaymentPage: React.FC = () => {
   const [proofImageUrl, setProofImageUrl] = useState<string>("");
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { data: session } = useSession();
+  const [paymentResponse, setPaymentResponse] = useState<string | null>(null);
+  const { data: session, status } = useSession();
   const { toast } = useToast();
   const { cartItems, isLoading: cartLoading } = useCart();
+  const router = useRouter();
 
-  const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  const totalAmount = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
 
   const {
     ordersData,
@@ -35,20 +41,26 @@ const PaymentPage: React.FC = () => {
   const latestOrder = ordersData?.content[0] || null;
 
   const handlePayment = async () => {
-    if (!latestOrder) return;
+    if (status !== "authenticated") {
+      toast({
+        title: "Error",
+        description: "You must be logged in to make a payment.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!latestOrder) {
+      toast({
+        title: "Error",
+        description: "No order found. Please create an order first.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsLoading(true);
     try {
-      const createOrderResponse = await axios.post(
-        `${API_BASE_URL}/orders`,
-        null,
-        {
-          headers: { Authorization: `Bearer ${session?.user?.accessToken}` },
-        }
-      );
-      const newOrderId = createOrderResponse.data.id;
-
-      // Process payment based on method
       if (paymentMethod === "PAYMENT_GATEWAY") {
         if (!selectedBank) {
           toast({
@@ -59,39 +71,30 @@ const PaymentPage: React.FC = () => {
           setIsLoading(false);
           return;
         }
-        await axios.post(`${API_BASE_URL}/payments/create`, null, {
-          params: { orderId: newOrderId, bank: selectedBank },
-          headers: { Authorization: `Bearer ${session?.user?.accessToken}` },
-        });
-      } else if (paymentMethod === "PAYMENT_PROOF") {
-        if (!proofImageUrl) {
-          toast({
-            title: "Error",
-            description: "Please upload proof of payment.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
-        await axios.post(`${API_BASE_URL}/payments/manual`, null, {
-          params: {
-            orderId: newOrderId,
-            proofImageUrl: proofImageUrl,
-          },
-          headers: { Authorization: `Bearer ${session?.user?.accessToken}` },
-        });
-      }
+        const response = await axios.post(
+          `${API_BASE_URL}/payments/create`,
+          null,
+          {
+            params: { orderId: latestOrder.id, bank: selectedBank },
+            headers: { Authorization: `Bearer ${session.user.accessToken}` },
+          }
+        );
 
-      toast({
-        title: "Payment Initiated",
-        description:
-          paymentMethod === "PAYMENT_GATEWAY"
-            ? "Please complete the payment using the provided virtual account."
-            : "Your payment proof has been uploaded and is being processed.",
-        duration: 5000,
-      });
+        console.log("Full response:", response);
+        console.log("Response data:", response.data);
+
+        const paymentDetails = response.data;
+
+        localStorage.setItem("paymentDetails", JSON.stringify(paymentDetails));
+
+        router.push("/payment-process");
+      } else if (paymentMethod === "PAYMENT_PROOF") {
+      }
     } catch (error) {
       console.error("Error processing payment:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error details:", error.response?.data);
+      }
       toast({
         title: "Payment Error",
         description: "Failed to process payment. Please try again.",
@@ -169,8 +172,6 @@ const PaymentPage: React.FC = () => {
   if (!latestOrder)
     return <div>No order found. Please create an order first.</div>;
 
-  const isPaymentDisabled = false;
-
   return (
     <div className="container mx-auto px-4 py-8 mt-20">
       <h1 className="text-2xl font-bold mb-4">Payment Page</h1>
@@ -203,8 +204,16 @@ const PaymentPage: React.FC = () => {
         totalAmount={totalAmount}
         onPayment={handlePayment}
         isLoading={isLoading}
-        isPaymentDisabled={isPaymentDisabled}
+        isPaymentDisabled={!paymentMethod}
       />
+      {paymentResponse && (
+        <div className="mt-4 p-4 bg-green-100 border border-green-400 rounded">
+          <h3 className="font-bold">Payment Response:</h3>
+          <pre className="whitespace-pre-wrap">
+            {JSON.stringify(JSON.parse(paymentResponse), null, 2)}
+          </pre>
+        </div>
+      )}
       <div className="mt-8">
         <h2 className="text-xl font-semibold mb-2">
           Simulate Payment Status (For Testing)
