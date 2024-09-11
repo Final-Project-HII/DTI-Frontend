@@ -31,7 +31,6 @@ interface Order {
   totalAmount: number;
 }
 
-// Set up base URL for API calls
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 const PaymentPage: React.FC = () => {
@@ -100,8 +99,7 @@ const PaymentPage: React.FC = () => {
           : "Please complete the manual transfer using the provided details.",
         duration: 5000,
       });
-      // Here you might want to redirect to a payment confirmation page
-      // or display the payment details
+
     } catch (error) {
       console.error('Error initiating payment:', error);
       toast({
