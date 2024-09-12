@@ -1,9 +1,15 @@
 "use client";
 import avatar from "@/public/promo1.jpg";
-import { useMediaQuery } from "@uidotdev/usehooks";
 
+import {
+  ChevronDown,
+  LogOutIcon,
+  ShoppingCart
+} from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { IoIosListBox } from "react-icons/io";
 import "swiper/css";
@@ -13,33 +19,12 @@ import CategoryDropdown from "./_components/CategoryDropdown";
 import CategorySwiper from "./_components/CategorySwiper";
 import SearchInput from "./_components/SearchInput";
 import SearchSheet from "./_components/SearchSheet";
-import { useSession } from "next-auth/react";
-import React, { useEffect, useState } from "react";
-import {
-  LayoutGrid,
-  Search,
-  ShoppingCart,
-  Menu,
-  ChevronDown,
-  ArrowLeft,
-  LogOutIcon,
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Input } from "../ui/input";
-import { Sheet, SheetClose, SheetContent, SheetTrigger } from "../ui/sheet";
 
-import { FaSearch, FaTimes } from "react-icons/fa";
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-import SignOutButton from "../SignOutBtn";
 import { useCart } from "@/hooks/useCart";
 import { useSearchParams } from 'next/navigation';
+import "swiper/css";
+import SignOutButton from "../SignOutBtn";
 
 
 const NavBar = () => {
@@ -64,6 +49,9 @@ const NavBar = () => {
   const { data } = useSession();
   const searchParams = useSearchParams();
   const defaultSearchTerm = searchParams.get('search') || '';
+  const handleSignOut = () => {
+    signOut()
+  }
 
   useEffect(() => {
     if (session) {
@@ -116,19 +104,16 @@ const NavBar = () => {
                 onClick={toggleMenu}
               >
                 <span
-                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${
-                    open ? "rotate-45 translate-y-1" : ""
-                  }`}
+                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${open ? "rotate-45 translate-y-1" : ""
+                    }`}
                 ></span>
                 <span
-                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${
-                    open ? "opacity-0" : "my-1"
-                  }`}
+                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${open ? "opacity-0" : "my-1"
+                    }`}
                 ></span>
                 <span
-                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${
-                    open ? "-rotate-45 -translate-y-1" : ""
-                  }`}
+                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${open ? "-rotate-45 -translate-y-1" : ""
+                    }`}
                 ></span>
               </button>
               <div className="hidden lg:block lg:text-2xl font-bold text-blue-600 italic">
@@ -190,7 +175,7 @@ const NavBar = () => {
                       <div className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 group hover:bg-blue-600">
                         <div className="flex gap-4 items-center">
                           <h3 className="font-semibold text-xs text-black line-clamp-1 group-hover:text-white">
-                            Hai, Hendry Tjahaja Surijanto Putra
+                            Hi, Hendry Tjahaja Surijanto Putra
                           </h3>
                         </div>
                         <FaEdit
@@ -199,13 +184,13 @@ const NavBar = () => {
                           className="text-blue-600 group-hover:text-white"
                         />
                       </div>
-                      <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group">
+                      <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group" onClick={handleSignOut}>
                         <LogOutIcon
                           width={16}
                           height={16}
                           className="text-red-600"
                         />
-                        <SignOutButton />
+                        <h3 className='text-xs font-semibold text-black group-hover:text-white'>Logout</h3>
                       </div>
                     </div>
                   )}
@@ -240,11 +225,10 @@ const NavBar = () => {
           <CategorySwiper />
         </div>
         <div
-          className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${
-            openHamburgerMenu
-              ? "translate-y-full h-screen"
-              : "translate-y-0 overflow-hidden"
-          }`}
+          className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${openHamburgerMenu
+            ? "translate-y-full h-screen"
+            : "translate-y-0 overflow-hidden"
+            }`}
         >
           {data?.user.role == "USER" ? (
             <>
@@ -267,9 +251,9 @@ const NavBar = () => {
                   className="text-black group-hover:text-white"
                 />
               </div>
-              <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group">
-                <LogOutIcon width={25} height={25} className="text-red-600" />
-                <SignOutButton />
+              <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group" onClick={handleSignOut}>
+                <LogOutIcon width={25} height={25} className='text-red-600' />
+                <h3 className='text-sm text-black group-hover:text-white'>Logout</h3>
               </div>
             </>
           ) : (
