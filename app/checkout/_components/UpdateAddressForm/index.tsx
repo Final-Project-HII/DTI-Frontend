@@ -25,7 +25,11 @@ import { City } from '@/types/cities';
 import { z } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createWarehouse } from '@/utils/api';
+import { createWarehouse, updateAddress } from '@/utils/api';
+import { Address } from '@/types/product';
+import { useSession } from 'next-auth/react';
+import Swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -36,7 +40,7 @@ L.Icon.Default.mergeOptions({
 
 
 const addressSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  recipientName: z.string().min(1, "Recipient's name is required"),
   addressLine: z.string().min(1, "Address is required"),
   postalCode: z.string().min(1, "Postal code is required"),
   cityId: z.number({
@@ -56,6 +60,8 @@ interface LatLng {
 
 interface UpdateAddressFormProps {
   onClose: () => void;
+  onConfirm: () => void;
+  data: Address
 }
 
 interface DraggableMarkerProps {
@@ -111,22 +117,22 @@ const DraggableMarker: React.FC<DraggableMarkerProps> = ({ position, setPosition
   );
 };
 
-const UpdateAddressForm: React.FC<UpdateAddressFormProps> = ({ onClose }) => {
+const UpdateAddressForm: React.FC<UpdateAddressFormProps> = ({ onClose, onConfirm, data }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
-  const [position, setPosition] = useState<LatLng>({ lat: -6.120000, lng: 106.150276 });
+  const [position, setPosition] = useState<LatLng>({ lat: data.lat, lng: data.lon });
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [cities, setCities] = useState<City[]>([]);
-
+  const { data: session } = useSession();
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<AddressFormData>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
-      name: '',
-      addressLine: '',
-      postalCode: '',
-      cityId: 0,
+      recipientName: data.name,
+      addressLine: data.addressLine,
+      postalCode: data.postalCode,
+      cityId: data.city.id,
       lat: position.lat,
       lon: position.lng,
-      phoneNumber: '',
+      phoneNumber: data.phoneNumber,
     },
   });
 
@@ -173,14 +179,21 @@ const UpdateAddressForm: React.FC<UpdateAddressFormProps> = ({ onClose }) => {
     setSuggestions([]);
   }, [postalCode, setValue]);
 
-  const onSubmit = async (data: AddressFormData) => {
-    console.log(data);
+  const onSubmit = async (formData: AddressFormData) => {
     try {
-      await createWarehouse(data);
-      onClose();
-
+      await updateAddress(formData, data.id, session!.user.accessToken);
+      Swal.fire({
+        title: 'Your Address Has Been Updated Succesfully!',
+        text: 'This will close in 3 seconds.',
+        icon: 'success',
+        timer: 3000,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      onClose()
+      onConfirm();
     } catch (error) {
-      console.error('Error creating warehouse:', error);
+      console.error('Error updating warehouse:', error);
     }
   };
   return (
@@ -191,11 +204,11 @@ const UpdateAddressForm: React.FC<UpdateAddressFormProps> = ({ onClose }) => {
           <div className="flex flex-col gap-2 lg:gap-4">
             <Label htmlFor="name">Recipient's Name</Label>
             <Controller
-              name="name"
+              name="recipientName"
               control={control}
               render={({ field }) => <Input {...field} id="name" placeholder="Enter recipient's name" />}
             />
-            {errors.name?.message && <div className="text-red-500">{errors.name.message}</div>}
+            {errors.recipientName?.message && <div className="text-red-500">{errors.recipientName.message}</div>}
 
             <Label htmlFor="phoneNumber">Phone Number</Label>
             <Controller

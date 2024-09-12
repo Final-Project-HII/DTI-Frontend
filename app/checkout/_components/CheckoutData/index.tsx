@@ -19,7 +19,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useCart } from "@/hooks/useCart";
-import AddressCard from "../AddressCard";
+import AddressCard from "../AddressList";
 
 const CheckoutData = () => {
   const { data: session } = useSession();

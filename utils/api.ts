@@ -1,9 +1,16 @@
 import axios from 'axios'
-import { ApiResponse, Product } from '@/types/product'
+import {
+  Address,
+  ApiResponse,
+  ApiResponseAddress,
+  Product,
+} from '@/types/product'
 import { Category } from '@/types/category'
 import { Warehouse } from '@/types/warehouse'
 import { WarehouseFormData } from '@/app/admin/warehouse/components/AddWarehoseForm'
 import { Order } from '@/types/order'
+import { useSession } from 'next-auth/react'
+import { AddressFormData } from '@/app/checkout/_components/UpdateAddressForm'
 
 const BASE_URL = 'http://localhost:8080/api'
 
@@ -131,8 +138,25 @@ export const fetchOrders = async (): Promise<Order[]> => {
   return response.data
 }
 
-export const getAllWarehouse = async (): Promise<Warehouse[]> => {
-  const response = await axios.get(`${BASE_URL}/warehouses`)
+export const getAllWarehouse = async (
+  name: string,
+  cityName: string | undefined,
+  page: string,
+  size: string
+): Promise<any> => {
+  const params = new URLSearchParams()
+  params.set('page', page)
+  params.set('size', size)
+  if (name) {
+    params.set('name', name)
+  }
+  if (cityName) {
+    params.set('cityName', cityName)
+  }
+  const response = await axios.get<any>(
+    `${BASE_URL}/warehouses?${params.toString()}`
+  )
+  console.log(response.data.data)
   return response.data.data
 }
 
@@ -153,4 +177,75 @@ export const updateWarehouse = async (
 
 export const deleteWarehouse = async (id: number): Promise<void> => {
   await axios.delete(`${BASE_URL}/warehouses/${id}`)
+}
+
+export const getAllAddress = async (
+  token: string,
+  addressLine: string,
+  page: string,
+  size: string
+): Promise<any> => {
+  const params = new URLSearchParams()
+  params.set('page', page)
+  params.set('size', size)
+
+  if (addressLine) {
+    params.set('addressLine', addressLine)
+  }
+
+  try {
+    const response = await axios.get<any>(
+      `${BASE_URL}/addresses?${params.toString()}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    return response.data.data
+  } catch (error) {
+    console.error('Error fetching addresses:', error)
+    throw error
+  }
+}
+
+export const deleteAddresses = async (
+  id: number,
+  token: string
+): Promise<void> => {
+  await axios.delete(`${BASE_URL}/addresses/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export const updateAddress = async (
+  formData: AddressFormData,
+  id: number,
+  token: string
+): Promise<Address> => {
+  const response = await axios.put(`${BASE_URL}/addresses/${id}`, formData, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return response.data
+}
+
+export const createAddress = async (
+  formData: AddressFormData,
+  token: string
+): Promise<Address> => {
+  const response = await axios.post(`${BASE_URL}/addresses`, formData, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return response.data
+}
+
+export const toogleActiveAddress = async (
+  id: number,
+  token: string
+): Promise<any> => {
+  console.log(token)
+  const response = await axios.put(
+    `${BASE_URL}/addresses/change-primary-address/${id}`,
+    {},
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  )
+  return response.data
 }
