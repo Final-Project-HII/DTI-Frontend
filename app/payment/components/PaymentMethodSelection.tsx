@@ -12,9 +12,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+type PaymentMethodType = "" | "PAYMENT_GATEWAY" | "PAYMENT_PROOF";
+
 interface PaymentMethodSelectionProps {
-  paymentMethod: string;
-  setPaymentMethod: (method: string) => void;
+  paymentMethod: PaymentMethodType;
+  setPaymentMethod: (method: PaymentMethodType) => void;
   selectedBank: string;
   setSelectedBank: (bank: string) => void;
 }
@@ -28,7 +30,10 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
   return (
     <Card className="mb-8 shadow-lg">
       <CardContent className="pt-6">
-        <RadioGroup onValueChange={setPaymentMethod} value={paymentMethod}>
+        <RadioGroup 
+          onValueChange={(value: PaymentMethodType) => setPaymentMethod(value)} 
+          value={paymentMethod}
+        >
           <div className="space-y-6">
             <div className="flex items-center space-x-2 p-4 bg-gray-50 rounded-lg">
               <RadioGroupItem value="PAYMENT_PROOF" id="manual" />

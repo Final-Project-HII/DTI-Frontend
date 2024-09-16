@@ -1,28 +1,25 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
 import PaymentMethodSelection from "./PaymentMethodSelection";
 import OrderSummary from "./OrderSummary";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useOrders } from "@/hooks/useOrder";
 import { useCart } from "@/hooks/useCart";
 import { useRouter } from "next/navigation";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 const CLOUDINARY_UPLOAD_PRESET = "finproHII";
 const CLOUDINARY_CLOUD_NAME = "djyevwtie";
 
 const PaymentPage: React.FC = () => {
-  const [paymentMethod, setPaymentMethod] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<"PAYMENT_GATEWAY" | "PAYMENT_PROOF" | "">("");
   const [selectedBank, setSelectedBank] = useState<string>("");
   const [proofImageUrl, setProofImageUrl] = useState<string>("");
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [paymentResponse, setPaymentResponse] = useState<string | null>(null);
   const { data: session, status } = useSession();
   const { toast } = useToast();
   const { cartItems, isLoading: cartLoading } = useCart();
@@ -61,6 +58,7 @@ const PaymentPage: React.FC = () => {
 
     setIsLoading(true);
     try {
+      let response;
       if (paymentMethod === "PAYMENT_GATEWAY") {
         if (!selectedBank) {
           toast({
@@ -71,23 +69,18 @@ const PaymentPage: React.FC = () => {
           setIsLoading(false);
           return;
         }
-        const response = await axios.post(
+        response = await axios.post(
           `${API_BASE_URL}/payments/create`,
           null,
           {
-            params: { orderId: latestOrder.id, bank: selectedBank },
+            params: { 
+              orderId: latestOrder.id, 
+              paymentMethod: "PAYMENT_GATEWAY",
+              bank: selectedBank 
+            },
             headers: { Authorization: `Bearer ${session.user.accessToken}` },
           }
         );
-
-        console.log("Full response:", response);
-        console.log("Response data:", response.data);
-
-        const paymentDetails = response.data;
-
-        localStorage.setItem("paymentDetails", JSON.stringify(paymentDetails));
-
-        router.push("/payment-process");
       } else if (paymentMethod === "PAYMENT_PROOF") {
         if (!proofImageUrl) {
           toast({
@@ -98,30 +91,27 @@ const PaymentPage: React.FC = () => {
           setIsLoading(false);
           return;
         }
-        const response = await axios.post(
-          `${API_BASE_URL}/payments/manual`,
+        response = await axios.post(
+          `${API_BASE_URL}/payments/create`,
           null,
           {
             params: {
               orderId: latestOrder.id,
+              paymentMethod: "PAYMENT_PROOF",
               proofImageUrl: proofImageUrl,
             },
             headers: { Authorization: `Bearer ${session.user.accessToken}` },
           }
         );
+      }
 
-        console.log("Manual payment response:", response.data);
-
-        const paymentDetails = {
-          method: "PAYMENT_PROOF",
+      if (response && response.data) {
+        localStorage.setItem("paymentDetails", JSON.stringify({
+          ...response.data,
+          method: paymentMethod,
           orderId: latestOrder.id,
-          proofImageUrl: proofImageUrl,
-          status: response.data.status || "PENDING",
-          timestamp: new Date().toISOString(),
-        };
-
-        localStorage.setItem("paymentDetails", JSON.stringify(paymentDetails));
-
+          proofImageUrl: paymentMethod === "PAYMENT_PROOF" ? proofImageUrl : undefined,
+        }));
         router.push("/payment-process");
       }
     } catch (error) {
@@ -152,7 +142,7 @@ const PaymentPage: React.FC = () => {
 
       try {
         const response = await axios.post(
-          `https://api.cloudinary.com/v1_1/djyevwtie/image/upload`,
+          `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
           formData
         );
 
@@ -172,32 +162,6 @@ const PaymentPage: React.FC = () => {
       } finally {
         setUploadingImage(false);
       }
-    }
-  };
-
-  const simulatePaymentStatus = async (status: string) => {
-    if (!latestOrder) return;
-
-    try {
-      await axios.post(`${API_BASE_URL}/payments/simulate-status`, null, {
-        params: {
-          orderId: latestOrder.id,
-          newStatus: status,
-        },
-        headers: { Authorization: `Bearer ${session?.user?.accessToken}` },
-      });
-      toast({
-        title: "Payment Status Updated",
-        description: `Payment status simulated to: ${status}`,
-        duration: 5000,
-      });
-    } catch (error) {
-      console.error("Error simulating payment status:", error);
-      toast({
-        title: "Simulation Error",
-        description: "Failed to simulate payment status. Please try again.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -240,39 +204,6 @@ const PaymentPage: React.FC = () => {
         isLoading={isLoading}
         isPaymentDisabled={!paymentMethod}
       />
-      {paymentResponse && (
-        <div className="mt-4 p-4 bg-green-100 border border-green-400 rounded">
-          <h3 className="font-bold">Payment Response:</h3>
-          <pre className="whitespace-pre-wrap">
-            {JSON.stringify(JSON.parse(paymentResponse), null, 2)}
-          </pre>
-        </div>
-      )}
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-2">
-          Simulate Payment Status (For Testing)
-        </h2>
-        <div className="space-x-2">
-          <Button
-            onClick={() => simulatePaymentStatus("COMPLETED")}
-            variant="outline"
-          >
-            Simulate Completed
-          </Button>
-          <Button
-            onClick={() => simulatePaymentStatus("FAILED")}
-            variant="outline"
-          >
-            Simulate Failed
-          </Button>
-          <Button
-            onClick={() => simulatePaymentStatus("REFUNDED")}
-            variant="outline"
-          >
-            Simulate Refunded
-          </Button>
-        </div>
-      </div>
     </div>
   );
 };
