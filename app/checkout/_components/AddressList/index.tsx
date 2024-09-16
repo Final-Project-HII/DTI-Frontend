@@ -16,10 +16,11 @@ interface AddressListProps {
 const AddressList: React.FC<AddressListProps> = ({ activeAddress, onDataChange }) => {
   const [openAddressListDialog, setOpenAddressListDialog] = useState<boolean>(false);
   const [openMapDialog, setOpenMapDialog] = useState<boolean>(false);
-
+  
   const openAddressDialog = () => {
     setOpenAddressListDialog(true);
   };
+  
   const openMap = () => {
     setOpenMapDialog(true);
   };
@@ -37,6 +38,7 @@ const AddressList: React.FC<AddressListProps> = ({ activeAddress, onDataChange }
         <CardContent className="px-6">
           <Card className="shadow-sm bg-white">
             <CardContent className="p-3">
+
               <h1 className="font-bold">{activeAddress != null ? activeAddress?.name : "No Address Data"}</h1>
               {activeAddress != undefined && (
                 <>

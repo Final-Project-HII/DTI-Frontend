@@ -43,7 +43,6 @@ const CheckoutData = () => {
     0
   );
 
-
   const fetchActiveAddress = async () => {
     try {
       const response = await getActiveAddress(session!.user.accessToken);
@@ -77,6 +76,7 @@ const CheckoutData = () => {
       console.log("Berhasil")
     }
   }
+
   return (
     <div className="mt-24">
       <div className="container mx-auto p-4">

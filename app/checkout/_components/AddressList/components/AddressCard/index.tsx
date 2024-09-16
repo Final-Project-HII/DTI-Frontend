@@ -22,6 +22,7 @@ interface AddressCardProps {
   onConfirm: () => void
   onDataChange: () => void
 }
+
 const AddressCard: React.FC<AddressCardProps> = ({ data, onClose, onConfirm, onDataChange }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editAddressDialogOpen, setEditAddressDialogOpen] = useState(false)

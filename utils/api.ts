@@ -1,3 +1,4 @@
+
 import axios, { AxiosError } from 'axios'
 import {
   Address,
@@ -235,6 +236,7 @@ export const createAddress = async (
   return response.data
 }
 
+
 export const toogleActiveAddress = async (
   id: number,
   token: string
@@ -269,3 +271,4 @@ export const getActiveAddress = async (token: string): Promise<any> => {
     throw error
   }
 }
+
