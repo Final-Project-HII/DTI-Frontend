@@ -25,7 +25,10 @@ import { City } from '@/types/cities';
 import { z } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createWarehouse } from '@/utils/api';
+import { createAddress, createWarehouse } from '@/utils/api';
+import { useSession } from 'next-auth/react';
+import Swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -36,7 +39,7 @@ L.Icon.Default.mergeOptions({
 
 
 const addressSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  recipientName: z.string().min(1, "Name is required"),
   addressLine: z.string().min(1, "Address is required"),
   postalCode: z.string().min(1, "Postal code is required"),
   cityId: z.number({
@@ -56,6 +59,8 @@ interface LatLng {
 
 interface AddAddressFormProps {
   onClose: () => void;
+  onConfirm: () => void;
+  onDataChange: () => void;
 }
 
 interface DraggableMarkerProps {
@@ -111,16 +116,17 @@ const DraggableMarker: React.FC<DraggableMarkerProps> = ({ position, setPosition
   );
 };
 
-const AddAddressForm: React.FC<AddAddressFormProps> = ({ onClose }) => {
+const AddAddressForm: React.FC<AddAddressFormProps> = ({ onClose, onConfirm, onDataChange }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [position, setPosition] = useState<LatLng>({ lat: -6.120000, lng: 106.150276 });
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [cities, setCities] = useState<City[]>([]);
+  const { data: session } = useSession();
 
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<AddressFormData>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
-      name: '',
+      recipientName: '',
       addressLine: '',
       postalCode: '',
       cityId: 0,
@@ -173,10 +179,19 @@ const AddAddressForm: React.FC<AddAddressFormProps> = ({ onClose }) => {
     setSuggestions([]);
   }, [postalCode, setValue]);
 
-  const onSubmit = async (data: AddressFormData) => {
-    console.log(data);
+  const onSubmit = async (formData: AddressFormData) => {
     try {
-      await createWarehouse(data);
+      await createAddress(formData, session!.user.accessToken);
+      Swal.fire({
+        title: 'Your Address Has Been Added Succesfully!',
+        text: 'This will close in 3 seconds.',
+        icon: 'success',
+        timer: 3000,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      onConfirm();
+      onDataChange();
       onClose();
 
     } catch (error) {
@@ -191,11 +206,11 @@ const AddAddressForm: React.FC<AddAddressFormProps> = ({ onClose }) => {
           <div className="flex flex-col gap-2 lg:gap-4">
             <Label htmlFor="name">Recipient's Name</Label>
             <Controller
-              name="name"
+              name="recipientName"
               control={control}
               render={({ field }) => <Input {...field} id="name" placeholder="Enter recipient's name" />}
             />
-            {errors.name?.message && <div className="text-red-500">{errors.name.message}</div>}
+            {errors.recipientName?.message && <div className="text-red-500">{errors.recipientName.message}</div>}
 
             <Label htmlFor="phoneNumber">Phone Number</Label>
             <Controller

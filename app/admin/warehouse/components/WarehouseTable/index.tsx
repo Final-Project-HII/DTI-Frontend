@@ -1,5 +1,13 @@
 'use client'
 import { ColumnDef } from "@tanstack/react-table"
+import { MoreHorizontal } from "lucide-react"
+import { useEffect, useState } from 'react'
+import { DataTable } from './DataTable'
+
+import DeleteModal from "@/components/DeleteModal"
+import {
+  AlertDialog
+} from "@/components/ui/alert-dialog"
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"
 import { useEffect, useState } from 'react'
 import { DataTable } from './DataTable'
@@ -13,6 +21,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,28 +31,46 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Warehouse } from '@/types/warehouse'
+import { Warehouse } from '@/types/warehouse'
 import { deleteWarehouse, getAllWarehouse } from '@/utils/api'
 import UpdateWarehouseForm from '../UpdateWarehouseForm'
+import DataTablePagination from "./DataTable/components/Pagination"
 import DeleteModal from "@/components/DeleteModal"
 
 const WarehouseTable = () => {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [warehouseToDelete, setWarehouseToDelete] = useState<Warehouse | null>(null);
-  const [warehouseDetail, setWarehouseDetail] = useState<Warehouse | null>(null)
+  const [warehouseDetail, setWarehouseDetail] = useState<Warehouse | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [nameFilter, setNameFilter] = useState("");
+  const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(5);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+
   const fetchWarehouses = async () => {
+    setLoading(true);
     try {
-      const response = await getAllWarehouse();
-      setWarehouses(response);
+      const response = await getAllWarehouse(nameFilter, selectedCity, currentPage.toString(), pageSize.toString());
+      setWarehouses(response.content);
+      setTotalPages(response.totalPages);
+      setTotalElements(response.totalElements)
+      setCurrentPage(response.pageable.pageNumber);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchWarehouses();
-  }, []);
+  }, [currentPage, pageSize, nameFilter, selectedCity]);
+
+
 
   const handleDeleteWarehouse = async () => {
     if (warehouseToDelete) {
@@ -70,17 +97,7 @@ const WarehouseTable = () => {
   const columns: ColumnDef<Warehouse>[] = [
     {
       accessorKey: "name",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Name
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      header: "Name",
     },
     {
       accessorKey: "addressLine",
@@ -126,8 +143,27 @@ const WarehouseTable = () => {
 
   return (
     <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={warehouses} onDataChange={fetchWarehouses} />
+      <DataTable
+        columns={columns}
+        data={warehouses}
+        loading={loading}
+        nameFilter={nameFilter}
+        setNameFilter={setNameFilter}
+        selectedCity={selectedCity}
+        setSelectedCity={setSelectedCity}
+        onDataChanged={fetchWarehouses}
+        onPageChanged={setCurrentPage}
+      />
+      <DataTablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        totalElements={totalElements}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={setPageSize}
+      />
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DeleteModal onConfirm={handleDeleteWarehouse} onClose={handleCloseDeleteModal} description="Are you sure you want to delete the warehouse ?" />
         <DeleteModal onConfirm={handleDeleteWarehouse} onClose={handleCloseDeleteModal} description="Are you sure you want to delete the warehouse ?" />
       </AlertDialog>
       <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
@@ -136,7 +172,6 @@ const WarehouseTable = () => {
           <UpdateWarehouseForm data={warehouseDetail} onClose={handleCloseDetailsModal} onWarehouseUpdated={fetchWarehouses} />
         </DialogContent>
       </Dialog>
-
     </div>
   )
 }
