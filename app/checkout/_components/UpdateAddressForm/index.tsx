@@ -62,6 +62,7 @@ interface UpdateAddressFormProps {
   onClose: () => void;
   onConfirm: () => void;
   data: Address
+  onDataChange: () => void
 }
 
 interface DraggableMarkerProps {
@@ -117,7 +118,7 @@ const DraggableMarker: React.FC<DraggableMarkerProps> = ({ position, setPosition
   );
 };
 
-const UpdateAddressForm: React.FC<UpdateAddressFormProps> = ({ onClose, onConfirm, data }) => {
+const UpdateAddressForm: React.FC<UpdateAddressFormProps> = ({ onClose, onConfirm, data, onDataChange }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [position, setPosition] = useState<LatLng>({ lat: data.lat, lng: data.lon });
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -192,6 +193,7 @@ const UpdateAddressForm: React.FC<UpdateAddressFormProps> = ({ onClose, onConfir
       });
       onClose()
       onConfirm();
+      onDataChange();
     } catch (error) {
       console.error('Error updating warehouse:', error);
     }

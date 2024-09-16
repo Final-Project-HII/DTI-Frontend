@@ -60,6 +60,7 @@ interface LatLng {
 interface AddAddressFormProps {
   onClose: () => void;
   onConfirm: () => void;
+  onDataChange: () => void;
 }
 
 interface DraggableMarkerProps {
@@ -115,7 +116,7 @@ const DraggableMarker: React.FC<DraggableMarkerProps> = ({ position, setPosition
   );
 };
 
-const AddAddressForm: React.FC<AddAddressFormProps> = ({ onClose, onConfirm }) => {
+const AddAddressForm: React.FC<AddAddressFormProps> = ({ onClose, onConfirm, onDataChange }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [position, setPosition] = useState<LatLng>({ lat: -6.120000, lng: 106.150276 });
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -190,6 +191,7 @@ const AddAddressForm: React.FC<AddAddressFormProps> = ({ onClose, onConfirm }) =
         timerProgressBar: true,
       });
       onConfirm();
+      onDataChange();
       onClose();
 
     } catch (error) {

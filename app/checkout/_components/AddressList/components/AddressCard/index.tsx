@@ -20,8 +20,9 @@ interface AddressCardProps {
   data: Address
   onClose: () => void
   onConfirm: () => void
+  onDataChange: () => void
 }
-const AddressCard: React.FC<AddressCardProps> = ({ data, onClose, onConfirm }) => {
+const AddressCard: React.FC<AddressCardProps> = ({ data, onClose, onConfirm, onDataChange }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editAddressDialogOpen, setEditAddressDialogOpen] = useState(false)
   const { data: session } = useSession();
@@ -35,6 +36,7 @@ const AddressCard: React.FC<AddressCardProps> = ({ data, onClose, onConfirm }) =
     try {
       await toogleActiveAddress(data.id, session!.user.accessToken)
       onConfirm()
+      onDataChange()
     } catch (error) {
       console.error("Failed to toogle active address:", error);
     }
@@ -52,6 +54,7 @@ const AddressCard: React.FC<AddressCardProps> = ({ data, onClose, onConfirm }) =
     try {
       await deleteAddresses(data.id, session!.user.accessToken);
       onConfirm()
+      onDataChange()
     } catch (error) {
       console.error("Failed to delete address:", error);
     }
@@ -109,7 +112,7 @@ const AddressCard: React.FC<AddressCardProps> = ({ data, onClose, onConfirm }) =
         <DialogContent className="max-w-sm lg:max-w-4xl" onInteractOutside={(e) => {
           e.preventDefault();
         }}>
-          <UpdateAddressForm onClose={handleEditAddressFormClose} onConfirm={onConfirm} data={data} />
+          <UpdateAddressForm onClose={handleEditAddressFormClose} onConfirm={onConfirm} data={data} onDataChange={onDataChange} />
         </DialogContent>
       </Dialog>
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
