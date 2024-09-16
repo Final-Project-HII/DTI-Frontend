@@ -1,4 +1,5 @@
-import axios from 'axios'
+
+import axios, { AxiosError } from 'axios'
 import {
   Address,
   ApiResponse,
@@ -235,6 +236,7 @@ export const createAddress = async (
   return response.data
 }
 
+
 export const toogleActiveAddress = async (
   id: number,
   token: string
@@ -249,3 +251,24 @@ export const toogleActiveAddress = async (
   )
   return response.data
 }
+
+export const getActiveAddress = async (token: string): Promise<any> => {
+  try {
+    const response = await axios.get<any>(
+      `${BASE_URL}/addresses/active-address`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    return response.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError
+      if (axiosError.response?.status === 400) {
+        return null
+      }
+    }
+
+    console.error('Error fetching active address:', error)
+    throw error
+  }
+}
+
