@@ -30,8 +30,16 @@ const SearchInput: React.FC<SearchInputProps> = ({ defaultSearchTerm = '' }) => 
     newParams.set('page', '0');
 
     // Determine the target path
-    const targetPath = pathname.startsWith('/product/') ? '/product' : pathname;
-
+    let targetPath;
+    if (pathname === '/') {
+      targetPath = '/product';
+    } else if (pathname.startsWith('/product/')) {
+      targetPath = '/product';
+    } else if (!pathname.startsWith('/product')) {
+      targetPath = '/product';
+    } else {
+      targetPath = pathname;
+    }
     // Construct the full URL
     const fullPath = `${targetPath}?${newParams.toString()}`;
 

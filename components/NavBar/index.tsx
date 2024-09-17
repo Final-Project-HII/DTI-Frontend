@@ -1,6 +1,5 @@
 "use client";
 import avatar from "@/public/promo1.jpg";
-
 import {
   ChevronDown,
   LogOutIcon,
@@ -19,8 +18,6 @@ import CategoryDropdown from "./_components/CategoryDropdown";
 import CategorySwiper from "./_components/CategorySwiper";
 import SearchInput from "./_components/SearchInput";
 import SearchSheet from "./_components/SearchSheet";
-
-
 import { useCart } from "@/hooks/useCart";
 import { useSearchParams } from 'next/navigation';
 import "swiper/css";
@@ -49,6 +46,7 @@ const NavBar = () => {
   const { data } = useSession();
   const searchParams = useSearchParams();
   const defaultSearchTerm = searchParams.get('search') || '';
+
   const handleSignOut = () => {
     signOut()
   }
