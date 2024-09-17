@@ -69,7 +69,7 @@ interface Category {
   name: string;
 }
 
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = "http://localhost:8080/api";
 const ALL_CATEGORIES = "all";
 
 export default function ProductSearchPage() {
@@ -260,4 +260,4 @@ export default function ProductSearchPage() {
       </div>
     </div>
   );
-  }
+}
