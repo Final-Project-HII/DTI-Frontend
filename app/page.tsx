@@ -12,6 +12,7 @@ const page = () => {
   return (
     <>
       <div className="pt-20">
+        <NavBar />
         <Carousel />
         <CategoryList />
         <ProductList category="Food" />

@@ -95,6 +95,7 @@ body {
 .select-trigger .icon {
   display: none !important;
 }
+
 .custom-scrollbar::-webkit-scrollbar {
   display: none; /* for Chrome, Safari, and Opera */
 }
@@ -103,3 +104,4 @@ body {
   -ms-overflow-style: none; /* for Internet Explorer and Edge */
   scrollbar-width: none; /* for Firefox */
 }
+

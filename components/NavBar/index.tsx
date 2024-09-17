@@ -45,6 +45,7 @@ const NavBar = () => {
   const { data } = useSession();
   const searchParams = useSearchParams();
   const defaultSearchTerm = searchParams.get('search') || '';
+
   const handleSignOut = () => {
     signOut()
   }

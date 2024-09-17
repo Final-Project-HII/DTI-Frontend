@@ -3,17 +3,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from '@/components/ui/badge';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { MoreVertical, Plus, Edit, HousePlus } from 'lucide-react';
 import Image from 'next/image';
 
 interface ProductTableProps {
     products: Product[];
     currentPage: number;
     pageSize: number;
-    onEdit: (product: Product) => void;
-    onDelete: (id: number) => void;
+    onAddStock: (product: Product) => void;
+    onUpdateStock: (stock: Stock) => void;
     isLoading: boolean;
 }
+
 interface ProductImage {
     id: number;
     productId: number;
@@ -32,45 +33,31 @@ interface Product {
     categoryName: string;
     totalStock: number;
     productImages: ProductImage[];
+    stocks: Stocks[];
     createdAt: string;
     updatedAt: string;
 }
 
-interface ApiResponse {
-    content: Product[];
-    totalPages: number;
-    totalElements: number;
-    size: number;
-    number: number;
-    sort: {
-        empty: boolean;
-        sorted: boolean;
-        unsorted: boolean;
-    };
-    first: boolean;
-    last: boolean;
-    numberOfElements: number;
-    pageable: {
-        pageNumber: number;
-        pageSize: number;
-        sort: {
-            empty: boolean;
-            sorted: boolean;
-            unsorted: boolean;
-        };
-        offset: number;
-        paged: boolean;
-        unpaged: boolean;
-    };
-    empty: boolean;
+interface Stocks {
+    id: number;
+    warehouseId: number;
+    warehouseName: string;
+    quantity: number;
+}
+
+interface Stock {
+    id: number;
+    productId: number;
+    warehouseId: number;
+    quantity: number;
 }
 
 export const ProductTable: React.FC<ProductTableProps> = ({
     products,
     currentPage,
     pageSize,
-    onEdit,
-    onDelete,
+    onAddStock,
+    onUpdateStock,
     isLoading
 }) => {
     if (isLoading) {
@@ -85,7 +72,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     <TableHead className='text-white'>Image</TableHead>
                     <TableHead className='text-white'>Name</TableHead>
                     <TableHead className='text-white'>Stock</TableHead>
-                    <TableHead className='text-white'>Ordered Qty</TableHead>
                     <TableHead className='text-white'>Status</TableHead>
                     <TableHead className='text-white'>Price</TableHead>
                     <TableHead className='text-white'>Actions</TableHead>
@@ -101,9 +87,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                                     <Image
                                         src={product.productImages[0].imageUrl}
                                         alt={product.name}
-                                        // className="w-12 h-12 object-contain rounded"
-                                        className={`w-12 h-12 object-contain rounded ${product.totalStock === 0 ? 'grayscale' : ''}`}
-                                        // style={{ filter: product.totalStock === 0 ? 'grayscale(100%)' : 'none' }}
+                                        className="w-12 h-12 object-contain rounded"
+                                        style={{ filter: product.totalStock === 0 ? 'grayscale(100%)' : 'none' }}
                                         width={48}
                                         height={48}
                                     />
@@ -112,7 +97,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                         </TableCell>
                         <TableCell>{product.name}</TableCell>
                         <TableCell>{product.totalStock}</TableCell>
-                        <TableCell>20</TableCell>
                         <TableCell>
                             {product.totalStock > 0 ? (
                                 <Badge className="bg-green-100 text-green-700"> • Available</Badge>
@@ -129,13 +113,13 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="bg-white">
-                                    <DropdownMenuItem onClick={() => onEdit(product)}>
-                                        <Edit className="mr-2 h-4 w-4" />
-                                        <span>Edit</span>
+                                    <DropdownMenuItem onClick={() => onAddStock(product)}>
+                                        <HousePlus className="mr-2 h-4 w-4" />
+                                        <span>Add Stock</span>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => onDelete(product.id)}>
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        <span>Delete</span>
+                                    <DropdownMenuItem onClick={() => onUpdateStock({ id: 0, productId: product.id, warehouseId: 0, quantity: 0 })}>
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        <span>Update Stock</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
