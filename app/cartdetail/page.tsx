@@ -71,7 +71,6 @@ const CartPage: React.FC = () => {
 
   return (
     <>
-      <NavBar />
       <div className="mt-28 container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Keranjang</h1>
         {cartItemsWithDetails.length === 0 ? (

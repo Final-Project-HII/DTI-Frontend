@@ -1,6 +1,6 @@
 'use client'
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import {
   Table,
@@ -12,13 +12,8 @@ import {
 } from "@/components/ui/table"
 import {
   ColumnDef,
-  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
   useReactTable
 } from "@tanstack/react-table"
 import { PlusIcon } from "lucide-react"
@@ -31,41 +26,49 @@ import DataTablePagination from "./components/Pagination"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  loading: boolean
+  nameFilter: string
+  setNameFilter: (value: string) => void
+  selectedCity: string | undefined
+  setSelectedCity: (value: string | undefined) => void
+  onDataChanged: () => void
+  onPageChanged: (value: number) => void
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  loading,
+  nameFilter,
+  setNameFilter,
+  selectedCity,
+  setSelectedCity,
+  onDataChanged,
+  onPageChanged
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    []
-  )
-  const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined)
-
+  const [openNewWarehouseForm, setOpenNewWarehouseForm] = useState(false);
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      sorting,
-      columnFilters,
-    },
-    initialState: {
-      pagination: {
-        pageSize: 5,
-      },
-    },
-  })
+    manualPagination: true,
+    manualFiltering: true,
+  });
 
-  React.useEffect(() => {
-    table.getColumn("city")?.setFilterValue(selectedCity || "")
-  }, [selectedCity, table])
+  const handleNameFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNameFilter(event.target.value);
+    onPageChanged(0);
+  };
+
+  const handleCityChange = (city: string | undefined) => {
+    setSelectedCity(city);
+    onPageChanged(0);
+  };
+
+
+  const handleClose = () => {
+    setOpenNewWarehouseForm(false);
+  };
 
   return (
     <div>
@@ -77,21 +80,20 @@ export function DataTable<TData, TValue>({
           <div className="flex relative">
             <Input
               placeholder="search name..."
-              value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-              onChange={(event) =>
-                table.getColumn("name")?.setFilterValue(event.target.value)
-              }
+              value={nameFilter}
+              onChange={handleNameFilterChange}
               className="max-w-sm pl-10"
             />
             <FaSearch className='size-4 absolute left-4 top-0 translate-y-3 text-gray-400' />
-            <CityComboBox selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
+            <CityComboBox selectedCity={selectedCity} setSelectedCity={handleCityChange} />
           </div>
-          <Dialog>
+          <Dialog open={openNewWarehouseForm} onOpenChange={setOpenNewWarehouseForm}>
             <DialogTrigger asChild>
               <Button className="bg-blue-600  flex items-center gap-2"><PlusIcon size={20} /> Add New Warehouse </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-[700px]">
-              <AddWarehouseForm />
+            <DialogTitle></DialogTitle>
+            <DialogContent className="max-w-md lg:max-w-4xl">
+              <AddWarehouseForm onClose={handleClose} onWarehouseAdded={onDataChanged} />
             </DialogContent>
           </Dialog>
         </div>
@@ -117,7 +119,13 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -140,7 +148,6 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
     </div>
   )
 }

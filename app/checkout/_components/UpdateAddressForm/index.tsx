@@ -25,7 +25,11 @@ import { City } from '@/types/cities';
 import { z } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createWarehouse } from '@/utils/api';
+import { createWarehouse, updateAddress } from '@/utils/api';
+import { Address } from '@/types/product';
+import { useSession } from 'next-auth/react';
+import Swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -35,8 +39,8 @@ L.Icon.Default.mergeOptions({
 });
 
 
-const warehouseSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+const addressSchema = z.object({
+  recipientName: z.string().min(1, "Recipient's name is required"),
   addressLine: z.string().min(1, "Address is required"),
   postalCode: z.string().min(1, "Postal code is required"),
   cityId: z.number({
@@ -44,18 +48,21 @@ const warehouseSchema = z.object({
   }).min(1, "Please select a city"),
   lat: z.number(),
   lon: z.number(),
+  phoneNumber: z.string().min(1, "Phone number is required"),
 });
 
-export type WarehouseFormData = z.infer<typeof warehouseSchema>;
+export type AddressFormData = z.infer<typeof addressSchema>;
 
 interface LatLng {
   lat: number;
   lng: number;
 }
 
-interface AddWarehouseFormProps {
+interface UpdateAddressFormProps {
   onClose: () => void;
-  onWarehouseAdded: () => void;
+  onConfirm: () => void;
+  data: Address
+  onDataChange: () => void
 }
 
 interface DraggableMarkerProps {
@@ -111,21 +118,22 @@ const DraggableMarker: React.FC<DraggableMarkerProps> = ({ position, setPosition
   );
 };
 
-const AddWarehouseForm: React.FC<AddWarehouseFormProps> = ({ onClose, onWarehouseAdded }) => {
+const UpdateAddressForm: React.FC<UpdateAddressFormProps> = ({ onClose, onConfirm, data, onDataChange }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
-  const [position, setPosition] = useState<LatLng>({ lat: -6.120000, lng: 106.150276 });
+  const [position, setPosition] = useState<LatLng>({ lat: data.lat, lng: data.lon });
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [cities, setCities] = useState<City[]>([]);
-
-  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<WarehouseFormData>({
-    resolver: zodResolver(warehouseSchema),
+  const { data: session } = useSession();
+  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<AddressFormData>({
+    resolver: zodResolver(addressSchema),
     defaultValues: {
-      name: '',
-      addressLine: '',
-      postalCode: '',
-      cityId: 0,
+      recipientName: data.name,
+      addressLine: data.addressLine,
+      postalCode: data.postalCode,
+      cityId: data.city.id,
       lat: position.lat,
       lon: position.lng,
+      phoneNumber: data.phoneNumber,
     },
   });
 
@@ -172,38 +180,45 @@ const AddWarehouseForm: React.FC<AddWarehouseFormProps> = ({ onClose, onWarehous
     setSuggestions([]);
   }, [postalCode, setValue]);
 
-  const onSubmit = async (data: WarehouseFormData) => {
-    console.log(data);
+  const onSubmit = async (formData: AddressFormData) => {
     try {
-      await createWarehouse(data);
-      onClose();
-      onWarehouseAdded()
-
+      await updateAddress(formData, data.id, session!.user.accessToken);
+      Swal.fire({
+        title: 'Your Address Has Been Updated Succesfully!',
+        text: 'This will close in 3 seconds.',
+        icon: 'success',
+        timer: 3000,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      onClose()
+      onConfirm();
+      onDataChange();
     } catch (error) {
-      console.error('Error creating warehouse:', error);
+      console.error('Error updating warehouse:', error);
     }
   };
   return (
     <div className="p-4">
-      <h2 className="text-lg font-bold text-center">Add Warehouse</h2>
+      <h2 className="text-lg font-bold text-center">Update Address</h2>
       <div className="flex mt-3 gap-4 flex-col lg:flex-row">
         <form onSubmit={handleSubmit(onSubmit)} className='gap-6 flex flex-col w-full'>
           <div className="flex flex-col gap-2 lg:gap-4">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">Recipient's Name</Label>
             <Controller
-              name="name"
+              name="recipientName"
               control={control}
-              render={({ field }) => <Input {...field} id="name" />}
+              render={({ field }) => <Input {...field} id="name" placeholder="Enter recipient's name" />}
             />
-            {errors.name?.message && <div className="text-red-500">{errors.name.message}</div>}
+            {errors.recipientName?.message && <div className="text-red-500">{errors.recipientName.message}</div>}
 
-            <Label htmlFor="addressLine">Address</Label>
+            <Label htmlFor="phoneNumber">Phone Number</Label>
             <Controller
-              name="addressLine"
+              name="phoneNumber"
               control={control}
-              render={({ field }) => <Textarea {...field} id="addressLine" />}
+              render={({ field }) => <Input {...field} id="phoneNumber" placeholder="Enter phone number" />}
             />
-            {errors.addressLine?.message && <div className="text-red-500">{errors.addressLine.message}</div>}
+            {errors.phoneNumber?.message && <div className="text-red-500">{errors.phoneNumber.message}</div>}
 
             <Label htmlFor="postalCode">Postal Code</Label>
             <Controller
@@ -236,6 +251,16 @@ const AddWarehouseForm: React.FC<AddWarehouseFormProps> = ({ onClose, onWarehous
                 ))}
               </ul>
             )}
+
+
+            <Label htmlFor="addressLine">Address</Label>
+            <Controller
+              name="addressLine"
+              control={control}
+              render={({ field }) => <Textarea {...field} id="addressLine" placeholder="Enter your address" />}
+            />
+            {errors.addressLine?.message && <div className="text-red-500">{errors.addressLine.message}</div>}
+
 
             <Label htmlFor="city">City</Label>
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
@@ -290,4 +315,4 @@ const AddWarehouseForm: React.FC<AddWarehouseFormProps> = ({ onClose, onWarehous
   );
 };
 
-export default AddWarehouseForm;
+export default UpdateAddressForm;

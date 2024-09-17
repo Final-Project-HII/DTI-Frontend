@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useOrders } from "@/hooks/useOrder";
+
 import { usePaymentStatus } from "@/hooks/usePaymentStatus";
-import { Order } from "@/types/order";
+
 import { ProductDataResponse, useProductDetails } from "@/hooks/useProduct";
 import {
   Card,
@@ -11,6 +11,8 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Order } from "@/types/order";
+import { useOrders } from "@/hooks/useOrder";
 
 interface OrderCardsProps {
   currentPage: number;

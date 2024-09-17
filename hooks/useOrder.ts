@@ -25,19 +25,25 @@ export const useOrders = (page: number, size: number) => {
 
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8080/api/orders?page=${page}&size=${size}`, {
-          headers: {
-            Authorization: `Bearer ${session.user.accessToken}`,
-          },
-        });
+        const response = await fetch(
+          `http://localhost:8080/api/orders?page=${page}&size=${size}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.user.accessToken}`,
+            },
+          }
+        );
         if (!response.ok) {
-          throw new Error("Failed to fetch orders");
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to fetch orders");
         }
         const data: OrdersResponse = await response.json();
         setOrdersData(data);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error("An unknown error occurred"));
+        setError(
+          err instanceof Error ? err : new Error("An unknown error occurred")
+        );
       } finally {
         setLoading(false);
       }

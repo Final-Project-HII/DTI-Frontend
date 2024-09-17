@@ -25,7 +25,8 @@ import { City } from '@/types/cities';
 import { z } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createWarehouse } from '@/utils/api';
+import { createWarehouse, updateWarehouse } from '@/utils/api';
+import { Warehouse } from '@/types/warehouse';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -54,8 +55,9 @@ interface LatLng {
 }
 
 interface AddWarehouseFormProps {
+  data: Warehouse | null
   onClose: () => void;
-  onWarehouseAdded: () => void;
+  onWarehouseUpdated: () => void;
 }
 
 interface DraggableMarkerProps {
@@ -111,21 +113,21 @@ const DraggableMarker: React.FC<DraggableMarkerProps> = ({ position, setPosition
   );
 };
 
-const AddWarehouseForm: React.FC<AddWarehouseFormProps> = ({ onClose, onWarehouseAdded }) => {
+const UpdateWarehouseForm: React.FC<AddWarehouseFormProps> = ({ data, onClose, onWarehouseUpdated }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
-  const [position, setPosition] = useState<LatLng>({ lat: -6.120000, lng: 106.150276 });
+  const [position, setPosition] = useState<LatLng>({ lat: data!.lat, lng: data!.lon });
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [cities, setCities] = useState<City[]>([]);
 
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<WarehouseFormData>({
     resolver: zodResolver(warehouseSchema),
     defaultValues: {
-      name: '',
-      addressLine: '',
-      postalCode: '',
-      cityId: 0,
-      lat: position.lat,
-      lon: position.lng,
+      name: data?.name,
+      addressLine: data?.addressLine,
+      postalCode: data?.postalCode,
+      cityId: data?.city.id,
+      lat: data?.lat,
+      lon: data?.lon,
     },
   });
 
@@ -172,20 +174,18 @@ const AddWarehouseForm: React.FC<AddWarehouseFormProps> = ({ onClose, onWarehous
     setSuggestions([]);
   }, [postalCode, setValue]);
 
-  const onSubmit = async (data: WarehouseFormData) => {
-    console.log(data);
+  const onSubmit = async (formData: WarehouseFormData) => {
     try {
-      await createWarehouse(data);
+      await updateWarehouse(data!.id, formData);
       onClose();
-      onWarehouseAdded()
-
+      onWarehouseUpdated()
     } catch (error) {
       console.error('Error creating warehouse:', error);
     }
   };
   return (
     <div className="p-4">
-      <h2 className="text-lg font-bold text-center">Add Warehouse</h2>
+      <h2 className="text-lg font-bold text-center">Warehouse Details</h2>
       <div className="flex mt-3 gap-4 flex-col lg:flex-row">
         <form onSubmit={handleSubmit(onSubmit)} className='gap-6 flex flex-col w-full'>
           <div className="flex flex-col gap-2 lg:gap-4">
@@ -270,7 +270,7 @@ const AddWarehouseForm: React.FC<AddWarehouseFormProps> = ({ onClose, onWarehous
             {errors.cityId && <div className="text-red-500">{errors.cityId.message}</div>}
           </div>
           <Button type="submit" className="w-full bg-blue-600 text-white">
-            Save
+            Update
           </Button>
         </form>
         <div className="w-full h-64 lg:h-auto">
@@ -290,4 +290,4 @@ const AddWarehouseForm: React.FC<AddWarehouseFormProps> = ({ onClose, onWarehous
   );
 };
 
-export default AddWarehouseForm;
+export default UpdateWarehouseForm;
