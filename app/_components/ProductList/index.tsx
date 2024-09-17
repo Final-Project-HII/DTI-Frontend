@@ -1,20 +1,18 @@
-
-'use client'
-import React, { useState } from 'react';
-import { ProductCard } from '@/app/(main)/product/_components/ProductCard';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
-import Link from 'next/link';
+"use client";
+import React, { useState } from "react";
+import { ProductCard } from "@/app/(main)/product/_components/ProductCard";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import Link from "next/link";
 
 // Import Swiper styles
-import 'swiper/css';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import axios from 'axios';
+import "swiper/css";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import axios from "axios";
 // import { Product } from '@/types/product';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from "@tanstack/react-query";
 
-
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = "http://localhost:8080/api";
 
 interface ProductListProps {
   category?: string;
@@ -44,10 +42,12 @@ interface ProductImage {
 
 const fetchProducts = async (category?: string): Promise<Product[]> => {
   const params = new URLSearchParams();
-  if (category) params.set('categoryName', category);
-  params.set('size', '10'); // Limit to 10 products for the slider
+  if (category) params.set("categoryName", category);
+  params.set("size", "10"); // Limit to 10 products for the slider
 
-  const response = await axios.get<{ content: Product[] }>(`${BASE_URL}/product?${params.toString()}`);
+  const response = await axios.get<{ content: Product[] }>(
+    `${BASE_URL}/product?${params.toString()}`
+  );
   return response.data.content;
 };
 
@@ -55,8 +55,12 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
 
-  const { data: products, isLoading, error } = useQuery<Product[], Error>({
-    queryKey: ['products', category],
+  const {
+    data: products,
+    isLoading,
+    error,
+  } = useQuery<Product[], Error>({
+    queryKey: ["products", category],
     queryFn: () => fetchProducts(category),
   });
 
@@ -67,7 +71,9 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
     <div className="px-5 py-2 rounded-xl lg:px-40">
       <div className="bg-white rounded-xl p-5 flex flex-col gap-4">
         <div className="flex justify-between items-center">
-          <h1 className="font-semibold text-lg">{category ? `${category} Products` : 'All Products'}</h1>
+          <h1 className="font-semibold text-lg">
+            {category ? `${category} Products` : "All Products"}
+          </h1>
           <Link href={`/product?page=0&categoryName=${category}`}>
             <h2 className="text-blue-600">See all</h2>
           </Link>
@@ -97,7 +103,6 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
             },
           }}
         >
-
           {products?.map((product) => (
             <SwiperSlide key={product.id}>
               <div className="h-full">

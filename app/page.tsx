@@ -1,5 +1,4 @@
-
-import React from 'react'
+import React from "react";
 import Footer from "@/components/Footer";
 import Carousel from "./_components/Carousel";
 import CategoryList from "./_components/CategoryList";
@@ -13,7 +12,6 @@ const page = () => {
   return (
     <>
       <div className="pt-20">
-        <NavBar />
         <Carousel />
         <CategoryList />
         <ProductList category="Food" />
@@ -25,6 +23,6 @@ const page = () => {
       </div>
     </>
   );
-}
+};
 
-export default page
+export default page;

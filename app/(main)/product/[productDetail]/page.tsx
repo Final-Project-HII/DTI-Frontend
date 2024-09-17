@@ -17,7 +17,6 @@ export function parseSlug(slug: string): ParsedSlug {
   };
 }
 
-// Interface for product data response
 export interface ProductDataResponse {
   id: number;
   name: string;
@@ -26,6 +25,7 @@ export interface ProductDataResponse {
   weight: number;
   categoryId: number;
   categoryName: string;
+  totalStock: number;
   productImages: {
     id: number;
 
@@ -39,11 +39,11 @@ export interface ProductDataResponse {
     categoryName: string;
     totalStock: number;
     productImages: {
-        id: number;
-        productId: number;
-        imageUrl: string;
-        createdAt: string;
-        updatedAt: string;
+      id: number;
+      productId: number;
+      imageUrl: string;
+      createdAt: string;
+      updatedAt: string;
     }[];
 
     createdAt: string;
@@ -86,8 +86,5 @@ export default function ProductPage({
   if (isError) return <div>Error: {error.message}</div>;
   if (!product) return <div>No product found</div>;
 
-
-    return <ProductDetail product={product} />;
-
+  return <ProductDetail product={product} />;
 }
-
