@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
@@ -15,58 +14,60 @@ import { Pagination } from './_components/Pagination';
 import ProductFilter from './_components/NavFilter';
 
 interface ProductImage {
-    id: number;
-    productId: number;
-    imageUrl: string;
-    createdAt: string;
-    updatedAt: string;
+  id: number;
+  productId: number;
+  imageUrl: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    weight: number;
-    categoryId: number;
-    categoryName: string;
-    totalStock: number;
-    productImages: ProductImage[];
-    createdAt: string;
-    updatedAt: string;
+
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  weight: number;
+  categoryId: number;
+  categoryName: string;
+  totalStock: number;
+  productImages: ProductImage[];
+  createdAt: string;
+  updatedAt: string;
+
 }
 
 interface ApiResponse {
-    content: Product[];
-    totalPages: number;
-    totalElements: number;
-    size: number;
-    number: number;
-    sort: {
-        empty: boolean;
-        sorted: boolean;
-        unsorted: boolean;
-    };
-    first: boolean;
-    last: boolean;
-    numberOfElements: number;
-    pageable: {
-        pageNumber: number;
-        pageSize: number;
-        sort: {
-            empty: boolean;
-            sorted: boolean;
-            unsorted: boolean;
-        };
-        offset: number;
-        paged: boolean;
-        unpaged: boolean;
-    };
+  content: Product[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+  sort: {
     empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
+  };
+  first: boolean;
+  last: boolean;
+  numberOfElements: number;
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      empty: boolean;
+      sorted: boolean;
+      unsorted: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  empty: boolean;
 }
 interface Category {
-    id: number;
-    name: string;
+  id: number;
+  name: string;
 }
 
 const BASE_URL = 'http://localhost:8080/api';
@@ -101,9 +102,12 @@ export default function ProductSearchPage() {
         }
         if (search) params.set('search', search);
 
-        const response = await axios.get<ApiResponse>(`${BASE_URL}/product?${params.toString()}`);
-        return response.data;
-    };
+  const getParamValue = useCallback(
+    (key: string, defaultValue: string) => {
+      return searchParams.get(key) || defaultValue;
+    },
+    [searchParams]
+  );
 
     const { data, isLoading, error } = useQuery<ApiResponse, Error, ApiResponse, readonly [string, string, string, string, string, string, string]>({
         queryKey: ['products', currentPage.toString(), pageSize.toString(), category, sortBy, sortDirection, searchTerm] as const,
@@ -143,12 +147,19 @@ export default function ProductSearchPage() {
         if (newSortBy === "related") {
             updateSearchParams({ sortBy: newSortBy, sortDirection: undefined });
         } else {
-            updateSearchParams({ sortBy: newSortBy });
+          params.set(key, value);
         }
-    };
+      });
+      if (updates.page === undefined) params.set("page", "0");
+      router.push(`?${params.toString()}`, { scroll: false });
+    },
+    1000
+  );
 
-    const handleSortDirectionChange = (newDirection: string) => updateSearchParams({ sortDirection: newDirection });
-    const handlePageChange = (newPage: number) => updateSearchParams({ page: newPage.toString() });
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    updateSearchParams({ search: value });
+  };
 
     useEffect(() => {
         // Prefetch next page
@@ -219,3 +230,4 @@ export default function ProductSearchPage() {
         </div>
     );
 }
+

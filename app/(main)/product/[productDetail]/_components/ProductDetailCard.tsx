@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,27 +6,28 @@ import { Minus, Plus, ShoppingBag } from 'lucide-react';
 import { ProductDetailSkeleton } from './ProductDetailSkeleton';
 import { ImageWithLoading } from "./ImageWithLoading";
 import YouMayLike from "@/app/(main)/product/[productDetail]/_components/YouMayLike";
+import { useCart } from "@/hooks/useCart";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ProductImage {
-    id: number;
-    imageUrl: string;
+  id: number;
+  imageUrl: string;
 }
 
 interface Product {
-    id: number;
-    name: string;
-    price: number;
-    description: string;
-    categoryName: string;
-    totalStock: number;
-    weight: number;
-    productImages: ProductImage[];
+  id: number;
+  name: string;
+  price: number;
+  description: string;
+  categoryName: string;
+  totalStock: number;
+  weight: number;
+  productImages: ProductImage[];
 }
 
 interface ProductDetailProps {
-    product: Product;
+  product: Product;
 }
-
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     const [quantity, setQuantity] = useState(1);
@@ -98,6 +99,22 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                             </Card>
                         ))}
                     </div>
+                    <span className="text-xs md:text-sm">
+                      from{" "}
+                      <strong className="text-blue-800">
+                        {" "}
+                        {product.totalStock}{" "}
+                      </strong>{" "}
+                      items in stock
+                    </span>
+                  </div>
+                  <Button
+                    onClick={handleAddToCart}
+                    className="h-12 px-6 text-white text-sm md:text-base lg:text-lg bg-blue-600 hover:bg-blue-700 transition-colors duration-300"
+                    disabled={product.totalStock === 0}
+                  >
+                    {product.totalStock === 0 ? "Out of Stock" : "+ Cart"}
+                  </Button>
                 </div>
                 <div className='space-y-4'>
                     <Card className="w-full bg-white">
@@ -177,16 +194,40 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                         </CardContent>
                     </Card>
                 </div>
-            </div>
-            <div className='mt-6'>
-                <YouMayLike category={product.categoryName} />
-                <YouMayLike />
-            </div>
+                <div>
+                  <h3 className="font-semibold text-sm md:text-base lg:text-lg text-gray-800 mb-1">
+                    Category
+                  </h3>
+                  <p className="text-xs md:text-sm lg:text-base text-gray-600">
+                    {product.categoryName}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="w-full bg-white">
+            <CardContent className="p-6">
+              <div className="space-y-2">
+                <h3 className="font-semibold text-sm md:text-base lg:text-lg text-gray-800 mb-4">
+                  Deskripsi Produk
+                </h3>
+                <p className="text-xs md:text-sm lg:text-base font-medium text-gray-600">
+                  weight: {product.weight} gram
+                </p>
+                <p className="text-xs md:text-sm lg:text-base text-gray-600">
+                  {product.description}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-    );
+      </div>
+      <div className="mt-6">
+        <YouMayLike category={product.categoryName} />
+        <YouMayLike />
+      </div>
+    </div>
+  );
 };
-
-
-
 
 export default ProductDetail;

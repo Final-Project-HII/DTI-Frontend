@@ -1,38 +1,63 @@
-import React from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from '@/components/ui/badge';
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
+import { useCart } from "@/hooks/useCart";
+
 
 interface ProductCardProps {
-    product: Product;
+  product: Product;
 }
 
 interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    weight: number;
-    categoryId: number;
-    categoryName: string;
-    totalStock: number;
-    productImages: ProductImage[];
-    createdAt: string;
-    updatedAt: string;
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  weight: number;
+  categoryId: number;
+  categoryName: string;
+  totalStock: number;
+  productImages: ProductImage[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ProductImage {
-    id: number;
-    productId: number;
-    imageUrl: string;
-    createdAt: string;
-    updatedAt: string;
+  id: number;
+  productId: number;
+  imageUrl: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const { addToCart } = useCart();
+  const handleAddToCart = async () => {
+    try {
+      await addToCart(product.id, 1);
+      alert("Product added to cart!");
+    } catch (error) {
+      console.error("Failed to add product to cart:", error);
+      alert("Failed to add product to cart.");
+    }
+  };
+
+  const truncateDescription = (description: string, maxLength: number) => {
+    if (description.length > maxLength) {
+      return description.slice(0, maxLength) + "...";
+    }
+    return description;
+  };
     return (
         <Card className="flex flex-col h-full bg-white hover:shadow-lg transition-shadow duration-300">
             <Link href={`/product/${product.id}_${product.name.replace(/\s+/g, '-').toLowerCase()}`} passHref>
@@ -63,6 +88,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 <Button
                     className="w-full border border-blue-600 text-blue-600 bg-transparent hover:bg-blue-50"
                     disabled={product.totalStock === 0}
+                  onClick={handleAddToCart}
                 >
                     {product.totalStock === 0 ? 'Out of Stock' : '+ Add to Cart'}
                 </Button>

@@ -1,9 +1,9 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Trash2, Edit, Plus } from 'lucide-react';
+import { AlertCircle, Trash2, Edit, Plus, Upload } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 import AddCategoryModal from './_components/AddCategoryModal';
@@ -40,7 +40,6 @@ export default function CategoryManagementPage() {
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-
     const fetchCategories = async (): Promise<Category[]> => {
         const response = await axios.get<Category[]>(`${BASE_URL}/category`);
         return response.data;
@@ -202,7 +201,6 @@ export default function CategoryManagementPage() {
                 }}
                 category={editingCategory}
             />
-
             {deleteCategoryMutation.isError && (
                 <Alert variant="destructive" className="mt-4">
                     <AlertCircle className="h-4 w-4" />

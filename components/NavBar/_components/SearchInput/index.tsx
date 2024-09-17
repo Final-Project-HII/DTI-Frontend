@@ -40,7 +40,6 @@ const SearchInput: React.FC<SearchInputProps> = ({ defaultSearchTerm = '' }) => 
     } else {
       targetPath = pathname;
     }
-
     // Construct the full URL
     const fullPath = `${targetPath}?${newParams.toString()}`;
 

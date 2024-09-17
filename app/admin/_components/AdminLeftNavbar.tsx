@@ -62,26 +62,26 @@ const menuItems = [
 const AdminLeftNavbar: React.FC = () => {
     const pathname = usePathname();
     const [isExpanded, setIsExpanded] = useState(false);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [isMobile, setIsMobile] = useState(false);
 
 
     useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth < 768);
+        const checkMobile = () => {
+            setIsMobile(document.documentElement.clientWidth < 768);
         };
 
-        window.addEventListener('resize', handleResize);
-        handleResize(); // Initial check
+        // Initial check
+        checkMobile();
 
-        return () => window.removeEventListener('resize', handleResize);
+        // Add event listener
+        window.addEventListener('resize', checkMobile);
+
+        // Cleanup
+        return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
     useEffect(() => {
-        if (isMobile) {
-            setIsExpanded(false);
-        } else {
-            setIsExpanded(true);
-        }
+        setIsExpanded(!isMobile);
     }, [isMobile]);
 
     const toggleSidebar = () => {
