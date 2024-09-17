@@ -42,7 +42,7 @@ export interface ProductDataResponse {
 // Async function to fetch product data
 async function getProductData(slug: string): Promise<ProductDataResponse> {
     const { id } = parseSlug(slug);
-    const response = await fetch(`http://localhost:8080/product/${id}`);
+    const response = await fetch(`http://localhost:8080/api/product/${id}`);
     if (!response.ok) {
         throw new Error('Failed to fetch product');
     }

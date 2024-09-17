@@ -34,29 +34,29 @@ const menuItems = [
         name: 'Stock',
         icon: Box,
         subitems: [
-            { name: 'Stock Management', href: '/stock/management' },
-            { name: 'Stock Request', href: '/stock/request' },
-            { name: 'Stock Approval', href: '/stock/approval' },
+            { name: 'Stock Management', href: '/admin/stock/management' },
+            { name: 'Stock Request', href: '/admin/stock/request' },
+            { name: 'Stock Approval', href: '/admin/stock/approval' },
         ],
     },
     {
         name: 'Report',
         icon: FileText,
         subitems: [
-            { name: 'Stock Report', href: '/report/stock' },
-            { name: 'Sales Report', href: '/report/sales' },
+            { name: 'Stock Report', href: '/admin/report/stock' },
+            { name: 'Sales Report', href: '/admin/report/sales' },
         ],
     },
     {
         name: 'Transaction',
         icon: ShoppingCart,
         subitems: [
-            { name: 'Order', href: '/transaction/order' },
-            { name: 'Confirm Payment', href: '/transaction/confirm-payment' },
+            { name: 'Order', href: '/admin/transaction/order' },
+            { name: 'Confirm Payment', href: '/admin/transaction/confirm-payment' },
         ],
     },
     { name: 'Admin', icon: Users, href: '/admin' },
-    { name: 'Warehouse', icon: Warehouse, href: '/warehouse' },
+    { name: 'Warehouse', icon: Warehouse, href: '/admin/warehouse' },
 ];
 
 const AdminLeftNavbar: React.FC = () => {

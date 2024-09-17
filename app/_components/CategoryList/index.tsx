@@ -9,8 +9,9 @@ import CategoryDummyData from '@/utils/CategoryDummyData'
 import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
+import SkeletonCardCategory from '@/components/SkeletonCardCategory'
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'http://localhost:8080/api';
 
 interface Category {
   id: number;
@@ -29,6 +30,7 @@ const CategoryList = () => {
   });
 
   if (isLoading) return <div>Loading categories...</div>;
+  // if (isLoading) return <div><SkeletonCardCategory /></div>;
   if (error) return <div>Error loading categories: {error.message}</div>;
 
   return (
@@ -58,7 +60,7 @@ const CategoryList = () => {
             <SwiperSlide key={category.id} className="w-auto">
               <div className='flex flex-col gap-2 items-center'>
                 {/* http://localhost:3000/product?page=0&categoryName=Milk */}
-                <Link href={`/product?page=0&categoryName=${category.name}`}>
+                <Link href={`/product?page=0&category=${category.name}`}>
                   <div className="bg-white items-center p-5 w-24 rounded-xl shadow-md">
                     <Image
                       src={category.categoryImage ? category.categoryImage.startsWith('http') ? category.categoryImage : `https://res.cloudinary.com/dcjjcs49e/image/upload/${category.categoryImage}` : "/food.png"}

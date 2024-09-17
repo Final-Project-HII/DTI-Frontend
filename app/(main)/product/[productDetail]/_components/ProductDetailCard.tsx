@@ -106,10 +106,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                                 <div className=" border-b pb-2">
                                     <h1 className="text-xl md:text-2xl lg:text-2xl font-bold text-gray-800 mb-4">{product.name}</h1>
                                     <div className='flex items-center space-x-2'>
-                                        {/* <Badge variant="secondary" className="bg-yellow-100 text-orange-500 text-xs md:text-sm">14%</Badge>
-                                        <p className="text-sm md:text-base text-gray-500 line-through">
-                                            Rp {Math.round(product.price * 1.14).toLocaleString('id-ID')}
-                                        </p> */}
                                         <div className="flex items-center text-xs text-blue-600 mb-2 bg-red-100 rounded-xl p-1 px-5">
                                             <ShoppingBag className="w-5 h-5 mr-1" />
                                             <span className='text-black'>Hiimart Store</span>

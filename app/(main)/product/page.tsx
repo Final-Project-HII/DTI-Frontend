@@ -6,14 +6,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useDebouncedCallback } from 'use-debounce';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from '@/components/ui/badge';
 import { ProductCard } from './_components/ProductCard';
 import { SkeletonCard } from './_components/SkeletonCard';
 import { SearchFilters } from './_components/SearchFilter';
@@ -75,7 +69,7 @@ interface Category {
     name: string;
 }
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'http://localhost:8080/api';
 const ALL_CATEGORIES = 'all';
 
 export default function ProductSearchPage() {
@@ -89,18 +83,18 @@ export default function ProductSearchPage() {
     }, [searchParams]);
 
     const searchTerm = getParamValue("search", "");
-    const categoryName = getParamValue("categoryName", ALL_CATEGORIES);
+    const category = getParamValue("category", ALL_CATEGORIES);
     const currentPage = parseInt(getParamValue("page", "0"));
     const pageSize = parseInt(getParamValue("size", "10"));
     const sortBy = getParamValue("sortBy", "related");
     const sortDirection = getParamValue("sortDirection", "asc");
 
     const fetchProducts = async ({ queryKey }: { queryKey: readonly unknown[] }): Promise<ApiResponse> => {
-        const [_, page, size, category, sort, direction, search] = queryKey as [string, string, string, string, string, string, string];
+        const [_, page, size, cat, sort, direction, search] = queryKey as [string, string, string, string, string, string, string];
         const params = new URLSearchParams();
         params.set('page', page);
         params.set('size', size);
-        if (category !== ALL_CATEGORIES) params.set('categoryName', category);
+        if (cat !== ALL_CATEGORIES) params.set('categoryName', cat); ///hati-hati
         if (sort !== "related") {
             params.set('sortBy', sort);
             params.set('sortDirection', direction);
@@ -112,7 +106,7 @@ export default function ProductSearchPage() {
     };
 
     const { data, isLoading, error } = useQuery<ApiResponse, Error, ApiResponse, readonly [string, string, string, string, string, string, string]>({
-        queryKey: ['products', currentPage.toString(), pageSize.toString(), categoryName, sortBy, sortDirection, searchTerm] as const,
+        queryKey: ['products', currentPage.toString(), pageSize.toString(), category, sortBy, sortDirection, searchTerm] as const,
         queryFn: fetchProducts,
         staleTime: 60000, // 1 minute
     });
@@ -144,7 +138,7 @@ export default function ProductSearchPage() {
         updateSearchParams({ search: value });
     };
 
-    const handleCategoryChange = (newCategory: string) => updateSearchParams({ categoryName: newCategory });
+    const handleCategoryChange = (newCategory: string) => updateSearchParams({ category: newCategory });
     const handleSortChange = (newSortBy: string) => {
         if (newSortBy === "related") {
             updateSearchParams({ sortBy: newSortBy, sortDirection: undefined });
@@ -160,18 +154,18 @@ export default function ProductSearchPage() {
         // Prefetch next page
         if (data && currentPage + 1 < data.totalPages) {
             queryClient.prefetchQuery({
-                queryKey: ['products', (currentPage + 1).toString(), pageSize.toString(), categoryName, sortBy, sortDirection, searchTerm] as const,
+                queryKey: ['products', (currentPage + 1).toString(), pageSize.toString(), category, sortBy, sortDirection, searchTerm] as const,
                 queryFn: fetchProducts,
             });
         }
-    }, [data, currentPage, pageSize, categoryName, sortBy, sortDirection, searchTerm, queryClient]);
+    }, [data, currentPage, pageSize, category, sortBy, sortDirection, searchTerm, queryClient]);
 
     return (
         <div className="w-full mx-auto p-4 mt-16 lg:p-16">
             <div className="flex flex-col md:flex-row gap-4">
-                <aside className="w-full md:w-1/4 p-4">
+                <aside className="w-full md:w-1/4 p-4 pt-0">
                     <ProductFilter
-                        categoryName={categoryName}
+                        categoryName={category}
                         sortBy={sortBy}
                         sortDirection={sortDirection}
                         categories={categories}
@@ -181,10 +175,9 @@ export default function ProductSearchPage() {
                     />
                 </aside>
                 <div className='w-full bg-white p-8 rounded-lg'>
-                    {/* <h1 className="text-3xl font-bold mb-6">Product Search</h1> */}
                     <SearchFilters
                         searchTerm={searchTerm}
-                        categoryName={categoryName}
+                        categoryName={category}
                         sortBy={sortBy}
                         sortDirection={sortDirection}
                         categories={categories}
@@ -222,7 +215,6 @@ export default function ProductSearchPage() {
                         />
                     )}
                 </div>
-
             </div>
         </div>
     );

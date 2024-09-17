@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { X } from 'lucide-react';
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, X } from 'lucide-react';
 import CategorySelect from './CategorySelect';
-
-interface EditProductModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSubmit: (id: number, formData: FormData) => void;
-    categories: Category[];
-    editingProduct: Product | null;
-    updateProductMutation: {
-        status: 'idle' | 'pending' | 'success' | 'error';
-    };
-    openAddCategoryModal: (type: 'new' | 'edit') => void;
-}
 
 interface Category {
     id: number;
     name: string;
+}
+
+interface ProductImage {
+    id: number;
+    productId: number;
+    imageUrl: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 interface Product {
@@ -30,43 +29,71 @@ interface Product {
     price: number;
     weight: number;
     categoryId: number;
+    categoryName: string;
+    totalStock: number;
     productImages: ProductImage[];
+    createdAt: string;
+    updatedAt: string;
 }
 
-interface ProductImage {
-    id: number;
-    imageUrl: string;
+interface EditProductModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    product: Product | null;
+    categories: Category[];
+    openAddCategoryModal: (type: 'new' | 'edit') => void;
 }
 
-const EditProductModal: React.FC<EditProductModalProps> = ({
-    isOpen,
-    onClose,
-    onSubmit,
-    categories,
-    editingProduct,
-    updateProductMutation,
-    openAddCategoryModal
-}) => {
-    const [product, setProduct] = useState<Product | null>(null);
+const BASE_URL = 'http://localhost:8080';
+
+export default function EditProductModal({ isOpen, onClose, product, categories, openAddCategoryModal }: EditProductModalProps) {
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [editProductImages, setEditProductImages] = useState<File[]>([]);
     const [deleteImages, setDeleteImages] = useState<number[]>([]);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    const queryClient = useQueryClient();
 
     useEffect(() => {
-        if (editingProduct) {
-            setProduct(editingProduct);
+        if (product) {
+            setEditingProduct(product);
+            setEditProductImages([]);
+            setDeleteImages([]);
         }
-    }, [editingProduct]);
+    }, [product]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const updateProductMutation = useMutation({
+        mutationFn: async ({ id, formData }: { id: number, formData: FormData }) => {
+            const response = await axios.put(`${BASE_URL}/product/update/${id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+            onClose();
+        },
+        onError: (error: any) => {
+            if (error.response) {
+                setErrorMessage(error.response.data.message);
+            } else {
+                setErrorMessage('An unexpected error occurred.');
+            }
+        }
+    });
+
+    const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setProduct(prev => prev ? { ...prev, [name]: value } : null);
+        setEditingProduct(prev => prev ? { ...prev, [name]: value } : null);
     };
 
-    const handleCategoryChange = (categoryId: string) => {
-        setProduct(prev => prev ? { ...prev, categoryId: parseInt(categoryId) } : null);
+    const handleEditCategoryChange = (categoryId: string) => {
+        setEditingProduct(prev => prev ? { ...prev, categoryId: parseInt(categoryId) } : null);
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             setEditProductImages(prev => [...prev, ...Array.from(e.target.files || [])]);
         }
@@ -78,7 +105,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
 
     const handleRemoveExistingImage = (imageId: number) => {
         setDeleteImages(prev => [...prev, imageId]);
-        setProduct(prev =>
+        setEditingProduct(prev =>
             prev ? {
                 ...prev,
                 productImages: prev.productImages.filter(img => img.id !== imageId)
@@ -86,31 +113,34 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         );
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleUpdate = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!product) return;
+        if (!editingProduct) return;
 
         const formData = new FormData();
 
+        // Create the product JSON
         const productJson = {
-            name: product.name,
-            description: product.description,
-            price: product.price.toString(),
-            weight: product.weight,
-            categoryId: product.categoryId,
+            name: editingProduct.name,
+            description: editingProduct.description,
+            price: editingProduct.price.toString(),
+            weight: editingProduct.weight,
+            categoryId: editingProduct.categoryId,
             deleteImages: deleteImages
         };
 
+        // Append the product JSON as a string
         formData.append('product', JSON.stringify(productJson));
 
+        // Append each new image
         editProductImages.forEach((image) => {
             formData.append('newImages', image);
         });
 
-        onSubmit(product.id, formData);
+        updateProductMutation.mutate({ id: editingProduct.id, formData });
     };
 
-    if (!product) return null;
+    if (!editingProduct) return null;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -118,18 +148,18 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
                 <DialogHeader>
                     <DialogTitle>Edit Product</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4 bg-white">
+                <form onSubmit={handleUpdate} className="space-y-4 bg-white">
                     <Input
                         name="name"
-                        value={product.name}
-                        onChange={handleInputChange}
+                        value={editingProduct.name}
+                        onChange={handleEditInputChange}
                         placeholder="Product Name"
                         required
                     />
                     <Textarea
                         name="description"
-                        value={product.description}
-                        onChange={handleInputChange}
+                        value={editingProduct.description}
+                        onChange={handleEditInputChange}
                         placeholder="Product Description"
                         required
                     />
@@ -137,74 +167,82 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
                         <Input
                             name="price"
                             type="number"
-                            value={product.price}
-                            onChange={handleInputChange}
+                            value={editingProduct.price}
+                            onChange={handleEditInputChange}
                             placeholder="Price"
                             required
                         />
                         <Input
                             name="weight"
                             type="number"
-                            value={product.weight}
-                            onChange={handleInputChange}
+                            value={editingProduct.weight}
+                            onChange={handleEditInputChange}
                             placeholder="Weight"
                             required
                         />
                     </div>
 
                     <CategorySelect
-                        value={product.categoryId.toString()}
-                        onChange={handleCategoryChange}
+                        value={editingProduct.categoryId.toString()}
+                        onChange={handleEditCategoryChange}
                         openModalFn={() => openAddCategoryModal('edit')}
                         categories={categories}
                     />
-                    <Input
-                        type="file"
-                        onChange={handleImageChange}
-                        multiple
-                        accept="image/*"
-                    />
-                    <div className="mt-2 flex flex-wrap gap-2">
-                        {product.productImages.map((image) => (
-                            <div key={image.id} className="relative">
-                                <img
-                                    src={image.imageUrl}
-                                    alt={`Product image ${image.id}`}
-                                    className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemoveExistingImage(image.id)}
-                                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
-                                >
-                                    <X size={16} />
-                                </button>
-                            </div>
-                        ))}
-                        {editProductImages.map((image, index) => (
-                            <div key={index} className="relative">
-                                <img
-                                    src={URL.createObjectURL(image)}
-                                    alt={`New product image ${index + 1}`}
-                                    className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemoveEditImage(index)}
-                                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
-                                >
-                                    <X size={16} />
-                                </button>
-                            </div>
-                        ))}
+                    <div>
+                        <Input
+                            type="file"
+                            onChange={handleEditImageChange}
+                            multiple
+                            accept="image/*"
+                        />
+                        <div className="mt-2 flex flex-wrap gap-2">
+                            {editingProduct.productImages.map((image) => (
+                                <div key={image.id} className="relative">
+                                    <img
+                                        src={image.imageUrl}
+                                        alt={`Product image ${image.id}`}
+                                        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveExistingImage(image.id)}
+                                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
+                            ))}
+                            {editProductImages.map((image, index) => (
+                                <div key={index} className="relative">
+                                    <img
+                                        src={URL.createObjectURL(image)}
+                                        alt={`New product image ${index + 1}`}
+                                        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveEditImage(index)}
+                                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                     <Button type="submit" disabled={updateProductMutation.status === 'pending'} className="w-full bg-blue-600 text-white">
                         {updateProductMutation.status === 'pending' ? 'Updating...' : 'Update Product'}
                     </Button>
                 </form>
+                {updateProductMutation.isError && (
+                    <Alert variant="destructive" className="mt-4">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>{errorMessage}</AlertDescription>
+                        <AlertDescription>{(updateProductMutation.error as Error).message}</AlertDescription>
+                    </Alert>
+                )}
             </DialogContent>
         </Dialog>
     );
-};
-
-export default EditProductModal;
+}

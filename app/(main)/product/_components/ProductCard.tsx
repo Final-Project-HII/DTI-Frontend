@@ -42,7 +42,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         alt={product.name}
                         layout="fill"
                         objectFit="cover"
-                        className="rounded-t-lg"
+                        className={`rounded-t-lg ${product.totalStock === 0 ? 'grayscale' : ''}`}
+                    // style={{ filter: product.totalStock === 0 ? 'grayscale(100%)' : 'none' }}
                     />
                     <Badge className="absolute top-3 right-3 bg-white text-blue-600">
                         {product.categoryName}

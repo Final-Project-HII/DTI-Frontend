@@ -14,6 +14,7 @@ export interface Product {
     weight: number;
     categoryId: number;
     categoryName: string;
+    totalStock: number;
     productImages: ProductImage[];
     createdAt: string;
     updatedAt: string;

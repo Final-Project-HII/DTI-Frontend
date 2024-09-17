@@ -1,35 +1,29 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { X } from 'lucide-react';
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, CheckCircle, X } from 'lucide-react';
 import CategorySelect from './CategorySelect';
-
-interface AddProductModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSubmit: (formData: FormData) => void;
-    categories: Category[];
-    createProductMutation: {
-        status: 'idle' | 'pending' | 'success' | 'error';
-    };
-    openAddCategoryModal: (type: 'new' | 'edit') => void;
-}
 
 interface Category {
     id: number;
     name: string;
 }
 
-const AddProductModal: React.FC<AddProductModalProps> = ({
-    isOpen,
-    onClose,
-    onSubmit,
-    categories,
-    createProductMutation,
-    openAddCategoryModal
-}) => {
+interface AddProductModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    categories: Category[];
+    openAddCategoryModal: (type: 'new' | 'edit') => void;
+}
+
+const BASE_URL = 'http://localhost:8080';
+
+export default function AddProductModal({ isOpen, onClose, categories, openAddCategoryModal }: AddProductModalProps) {
     const [newProduct, setNewProduct] = useState({
         name: '',
         description: '',
@@ -38,6 +32,34 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         categoryId: '',
     });
     const [productImages, setProductImages] = useState<File[]>([]);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null); // State untuk pesan sukses
+
+    const queryClient = useQueryClient();
+
+    const createProductMutation = useMutation({
+        mutationFn: async (formData: FormData) => {
+            const response = await axios.post(`${BASE_URL}/product/create`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+            resetForm();
+            onClose();
+            setSuccessMessage("Product successfully created!"); // Set pesan sukses
+        },
+        onError: (error: any) => {
+            if (error.response) {
+                setErrorMessage(error.response.data.message);
+            } else {
+                setErrorMessage('An unexpected error occurred.');
+            }
+        }
+    });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -67,7 +89,20 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         productImages.forEach((image) => {
             formData.append('productImages', image);
         });
-        onSubmit(formData);
+        createProductMutation.mutate(formData);
+    };
+
+    const resetForm = () => {
+        setNewProduct({
+            name: '',
+            description: '',
+            price: '',
+            weight: '',
+            categoryId: '',
+        });
+        setProductImages([]);
+        setErrorMessage(null);
+        setSuccessMessage(null); // Reset pesan sukses
     };
 
     return (
@@ -142,9 +177,22 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
                         {createProductMutation.status === 'pending' ? 'Creating...' : 'Create Product'}
                     </Button>
                 </form>
+                {errorMessage && (
+                    <Alert variant="destructive" className="mt-4">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>{errorMessage}</AlertDescription>
+                    </Alert>
+                )}
+                {successMessage && (
+                    <Alert className="mt-4 bg-green-100 text-green-700 border border-green-500">
+                        <CheckCircle className="h-4 w-4" />
+                        <AlertTitle>Success</AlertTitle>
+                        <AlertDescription>{successMessage}</AlertDescription>
+                    </Alert>
+                )}
+
             </DialogContent>
         </Dialog>
     );
-};
-
-export default AddProductModal;
+}

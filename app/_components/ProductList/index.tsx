@@ -13,7 +13,7 @@ import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'http://localhost:8080/api';
 
 interface ProductListProps {
   category?: string;
@@ -67,7 +67,7 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
       <div className="bg-white rounded-xl p-5 flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h1 className="font-semibold text-lg">{category ? `${category} Products` : 'All Products'}</h1>
-          <Link href={`/product?page=0&categoryName=${category}`}>
+          <Link href={`/product?page=0&category=${category}`}>
             <h2 className="text-blue-600">See all</h2>
           </Link>
         </div>
