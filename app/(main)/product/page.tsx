@@ -260,4 +260,4 @@ export default function ProductSearchPage() {
       </div>
     </div>
   );
-}
+  }

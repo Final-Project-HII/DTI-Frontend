@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import {
   Accordion,
   AccordionContent,
@@ -21,14 +21,16 @@ import { useCart } from "@/hooks/useCart";
 import AddressCard from "../AddressList";
 import { getActiveAddress } from "@/utils/api";
 import { Address } from "@/types/product";
-import Swal from 'sweetalert2'
-import 'sweetalert2/dist/sweetalert2.min.css'
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+import { useRouter } from "next/navigation";
 
 const CheckoutData = () => {
   const { data: session } = useSession();
   const { cartItems } = useCart();
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
-  const [activeAddresses, setActiveAddresses] = useState<Address | null>(null)
+  const [activeAddresses, setActiveAddresses] = useState<Address | null>(null);
+  const router = useRouter();
 
   const productIds = cartItems.map((item) => item.productId);
   const productQueries = useProductDetails(productIds);
@@ -46,11 +48,11 @@ const CheckoutData = () => {
   const fetchActiveAddress = async () => {
     try {
       const response = await getActiveAddress(session!.user.accessToken);
-      console.log(response)
+      console.log(response);
       if (response == null) {
-        setActiveAddresses(null)
+        setActiveAddresses(null);
       } else {
-        setActiveAddresses(response.data)
+        setActiveAddresses(response.data);
       }
     } catch (error) {
       console.error(error);
@@ -61,21 +63,20 @@ const CheckoutData = () => {
     fetchActiveAddress();
   }, []);
 
-
   const handleSubmit = () => {
     if (activeAddresses == null) {
       Swal.fire({
-        title: 'Please Choose Your Address First Before You Continue!',
-        text: 'This will close in 3 seconds.',
-        icon: 'error',
+        title: "Please Choose Your Address First Before You Continue!",
+        text: "This will close in 3 seconds.",
+        icon: "error",
         timer: 3000,
         showConfirmButton: false,
         timerProgressBar: true,
       });
     } else {
-      console.log("Berhasil")
+      router.push("/payment");
     }
-  }
+  };
 
   return (
     <div className="mt-24">
@@ -83,7 +84,10 @@ const CheckoutData = () => {
         <h1 className="text-2xl font-bold mb-4">Checkout</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
-            <AddressCard activeAddress={activeAddresses} onDataChange={fetchActiveAddress} />
+            <AddressCard
+              activeAddress={activeAddresses}
+              onDataChange={fetchActiveAddress}
+            />
             <Card className="shadow-xl border-2">
               <CardHeader>
                 <CardTitle>Toko Indomaret</CardTitle>
@@ -104,9 +108,8 @@ const CheckoutData = () => {
                   <div className="flex items-center mb-2">
                     <Image
                       src={
-                        cartItemsWithDetails[0].productDetails
-                          ?.productImages[0]?.imageUrl ||
-                        "/placeholder-image.jpg"
+                        cartItemsWithDetails[0].productDetails?.productImages[0]
+                          ?.imageUrl || "/placeholder-image.jpg"
                       }
                       alt={cartItemsWithDetails[0].productName}
                       width={64}
@@ -131,15 +134,10 @@ const CheckoutData = () => {
                     }
                   >
                     <AccordionItem value="items">
-                      <AccordionTrigger>
-                        Lihat produk lainnya
-                      </AccordionTrigger>
+                      <AccordionTrigger>Lihat produk lainnya</AccordionTrigger>
                       <AccordionContent>
                         {cartItemsWithDetails.slice(1).map((item) => (
-                          <div
-                            key={item.id}
-                            className="flex items-center mb-2"
-                          >
+                          <div key={item.id} className="flex items-center mb-2">
                             <Image
                               src={
                                 item.productDetails?.productImages[0]
@@ -186,7 +184,10 @@ const CheckoutData = () => {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="w-full bg-blue-500 hover:bg-blue-600" onClick={handleSubmit}>
+                <Button
+                  className="w-full bg-blue-500 hover:bg-blue-600"
+                  onClick={handleSubmit}
+                >
                   Pilih Pembayaran
                 </Button>
               </CardFooter>
@@ -195,7 +196,7 @@ const CheckoutData = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CheckoutData
+export default CheckoutData;

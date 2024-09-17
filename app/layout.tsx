@@ -9,8 +9,6 @@ import { auth } from "@/auth";
 import Footer from "@/components/Footer";
 import NavBar from "../components/NavBar";
 
-
-
 const JakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -27,10 +25,8 @@ export default async function RootLayout({
     <html lang="en">
       <SessionProvider session={session} refetchInterval={120}>
         <body className={JakartaSans.className}>
-          {/* <NavBar /> */}
-          <Providers>
-            {children}
-          </Providers>
+          <NavBar />
+          <Providers>{children}</Providers>
           <Footer />
         </body>
       </SessionProvider>

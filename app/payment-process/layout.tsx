@@ -10,7 +10,7 @@ export interface ProductLayoutProps {
 export default function Layout({ children }: ProductLayoutProps) {
   return (
     <div className="flex">
-      <NavBar />
+      {/* <NavBar /> */}
       {/* <AdminLeftNavbar /> */}
       <main className="flex-1 p-4">{children}</main>
     </div>
