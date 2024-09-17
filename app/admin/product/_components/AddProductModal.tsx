@@ -21,7 +21,7 @@ interface AddProductModalProps {
     openAddCategoryModal: (type: 'new' | 'edit') => void;
 }
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'http://localhost:8080/api';
 
 export default function AddProductModal({ isOpen, onClose, categories, openAddCategoryModal }: AddProductModalProps) {
     const [newProduct, setNewProduct] = useState({
