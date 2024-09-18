@@ -21,7 +21,6 @@ interface ProductImage {
 }
 
 interface Product {
-
   id: number;
   name: string;
   description: string;
@@ -33,7 +32,6 @@ interface Product {
   productImages: ProductImage[];
   createdAt: string;
   updatedAt: string;
-
 }
 
 interface ApiResponse {
@@ -69,7 +67,7 @@ interface Category {
   name: string;
 }
 
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = "http://localhost:8080/api";
 const ALL_CATEGORIES = "all";
 
 export default function ProductSearchPage() {
@@ -190,16 +188,32 @@ export default function ProductSearchPage() {
   const handlePageChange = (newPage: number) =>
     updateSearchParams({ page: newPage.toString() });
 
-
   useEffect(() => {
     // Prefetch next page
     if (data && currentPage + 1 < data.totalPages) {
       queryClient.prefetchQuery({
-        queryKey: ['products', (currentPage + 1).toString(), pageSize.toString(), categoryName, sortBy, sortDirection, searchTerm] as const,
+        queryKey: [
+          "products",
+          (currentPage + 1).toString(),
+          pageSize.toString(),
+          categoryName,
+          sortBy,
+          sortDirection,
+          searchTerm,
+        ] as const,
         queryFn: fetchProducts,
       });
     }
-  }, [data, currentPage, pageSize, categoryName, sortBy, sortDirection, searchTerm, queryClient]);
+  }, [
+    data,
+    currentPage,
+    pageSize,
+    categoryName,
+    sortBy,
+    sortDirection,
+    searchTerm,
+    queryClient,
+  ]);
 
   return (
     <div className="w-full mx-auto p-4 mt-16 lg:p-16">
@@ -215,7 +229,7 @@ export default function ProductSearchPage() {
             onSortDirectionChange={handleSortDirectionChange}
           />
         </aside>
-        <div className='w-full bg-white p-8 rounded-lg'>
+        <div className="w-full bg-white p-8 rounded-lg">
           {/* <h1 className="text-3xl font-bold mb-6">Product Search</h1> */}
           <SearchFilters
             searchTerm={searchTerm}
@@ -240,11 +254,11 @@ export default function ProductSearchPage() {
           <div className="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 ">
             {isLoading
               ? Array.from({ length: pageSize }).map((_, index) => (
-                <SkeletonCard key={index} />
-              ))
+                  <SkeletonCard key={index} />
+                ))
               : data?.content.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+                  <ProductCard key={product.id} product={product} />
+                ))}
           </div>
 
           {data && (
@@ -260,4 +274,4 @@ export default function ProductSearchPage() {
       </div>
     </div>
   );
-  }
+}

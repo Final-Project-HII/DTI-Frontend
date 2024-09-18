@@ -1,7 +1,13 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CalendarIcon } from "lucide-react";
 
 interface OrderFiltersProps {
@@ -40,7 +46,16 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
       </Button>
     </div>
     <div className="flex gap-2 mb-4">
-      {["Semua", "Berlangsung", "Berhasil"].map((status) => (
+      {[
+        "Semua",
+        "PENDING_PAYMENT",
+        "PAYMENT_SUCCESS",
+        "CONFIRMATION",
+        "PROCESS",
+        "SHIPPED",
+        "DELIVERED",
+        "CANCELLED",
+      ].map((status) => (
         <Button
           key={status}
           variant={status === statusFilter ? "default" : "outline"}

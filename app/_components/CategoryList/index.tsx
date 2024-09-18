@@ -10,6 +10,8 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
+
+
 const BASE_URL = "http://localhost:8080/api";
 
 interface Category {
