@@ -8,10 +8,18 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle } from 'lucide-react';
 import WarehouseSelect from '../WarehouseSelect';
 
-interface Warehouse {
+interface City {
     id: number;
     name: string;
 }
+
+interface Warehouse {
+    id: number;
+    name: string;
+    addressLine: string;
+    city: City;
+}
+
 
 interface AddStockModalProps {
     isOpen: boolean;

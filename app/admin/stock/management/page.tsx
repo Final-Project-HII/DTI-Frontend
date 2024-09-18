@@ -15,10 +15,18 @@ import AddStockModal from './_components/AddStockModal';
 import UpdateStockModal from './_components/UpdateStockModal';
 // import ProductStockManagement from './_components/ProductStockManagement';
 
-interface Warehouse {
+interface City {
     id: number;
     name: string;
 }
+
+interface Warehouse {
+    id: number;
+    name: string;
+    addressLine: string;
+    city: City;
+}
+
 
 interface ProductImage {
     id: number;
@@ -126,12 +134,16 @@ export default function StockManagementPage() {
         queryFn: fetchProducts,
         staleTime: 60000, // 1 minute
     });
-
+    //fetch all
     useEffect(() => {
         // Fetch warehouses
-        axios.get<{ data: Warehouse[] }>(`${BASE_URL}/api/warehouses`)
+        axios.get<{
+            data: {
+                content: Warehouse[];
+            };
+        }>(`${BASE_URL}/api/warehouses`)
             .then(response => {
-                setWarehouses(response.data.data);
+                setWarehouses(response.data.data.content);
             })
             .catch(error => console.error("Failed to fetch warehouses:", error));
     }, []);
