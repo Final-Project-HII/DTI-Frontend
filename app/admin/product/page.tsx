@@ -284,6 +284,7 @@ export default function ProductSearchPage() {
                     <AlertDescription>{error.message}</AlertDescription>
                 </Alert>
             )}
+
             <ProductTable
                 products={data?.content || []}
                 currentPage={currentPage}
@@ -320,6 +321,7 @@ export default function ProductSearchPage() {
                 categories={categories}
                 openAddCategoryModal={openAddCategoryModal}
             />
+
             {deleteProductMutation.isError && (
                 <Alert variant="destructive" className="mt-4">
                     <AlertCircle className="h-4 w-4" />

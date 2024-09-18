@@ -7,6 +7,19 @@ export interface ProductImage {
 }
 
 export interface Product {
+<<<<<<< HEAD
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    weight: number;
+    categoryId: number;
+    categoryName: string;
+    totalStock: number;
+    productImages: ProductImage[];
+    createdAt: string;
+    updatedAt: string;
+=======
   id: number
   name: string
   description: string
@@ -34,6 +47,7 @@ export interface Address {
   lat: number
   lon: number
   isActive: boolean
+>>>>>>> 0b70d5d3c0eab3615fa44ad5f2795f0f8fa80bef
 }
 
 export interface ApiResponse {

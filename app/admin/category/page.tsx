@@ -201,6 +201,7 @@ export default function CategoryManagementPage() {
                 }}
                 category={editingCategory}
             />
+
             {deleteCategoryMutation.isError && (
                 <Alert variant="destructive" className="mt-4">
                     <AlertCircle className="h-4 w-4" />

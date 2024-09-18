@@ -109,17 +109,15 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
             </SwiperSlide>
           ))}
           <button
-            className={`absolute swiper-button-prev bottom-1/2 border-2 border-blue-600 left-0 z-10 p-1 bg-white translate-y-1/2 md:p-2 rounded-full font-bold transition-opacity duration-300 ${
-              isBeginning ? "opacity-0" : "opacity-100"
-            }`}
+            className={`absolute swiper-button-prev bottom-1/2 border-2 border-blue-600 left-0 z-10 p-1 bg-white translate-y-1/2 md:p-2 rounded-full font-bold transition-opacity duration-300 ${isBeginning ? "opacity-0" : "opacity-100"
+              }`}
             style={{ pointerEvents: isBeginning ? "none" : "auto" }}
           >
             <FaChevronLeft className="text-blue-600" />
           </button>
           <button
-            className={`absolute swiper-button-next bottom-1/2 border-2 border-blue-600 right-0 z-10 p-1 bg-white translate-y-1/2 md:p-2 rounded-full font-bold transition-opacity duration-300 ${
-              isEnd ? "opacity-0" : "opacity-100"
-            }`}
+            className={`absolute swiper-button-next bottom-1/2 border-2 border-blue-600 right-0 z-10 p-1 bg-white translate-y-1/2 md:p-2 rounded-full font-bold transition-opacity duration-300 ${isEnd ? "opacity-0" : "opacity-100"
+              }`}
             style={{ pointerEvents: isEnd ? "none" : "auto" }}
           >
             <FaChevronRight className="text-blue-600" />
