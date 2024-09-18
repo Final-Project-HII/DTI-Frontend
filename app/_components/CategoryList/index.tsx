@@ -13,6 +13,7 @@ import SkeletonCardCategory from '@/components/SkeletonCardCategory'
 
 const BASE_URL = 'http://localhost:8080/api';
 
+
 interface Category {
   id: number;
   name: string;
@@ -24,8 +25,12 @@ const fetchCategories = async (): Promise<Category[]> => {
 };
 
 const CategoryList = () => {
-  const { data: categories, isLoading, error } = useQuery<Category[], Error>({
-    queryKey: ['categories'],
+  const {
+    data: categories,
+    isLoading,
+    error,
+  } = useQuery<Category[], Error>({
+    queryKey: ["categories"],
     queryFn: fetchCategories,
   });
 
@@ -35,8 +40,9 @@ const CategoryList = () => {
 
   return (
     <div className="px-5 lg:px-40 mb-7">
-      <div className='bg-[#bbddff] p-5 rounded-xl'>
-        <h1 className='font-semibold text-lg'>Product Category</h1>
+      <div className="bg-[#bbddff] p-5 rounded-xl">
+        <h1 className="font-semibold text-lg">Product Category</h1>
+
         <Swiper
           slidesPerView={10}
           spaceBetween={20}
@@ -58,7 +64,7 @@ const CategoryList = () => {
         >
           {categories?.map((category) => (
             <SwiperSlide key={category.id} className="w-auto">
-              <div className='flex flex-col gap-2 items-center'>
+              <div className="flex flex-col gap-2 items-center">
                 {/* http://localhost:3000/product?page=0&categoryName=Milk */}
                 <Link href={`/product?page=0&category=${category.name}`}>
                   <div className="bg-white items-center p-5 w-24 rounded-xl shadow-md">
@@ -78,7 +84,7 @@ const CategoryList = () => {
         </Swiper>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CategoryList
+export default CategoryList;
