@@ -20,7 +20,7 @@ export interface ProductDataResponse {
 }
 
 async function getProductData(id: number): Promise<ProductDataResponse> {
-  const response = await fetch(`http://localhost:8080/api/product/${id}`);
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/product/${id}`);
   if (!response.ok) {
     throw new Error("Failed to fetch product");
   }

@@ -18,7 +18,7 @@ export const usePaymentStatus = (orderId: number) => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:8080/api/payments/${orderId}/status`,
+        `${process.env.NEXT_PUBLIC_API_URL}api/payments/${orderId}/status`,
         {
           headers: {
             Authorization: `Bearer ${session.user.accessToken}`,

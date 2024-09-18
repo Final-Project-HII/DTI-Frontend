@@ -12,7 +12,7 @@ import axios from 'axios';
 // import { Product } from '@/types/product';
 import { useQuery } from '@tanstack/react-query';
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 interface ProductListProps {
     category?: string;

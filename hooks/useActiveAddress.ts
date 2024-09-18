@@ -19,7 +19,7 @@ export const useActiveAddress = () => {
 
       setIsLoading(true);
       try {
-        const response = await axios.get('http://localhost:8080/api/addresses/active-address', {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}api/addresses/active-address`, {
           headers: {
             Authorization: `Bearer ${session.user.accessToken}`,
           },

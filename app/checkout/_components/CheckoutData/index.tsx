@@ -96,7 +96,7 @@ const CheckoutData = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:8080/api/orders?warehouseId=3&addressId=${activeAddresses.id}&courierId=${selectedCourier}`,
+        `${process.env.NEXT_PUBLIC_API_URL}api/orders?warehouseId=3&addressId=${activeAddresses.id}&courierId=${selectedCourier}`,
         {},
         {
           headers: {

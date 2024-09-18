@@ -9,7 +9,7 @@ const SendResetPasswordLink = () => {
     setError(null)
     try {
       const response = await fetch(
-        `http://localhost:8080/api/users/reset-password?email=${email}`,
+        `${process.env.NEXT_PUBLIC_API_URL}api/users/reset-password?email=${email}`,
         {
           headers: {
             'Content-Type': 'application/json',

@@ -9,7 +9,7 @@ const SendNewVerificationLink = () => {
     setError(null)
     try {
       const response = await fetch(
-        `http://localhost:8080/api/users/new-verification-link?email=${email}`,
+        `${process.env.NEXT_PUBLIC_API_URL}api/users/new-verification-link?email=${email}`,
         {
           headers: {
             'Content-Type': 'application/json',

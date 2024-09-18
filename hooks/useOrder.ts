@@ -26,7 +26,7 @@ export const useOrders = (page: number, size: number) => {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:8080/api/orders?page=${page}&size=${size}`,
+          `${process.env.NEXT_PUBLIC_API_URL}api/orders?page=${page}&size=${size}`,
           {
             headers: {
               Authorization: `Bearer ${session.user.accessToken}`,
