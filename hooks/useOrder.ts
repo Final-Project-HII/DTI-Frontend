@@ -10,7 +10,13 @@ interface OrdersResponse {
   number: number;
 }
 
-export const useOrders = (page: number, size: number) => {
+export const useOrders = (
+  page: number,
+  size: number,
+  status?: string,
+  startDate?: Date | null,
+  endDate?: Date | null
+) => {
   const [ordersData, setOrdersData] = useState<OrdersResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -25,14 +31,24 @@ export const useOrders = (page: number, size: number) => {
 
       try {
         setLoading(true);
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}api/orders?page=${page}&size=${size}`,
-          {
-            headers: {
-              Authorization: `Bearer ${session.user.accessToken}`,
-            },
-          }
-        );
+        let url = `${process.env.NEXT_PUBLIC_API_URL}api/orders?page=${page}&size=${size}`;
+
+        // If status is provided and not 'all', use the filtered endpoint
+        if (status && status !== "all") {
+          url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/filtered?page=${page}&size=${size}`;
+        }
+
+        // Add date range parameters if provided
+        if (startDate && endDate) {
+          url += `&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+        }
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${session.user.accessToken}`,
+          },
+        });
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || "Failed to fetch orders");
@@ -41,6 +57,7 @@ export const useOrders = (page: number, size: number) => {
         setOrdersData(data);
         setError(null);
       } catch (err) {
+        console.error("Error fetching orders:", err);
         setError(
           err instanceof Error ? err : new Error("An unknown error occurred")
         );
@@ -50,7 +67,7 @@ export const useOrders = (page: number, size: number) => {
     };
 
     fetchOrders();
-  }, [session, page, size]);
+  }, [session, page, size, status, startDate, endDate]);
 
   return { ordersData, loading, error };
 };

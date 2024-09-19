@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
@@ -9,13 +9,16 @@ import { Input } from "@/components/ui/input";
 import { useOrders } from "@/hooks/useOrder";
 import { useCart } from "@/hooks/useCart";
 import { useRouter } from "next/navigation";
+import { Order } from "@/types/order";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const CLOUDINARY_UPLOAD_PRESET = "finproHII";
 const CLOUDINARY_CLOUD_NAME = "djyevwtie";
 
 const PaymentPage: React.FC = () => {
-  const [paymentMethod, setPaymentMethod] = useState<"PAYMENT_GATEWAY" | "PAYMENT_PROOF" | "">("");
+  const [paymentMethod, setPaymentMethod] = useState<
+    "PAYMENT_GATEWAY" | "PAYMENT_PROOF" | ""
+  >("");
   const [selectedBank, setSelectedBank] = useState<string>("");
   const [proofImageUrl, setProofImageUrl] = useState<string>("");
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
@@ -35,7 +38,16 @@ const PaymentPage: React.FC = () => {
     loading: orderLoading,
     error: orderError,
   } = useOrders(0, 1);
-  const latestOrder = ordersData?.content[0] || null;
+
+  const [latestOrder, setLatestOrder] = useState<Order | null>(null);
+
+  
+
+  useEffect(() => {
+    if (ordersData && ordersData.content && ordersData.content.length > 0) {
+      setLatestOrder(ordersData.content[0]);
+    }
+  }, [ordersData]);
 
   const handlePayment = async () => {
     if (status !== "authenticated") {
@@ -70,13 +82,13 @@ const PaymentPage: React.FC = () => {
           return;
         }
         response = await axios.post(
-          `${API_BASE_URL}/payments/create`,
+          `${API_BASE_URL}api/payments/create`,
           null,
           {
-            params: { 
-              orderId: latestOrder.id, 
+            params: {
+              orderId: latestOrder.id,
               paymentMethod: "PAYMENT_GATEWAY",
-              bank: selectedBank 
+              bank: selectedBank,
             },
             headers: { Authorization: `Bearer ${session.user.accessToken}` },
           }
@@ -92,7 +104,7 @@ const PaymentPage: React.FC = () => {
           return;
         }
         response = await axios.post(
-          `${API_BASE_URL}/payments/create`,
+          `${API_BASE_URL}api/payments/create`,
           null,
           {
             params: {
@@ -106,12 +118,16 @@ const PaymentPage: React.FC = () => {
       }
 
       if (response && response.data) {
-        localStorage.setItem("paymentDetails", JSON.stringify({
-          ...response.data,
-          method: paymentMethod,
-          orderId: latestOrder.id,
-          proofImageUrl: paymentMethod === "PAYMENT_PROOF" ? proofImageUrl : undefined,
-        }));
+        localStorage.setItem(
+          "paymentDetails",
+          JSON.stringify({
+            ...response.data,
+            method: paymentMethod,
+            orderId: latestOrder.id,
+            proofImageUrl:
+              paymentMethod === "PAYMENT_PROOF" ? proofImageUrl : undefined,
+          })
+        );
         router.push("/payment-process");
       }
     } catch (error) {

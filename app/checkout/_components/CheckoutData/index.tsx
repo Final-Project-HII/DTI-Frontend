@@ -96,15 +96,18 @@ const CheckoutData = () => {
 
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}api/orders?warehouseId=3&addressId=${activeAddresses.id}&courierId=${selectedCourier}`,
-        {},
+        `${process.env.NEXT_PUBLIC_API_URL}api/orders`,
+        null,
         {
+          params: {
+            addressId: activeAddresses.id,
+            courierId: selectedCourier,
+          },
           headers: {
             Authorization: `Bearer ${session?.user?.accessToken}`,
           },
         }
       );
-      console.log(response);
 
       if (response.status === 200) {
         Swal.fire({
@@ -122,7 +125,19 @@ const CheckoutData = () => {
       }
     } catch (error) {
       console.error("Error creating order:", error);
-      setError("An error occurred while creating the order. Please try again.");
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        setError(
+          `An error occurred while creating the order: ${
+            error.response.data.message || error.message
+          }`
+        );
+      } else {
+        setError(
+          "An unexpected error occurred while creating the order. Please try again."
+        );
+      }
     } finally {
       setIsLoading(false);
     }
