@@ -1,4 +1,5 @@
 "use client";
+"use client";
 import {
   Accordion,
   AccordionContent,
@@ -20,10 +21,13 @@ import React, { useEffect, useState } from "react";
 import { useCart } from "@/hooks/useCart";
 import AddressCard from "../AddressList";
 import { getActiveAddress } from "@/utils/api";
-import { Address } from "@/types/product";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { useRouter } from "next/navigation";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import axios from "axios";
+import { Address } from "@/types/product";
 
 const CheckoutData = () => {
   const { data: session } = useSession();
@@ -31,9 +35,16 @@ const CheckoutData = () => {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [activeAddresses, setActiveAddresses] = useState<Address | null>(null);
   const router = useRouter();
-
   const productIds = cartItems.map((item) => item.productId);
   const productQueries = useProductDetails(productIds);
+  const [selectedCourier, setSelectedCourier] = useState<number>(1); // Default to JNE
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleCourierChange = (value: string) => {
+    const courierId = parseInt(value);
+    setSelectedCourier(courierId);
+  };
 
   const cartItemsWithDetails = cartItems.map((item, index) => ({
     ...item,
@@ -63,7 +74,7 @@ const CheckoutData = () => {
     fetchActiveAddress();
   }, []);
 
-  const handleSubmit = () => {
+  const handleCreateOrder = async () => {
     if (activeAddresses == null) {
       Swal.fire({
         title: "Please Choose Your Address First Before You Continue!",
@@ -73,8 +84,63 @@ const CheckoutData = () => {
         showConfirmButton: false,
         timerProgressBar: true,
       });
-    } else {
-      router.push("/payment");
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      setError("Cart is empty. Please add items to your cart.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}api/orders`,
+        null,
+        {
+          params: {
+            addressId: activeAddresses.id,
+            courierId: selectedCourier,
+          },
+          headers: {
+            Authorization: `Bearer ${session?.user?.accessToken}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        Swal.fire({
+          title: "Order Created Successfully!",
+          text: "Redirecting to payment page...",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+          timerProgressBar: true,
+        }).then(() => {
+          router.push("/payment");
+        });
+      } else {
+        setError("Failed to create order. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error creating order:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        setError(
+          `An error occurred while creating the order: ${
+            error.response.data.message || error.message
+          }`
+        );
+      } else {
+        setError(
+          "An unexpected error occurred while creating the order. Please try again."
+        );
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -95,6 +161,23 @@ const CheckoutData = () => {
               </CardHeader>
               <CardContent>
                 <h3 className="font-bold mb-2">Metode Pengiriman</h3>
+                <RadioGroup
+                  defaultValue="1"
+                  onValueChange={handleCourierChange}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="1" id="jne" />
+                    <Label htmlFor="jne">JNE</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="2" id="tiki" />
+                    <Label htmlFor="tiki">TIKI</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="3" id="pos" />
+                    <Label htmlFor="pos">POS</Label>
+                  </div>
+                </RadioGroup>
                 <div className="flex justify-between items-center">
                   <span>Regular - Pilih Waktu</span>
                   <span className="text-green-500">Gratis</span>
@@ -186,9 +269,10 @@ const CheckoutData = () => {
               <CardFooter>
                 <Button
                   className="w-full bg-blue-500 hover:bg-blue-600"
-                  onClick={handleSubmit}
+                  onClick={handleCreateOrder}
+                  disabled={isLoading || cartItems.length === 0}
                 >
-                  Pilih Pembayaran
+                  {isLoading ? "Processing..." : "Pilih Pembayaran"}
                 </Button>
               </CardFooter>
             </Card>

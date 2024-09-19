@@ -31,7 +31,12 @@ interface Category {
     updatedAt: string;
 }
 
-const BASE_URL = 'http://localhost:8080/api';
+interface CategoryRequestDto {
+    name: string;
+}
+
+
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 export default function CategoryManagementPage() {
     const queryClient = useQueryClient();

@@ -72,7 +72,7 @@ interface ApiResponse {
     empty: boolean;
 }
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 const ALL_CATEGORIES = 'all';
 
 export default function ProductSearchPage() {

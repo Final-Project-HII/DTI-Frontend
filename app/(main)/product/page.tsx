@@ -69,8 +69,8 @@ interface Category {
     name: string;
 }
 
-const BASE_URL = 'http://localhost:8080/api';
-const ALL_CATEGORIES = 'all';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+const ALL_CATEGORIES = "all";
 
 export default function ProductSearchPage() {
     const router = useRouter();

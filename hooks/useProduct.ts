@@ -1,6 +1,5 @@
 import { useQueries, UseQueryResult } from "@tanstack/react-query";
 
-// Interface for product data response
 export interface ProductDataResponse {
   id: number;
   name: string;
@@ -20,9 +19,8 @@ export interface ProductDataResponse {
   updatedAt: string;
 }
 
-// Async function to fetch product data
 async function getProductData(id: number): Promise<ProductDataResponse> {
-  const response = await fetch(`http://localhost:8080/api/product/${id}`);
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/product/${id}`);
   if (!response.ok) {
     throw new Error("Failed to fetch product");
   }
