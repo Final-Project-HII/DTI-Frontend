@@ -1,19 +1,24 @@
 "use client";
 import { useState, useEffect } from "react";
-
 import { useSession } from "next-auth/react";
 import {
   fetchCartItems,
+  fetchProductDetails,
   addToCartApi,
   updateCartItemQuantityApi,
   removeCartItemApi,
 } from "../utils/api";
 import { CartItem } from "@/types/cartitem";
+import { Product } from "@/types/product";
 
 export const useCart = () => {
   const { data: session, status } = useSession();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItemsWithDetails, setCartItemsWithDetails] = useState<
+    (CartItem & { productDetails: Product })[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadCartItems = async () => {
@@ -25,10 +30,20 @@ export const useCart = () => {
 
       try {
         setIsLoading(true);
+        setError(null);
         const items = await fetchCartItems(session.user.accessToken);
         setCartItems(items);
+
+        const itemsWithDetails = await Promise.all(
+          items.map(async (item: CartItem) => {
+            const productDetails = await fetchProductDetails(item.productId);
+            return { ...item, productDetails };
+          })
+        );
+        setCartItemsWithDetails(itemsWithDetails);
       } catch (error) {
         console.error("Failed to fetch cart items:", error);
+        setError("Failed to load cart items. Please try again.");
       } finally {
         setIsLoading(false);
       }
@@ -110,12 +125,23 @@ export const useCart = () => {
     return cartItems.reduce((sum, item) => sum + item.quantity, 0);
   };
 
+  const getTotalPrice = () => {
+    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  };
+
+  const getCartId = () => {
+    return cartItems.length > 0 ? cartItems[0].id : null;
+  };
+
   return {
-    cartItems,
+    cartItems: cartItemsWithDetails,
     isLoading,
+    error,
     addToCart,
     updateQuantity,
     removeItem,
     getCartItemCount,
+    getTotalPrice,
+    getCartId,
   };
 };

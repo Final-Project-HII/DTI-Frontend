@@ -41,9 +41,16 @@ interface ApiResponse {
     };
 }
 
+interface City {
+    id: number;
+    name: string;
+}
+
 interface Warehouse {
     id: number;
     name: string;
+    addressLine: string;
+    city: City;
 }
 
 const fetchStockMutations = async (destinationWarehouseId?: string, token?: string): Promise<ApiResponse> => {
@@ -81,7 +88,9 @@ export default function StockMutationPage() {
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
     const { data: session } = useSession();
 
+    //fetch all
     useEffect(() => {
+<<<<<<< HEAD
         const fetchWarehouses = async () => {
             try {
                 // const response = await axios.get('http://localhost:8080/api/warehouses');
@@ -100,6 +109,20 @@ export default function StockMutationPage() {
             fetchWarehouses();
         }
     }, [session]);
+=======
+        // Fetch warehouses
+        axios.get<{
+            data: {
+                content: Warehouse[];
+            };
+        }>(`http://localhost:8080/api/warehouses`)
+            .then(response => {
+                setWarehouses(response.data.data.content);
+            })
+            .catch(error => console.error("Failed to fetch warehouses:", error));
+    }, []);
+
+>>>>>>> f59e7652a9e50590018d4b621cd077e84ce93e09
 
     const { data, isLoading, error, refetch } = useQuery<ApiResponse>({
         queryKey: ['stockMutations', selectedWarehouse, session?.user?.accessToken],
@@ -111,7 +134,7 @@ export default function StockMutationPage() {
     }
 
     const handleWarehouseChange = (value: string) => {
-        setSelectedWarehouse(value);
+        setSelectedWarehouse(value === 'All Warehouses' ? '' : value);
         refetch();
     };
 
@@ -129,7 +152,7 @@ export default function StockMutationPage() {
                         value={selectedWarehouse}
                         onChange={handleWarehouseChange}
                         warehouses={warehouses}
-                        placeholder="Select Warehouse"
+                        placeholder="All Warehouses"
                     />
                     <CreateStockMutationModal warehouses={warehouses} refetchMutations={refetch} />
                 </div>

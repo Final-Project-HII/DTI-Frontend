@@ -8,12 +8,12 @@ import {
 import { Category } from '@/types/category'
 import { Warehouse } from '@/types/warehouse'
 import { WarehouseFormData } from '@/app/admin/warehouse/components/AddWarehoseForm'
-import { Order, OrderItem } from "@/types/order";
+import { Order, OrderItem } from '@/types/order'
 import { useSession } from 'next-auth/react'
 import { AddressFormData } from '@/app/checkout/_components/UpdateAddressForm'
 
 
-const BASE_URL = 'http://localhost:8080/api'
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -30,6 +30,16 @@ axiosInstance.interceptors.request.use((config) => {
 export const fetchProducts = async () => {
   const response = await axiosInstance.get('/product')
   return response.data
+}
+
+export const fetchProductDetails = async (productId: number): Promise<Product> => {
+  try {
+    const response = await axiosInstance.get<Product>(`/product/${productId}`)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching product details:', error)
+    throw error
+  }
 }
 
 export const fetchCartItems = async (token: string) => {

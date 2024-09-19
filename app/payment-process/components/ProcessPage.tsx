@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+
 
 interface PaymentDetails {
   va_numbers?: { bank: string; va_number: string }[];
@@ -47,7 +47,7 @@ const PaymentProcessPage: React.FC = () => {
     const checkPaymentStatus = async () => {
       if (paymentDetails?.orderId) {
         try {
-          const response = await axios.get(`${API_BASE_URL}/payments/${paymentDetails.orderId}/status`, {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}api/payments/${paymentDetails.orderId}/status`, {
             headers: { Authorization: `Bearer ${session?.user?.accessToken}` },
           });
           setPaymentDetails(prev => prev ? {...prev, status: response.data} : null);

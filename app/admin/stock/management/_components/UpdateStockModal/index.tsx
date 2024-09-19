@@ -8,9 +8,23 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle, Package } from 'lucide-react';
 import WarehouseSelect from '../WarehouseSelect';
 
+interface City {
+    id: number;
+    name: string;
+}
+
 interface Warehouse {
     id: number;
     name: string;
+    addressLine: string;
+    city: City;
+}
+
+interface WarehouseSelectProps {
+    value: string | undefined;
+    onChange: (value: string) => void;
+    warehouses: Warehouse[];
+    placeholder?: string;
 }
 
 interface Stock {

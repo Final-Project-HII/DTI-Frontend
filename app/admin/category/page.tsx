@@ -31,7 +31,12 @@ interface Category {
     updatedAt: string;
 }
 
-const BASE_URL = 'http://localhost:8080/api';
+interface CategoryRequestDto {
+    name: string;
+}
+
+
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 export default function CategoryManagementPage() {
     const queryClient = useQueryClient();
@@ -201,6 +206,7 @@ export default function CategoryManagementPage() {
                 }}
                 category={editingCategory}
             />
+
             {deleteCategoryMutation.isError && (
                 <Alert variant="destructive" className="mt-4">
                     <AlertCircle className="h-4 w-4" />

@@ -62,7 +62,6 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
         <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-xs">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Product Filters</h2>
 
-
             <Collapsible defaultOpen={true} className="mb-4">
                 <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-gray-100 rounded-md transition-colors duration-200">
                     <div className="flex items-center">

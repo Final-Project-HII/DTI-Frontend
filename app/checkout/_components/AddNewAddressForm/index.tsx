@@ -204,7 +204,7 @@ const AddAddressForm: React.FC<AddAddressFormProps> = ({ onClose, onConfirm, onD
       <div className="flex mt-3 gap-4 flex-col lg:flex-row">
         <form onSubmit={handleSubmit(onSubmit)} className='gap-6 flex flex-col w-full'>
           <div className="flex flex-col gap-2 lg:gap-4">
-            <Label htmlFor="name">Recipient's Name</Label>
+            <Label htmlFor="name">Recipient&apos;s Name</Label>
             <Controller
               name="recipientName"
               control={control}

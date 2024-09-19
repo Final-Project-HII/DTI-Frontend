@@ -72,7 +72,7 @@ interface ApiResponse {
     empty: boolean;
 }
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 const ALL_CATEGORIES = 'all';
 
 export default function ProductSearchPage() {
@@ -284,6 +284,7 @@ export default function ProductSearchPage() {
                     <AlertDescription>{error.message}</AlertDescription>
                 </Alert>
             )}
+
             <ProductTable
                 products={data?.content || []}
                 currentPage={currentPage}
@@ -320,6 +321,7 @@ export default function ProductSearchPage() {
                 categories={categories}
                 openAddCategoryModal={openAddCategoryModal}
             />
+
             {deleteProductMutation.isError && (
                 <Alert variant="destructive" className="mt-4">
                     <AlertCircle className="h-4 w-4" />
