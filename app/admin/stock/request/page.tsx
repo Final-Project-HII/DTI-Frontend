@@ -90,7 +90,8 @@ export default function StockMutationPage() {
                         Authorization: `Bearer ${session?.user?.accessToken}`,
                     },
                 });
-                setWarehouses(response.data.data);
+
+                setWarehouses(response.data.data.content);
             } catch (error) {
                 console.error('Error fetching warehouses:', error);
             }

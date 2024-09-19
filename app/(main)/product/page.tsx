@@ -21,7 +21,6 @@ interface ProductImage {
 }
 
 interface Product {
-
   id: number;
   name: string;
   description: string;
@@ -33,7 +32,6 @@ interface Product {
   productImages: ProductImage[];
   createdAt: string;
   updatedAt: string;
-
 }
 
 interface ApiResponse {
@@ -101,64 +99,54 @@ export default function ProductSearchPage() {
     }
     if (search) params.set('search', search);
 
-    const getParamValue = useCallback(
-      (key: string, defaultValue: string) => {
-        return searchParams.get(key) || defaultValue;
-      },
-      [searchParams]
-    );
+    const response = await axios.get<ApiResponse>(`${BASE_URL}/product?${params.toString()}`);
+    return response.data;
+  };
 
-    const { data, isLoading, error } = useQuery<ApiResponse, Error, ApiResponse, readonly [string, string, string, string, string, string, string]>({
-      queryKey: ['products', currentPage.toString(), pageSize.toString(), category, sortBy, sortDirection, searchTerm] as const,
-      queryFn: fetchProducts,
-      staleTime: 60000, // 1 minute
-    });
+  const { data, isLoading, error } = useQuery<ApiResponse, Error, ApiResponse, readonly [string, string, string, string, string, string, string]>({
+    queryKey: ['products', currentPage.toString(), pageSize.toString(), category, sortBy, sortDirection, searchTerm] as const,
+    queryFn: fetchProducts,
+    staleTime: 60000, // 1 minute
+  });
 
-    useEffect(() => {
-      // Fetch categories
-      axios.get<Category[]>(`${BASE_URL}/category`)
-        .then(response => {
-          setCategories(response.data);
-        })
-        .catch(error => console.error("Failed to fetch categories:", error));
-    }, []);
+  useEffect(() => {
+    // Fetch categories
+    axios.get<Category[]>(`${BASE_URL}/category`)
+      .then(response => {
+        setCategories(response.data);
+      })
+      .catch(error => console.error("Failed to fetch categories:", error));
+  }, []);
 
-    const updateSearchParams = useDebouncedCallback((updates: Record<string, string | undefined>) => {
-      const params = new URLSearchParams(searchParams.toString());
-      Object.entries(updates).forEach(([key, value]) => {
-        if (value === undefined || value === ALL_CATEGORIES || value === 'related') {
-          params.delete(key);
-        } else {
-          params.set(key, value);
-        }
-      });
-      if (updates.page === undefined) params.set('page', '0');
-      router.push(`?${params.toString()}`, { scroll: false });
-    }, 1000);
-
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      updateSearchParams({ search: value });
-    };
-
-    const handleCategoryChange = (newCategory: string) => updateSearchParams({ category: newCategory });
-    const handleSortChange = (newSortBy: string) => {
-      if (newSortBy === "related") {
-        updateSearchParams({ sortBy: newSortBy, sortDirection: undefined });
+  const updateSearchParams = useDebouncedCallback((updates: Record<string, string | undefined>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === undefined || value === ALL_CATEGORIES || value === 'related') {
+        params.delete(key);
       } else {
         params.set(key, value);
       }
     });
-    if (updates.page === undefined) params.set("page", "0");
+    if (updates.page === undefined) params.set('page', '0');
     router.push(`?${params.toString()}`, { scroll: false });
-  },
-  1000
-  );
+  }, 1000);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     updateSearchParams({ search: value });
   };
+
+  const handleCategoryChange = (newCategory: string) => updateSearchParams({ category: newCategory });
+  const handleSortChange = (newSortBy: string) => {
+    if (newSortBy === "related") {
+      updateSearchParams({ sortBy: newSortBy, sortDirection: undefined });
+    } else {
+      updateSearchParams({ sortBy: newSortBy });
+    }
+  };
+
+  const handleSortDirectionChange = (newDirection: string) => updateSearchParams({ sortDirection: newDirection });
+  const handlePageChange = (newPage: number) => updateSearchParams({ page: newPage.toString() });
 
   useEffect(() => {
     // Prefetch next page
@@ -171,7 +159,7 @@ export default function ProductSearchPage() {
   }, [data, currentPage, pageSize, category, sortBy, sortDirection, searchTerm, queryClient]);
 
   return (
-    <div className="w-full mx-auto p-4 mt-16 lg:p-16">
+    <div className="w-full mx-auto p-4 mt-16 lg:p-16 pt-24">
       <div className="flex flex-col md:flex-row gap-4">
         <aside className="w-full md:w-1/4 p-4 pt-0">
           <ProductFilter
@@ -229,4 +217,3 @@ export default function ProductSearchPage() {
     </div>
   );
 }
-
