@@ -13,30 +13,31 @@ import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 
+
 interface ProductCardProps {
-  product: Product;
+    product: Product;
 }
 
 interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  weight: number;
-  categoryId: number;
-  categoryName: string;
-  totalStock: number;
-  productImages: ProductImage[];
-  createdAt: string;
-  updatedAt: string;
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    weight: number;
+    categoryId: number;
+    categoryName: string;
+    totalStock: number;
+    productImages: ProductImage[];
+    createdAt: string;
+    updatedAt: string;
 }
 
 interface ProductImage {
-  id: number;
-  productId: number;
-  imageUrl: string;
-  createdAt: string;
-  updatedAt: string;
+    id: number;
+    productId: number;
+    imageUrl: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {

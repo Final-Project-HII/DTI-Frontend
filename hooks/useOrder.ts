@@ -70,4 +70,5 @@ export const useOrders = (
   }, [session, page, size, status, startDate, endDate]);
 
   return { ordersData, loading, error };
+  return { ordersData, loading, error };
 };

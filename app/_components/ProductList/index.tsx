@@ -71,10 +71,8 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
     <div className="px-5 py-2 rounded-xl lg:px-40">
       <div className="bg-white rounded-xl p-5 flex flex-col gap-4">
         <div className="flex justify-between items-center">
-          <h1 className="font-semibold text-lg">
-            {category ? `${category} Products` : "All Products"}
-          </h1>
-          <Link href={`/product?page=0&categoryName=${category}`}>
+          <h1 className="font-semibold text-lg">{category ? `${category} Products` : 'All Products'}</h1>
+          <Link href={`/product?page=0&category=${category}`}>
             <h2 className="text-blue-600">See all</h2>
           </Link>
         </div>
@@ -111,17 +109,15 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
             </SwiperSlide>
           ))}
           <button
-            className={`absolute swiper-button-prev bottom-1/2 border-2 border-blue-600 left-0 z-10 p-1 bg-white translate-y-1/2 md:p-2 rounded-full font-bold transition-opacity duration-300 ${
-              isBeginning ? "opacity-0" : "opacity-100"
-            }`}
+            className={`absolute swiper-button-prev bottom-1/2 border-2 border-blue-600 left-0 z-10 p-1 bg-white translate-y-1/2 md:p-2 rounded-full font-bold transition-opacity duration-300 ${isBeginning ? "opacity-0" : "opacity-100"
+              }`}
             style={{ pointerEvents: isBeginning ? "none" : "auto" }}
           >
             <FaChevronLeft className="text-blue-600" />
           </button>
           <button
-            className={`absolute swiper-button-next bottom-1/2 border-2 border-blue-600 right-0 z-10 p-1 bg-white translate-y-1/2 md:p-2 rounded-full font-bold transition-opacity duration-300 ${
-              isEnd ? "opacity-0" : "opacity-100"
-            }`}
+            className={`absolute swiper-button-next bottom-1/2 border-2 border-blue-600 right-0 z-10 p-1 bg-white translate-y-1/2 md:p-2 rounded-full font-bold transition-opacity duration-300 ${isEnd ? "opacity-0" : "opacity-100"
+              }`}
             style={{ pointerEvents: isEnd ? "none" : "auto" }}
           >
             <FaChevronRight className="text-blue-600" />

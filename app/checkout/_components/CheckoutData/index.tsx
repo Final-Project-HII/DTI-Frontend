@@ -1,4 +1,5 @@
 "use client";
+"use client";
 import {
   Accordion,
   AccordionContent,
@@ -20,13 +21,13 @@ import React, { useEffect, useState } from "react";
 import { useCart } from "@/hooks/useCart";
 import AddressCard from "../AddressList";
 import { getActiveAddress } from "@/utils/api";
-import { Address } from "@/types/product";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
+import { Address } from "@/types/product";
 
 const CheckoutData = () => {
   const { data: session } = useSession();

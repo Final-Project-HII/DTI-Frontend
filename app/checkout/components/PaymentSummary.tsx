@@ -15,7 +15,6 @@ import { useCart } from "@/hooks/useCart";
 import { useActiveAddress } from "@/hooks/useActiveAddress";
 import OrderSummaryCard from "./OrderSummary";
 
-
 const PaymentSummaryCard: React.FC = () => {
   const router = useRouter();
   const { data: session } = useSession();
@@ -23,8 +22,17 @@ const PaymentSummaryCard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedCourier, setSelectedCourier] = useState<number>(1); // Default to JNE
 
-  const { activeAddress, isLoading: isAddressLoading, error: addressError } = useActiveAddress();
-  const { cartItems, isLoading: isCartLoading, error: cartError, getTotalPrice } = useCart();
+  const {
+    activeAddress,
+    isLoading: isAddressLoading,
+    error: addressError,
+  } = useActiveAddress();
+  const {
+    cartItems,
+    isLoading: isCartLoading,
+    error: cartError,
+    getTotalPrice,
+  } = useCart();
 
   const handleCourierChange = (courierId: number) => {
     setSelectedCourier(courierId);
@@ -32,7 +40,9 @@ const PaymentSummaryCard: React.FC = () => {
 
   const handleCreateOrder = async () => {
     if (cartItems.length === 0 || !activeAddress) {
-      setError("Cart is empty or active address is not loaded. Please refresh the page.");
+      setError(
+        "Cart is empty or active address is not loaded. Please refresh the page."
+      );
       return;
     }
 
@@ -43,9 +53,9 @@ const PaymentSummaryCard: React.FC = () => {
         "http://localhost:8080/api/orders",
         {
           userId: session?.user?.id,
-          warehouseId: 1, 
+          warehouseId: 1,
           addressId: activeAddress.id,
-          courierId: selectedCourier, 
+          courierId: selectedCourier,
         },
         {
           headers: {
@@ -79,8 +89,8 @@ const PaymentSummaryCard: React.FC = () => {
 
   return (
     <>
-      <OrderSummaryCard 
-        cartItems={cartItems} 
+      <OrderSummaryCard
+        cartItems={cartItems}
         onCourierChange={handleCourierChange}
       />
       <Card className="shadow-xl border-2 mt-4">

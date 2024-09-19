@@ -9,7 +9,7 @@ import {
 import { Category } from '@/types/category'
 import { Warehouse } from '@/types/warehouse'
 import { WarehouseFormData } from '@/app/admin/warehouse/components/AddWarehoseForm'
-import { Order, OrderItem } from "@/types/order";
+import { Order, OrderItem } from '@/types/order'
 import { useSession } from 'next-auth/react'
 import { AddressFormData } from '@/app/checkout/_components/UpdateAddressForm'
 

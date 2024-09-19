@@ -41,10 +41,10 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
                 onChange={onSearchChange}
                 className="w-full sm:w-auto flex-grow"
             /> */}
-            <Select value={categoryName} onValueChange={onCategoryChange}>
+            {/* <Select value={categoryName} onValueChange={onCategoryChange}>
                 <SelectTrigger className="w-full sm:w-[180px] group">
                     <SelectValue placeholder="All Categories" />
-                    {/* <ChevronDown className="ml-2 h-4 w-4 shrink-0 transition duration-300 group-data-[state=open]:rotate-180" /> */}
+                    <ChevronDown className="ml-2 h-4 w-4 shrink-0 transition duration-300 group-data-[state=open]:rotate-180" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                     <SelectItem value={ALL_CATEGORIES} className="hover:bg-gray-100 transition duration-150">All Categories</SelectItem>
@@ -54,7 +54,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
                         </SelectItem>
                     ))}
                 </SelectContent>
-            </Select>
+            </Select> */}
             <Select value={sortBy} onValueChange={onSortChange}>
                 <SelectTrigger className="w-full sm:w-[180px] group relative display-none">
                     <SelectValue placeholder="Sort By" />

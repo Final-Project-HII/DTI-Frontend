@@ -10,7 +10,7 @@ const AdminPaymentSimulation: React.FC = () => {
   const handleApprove = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/payments/${orderId}/approve-proof`,
+        `${process.env.NEXT_PUBLIC_API_URL}api/payments/${orderId}/approve-proof`,
         {
           method: "POST",
           headers: {
