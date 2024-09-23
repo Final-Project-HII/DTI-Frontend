@@ -1,64 +1,60 @@
-import React from "react";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
+import React, { useState } from 'react';
 
-interface AdminOrderFiltersProps {
-  searchTerm: string;
-  setSearchTerm: (value: string) => void;
-  statusFilter: string;
-  setStatusFilter: (value: string) => void;
-  dateRange: { startDate: Date | null; endDate: Date | null };
-  setDateRange: (range: { startDate: Date | null; endDate: Date | null }) => void;
+interface OrderFilterProps {
+  onFilterChange: (status: string, startDate: Date | null, endDate: Date | null) => void;
 }
 
-const AdminOrderFilters: React.FC<AdminOrderFiltersProps> = ({
-  searchTerm,
-  setSearchTerm,
-  statusFilter,
-  setStatusFilter,
-  dateRange,
-  setDateRange,
-}) => {
+const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
+  const [status, setStatus] = useState('all');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onFilterChange(
+      status,
+      startDate ? new Date(startDate) : null,
+      endDate ? new Date(endDate) : null
+    );
+  };
+
   return (
-    <div className="flex flex-wrap gap-4 items-center">
-      <Input
-        placeholder="Search orders..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="max-w-xs"
-      />
-      <Select value={statusFilter || "all"} onValueChange={setStatusFilter}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Filter by status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Statuses</SelectItem>
-          <SelectItem value="pending_payment">Pending Payment</SelectItem>
-          <SelectItem value="confirmation">Confirmation</SelectItem>
-          <SelectItem value="process">Process</SelectItem>
-          <SelectItem value="shipped">Shipped</SelectItem>
-          <SelectItem value="delivered">Delivered</SelectItem>
-          <SelectItem value="cancelled">Cancelled</SelectItem>
-        </SelectContent>
-      </Select>
-      <Button
-        variant="outline"
-        className="flex items-center gap-2"
-        onClick={() => {
-          // Implement date range picker logic here
-          setDateRange({
-            startDate: new Date(),
-            endDate: new Date(),
-          });
-        }}
-      >
-        <CalendarIcon className="h-4 w-4" />
-        Select Date Range
-      </Button>
-    </div>
+    <form onSubmit={handleSubmit} className="mb-4">
+      <div className="flex items-center space-x-4">
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="border rounded px-2 py-1"
+        >
+          <option value="all">All</option>
+          <option value="pending_payment">Pending Payment</option>
+          <option value="confirmation">Confirmation</option>
+          <option value="process">Process</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="border rounded px-2 py-1"
+        />
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          className="border rounded px-2 py-1"
+        />
+        <button
+          type="submit"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded"
+        >
+          Apply Filters
+        </button>
+      </div>
+    </form>
   );
 };
 
-export default AdminOrderFilters;
+export default OrderFilter;

@@ -2,10 +2,17 @@ import React from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { CartItem } from "@/types/cartitem";
+
+interface OrderItem {
+  id: number;
+  productId: number;
+  productName: string;
+  quantity: number;
+  price: number;
+}
 
 interface OrderSummaryProps {
-  cartItems: CartItem[];
+  orderItems: OrderItem[];
   totalAmount: number;
   onPayment?: () => void;
   isLoading?: boolean;
@@ -13,7 +20,7 @@ interface OrderSummaryProps {
 }
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
-  cartItems,
+  orderItems,
   totalAmount,
   onPayment,
   isLoading = false,
@@ -23,8 +30,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     <Card className="mt-4">
       <CardContent>
         <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-        {cartItems.map((item) => (
-          <div key={item.productId} className="flex justify-between items-center mb-2">
+        {orderItems.map((item) => (
+          <div key={item.id} className="flex justify-between items-center mb-2">
             <span>
               {item.productName} x {item.quantity}
             </span>

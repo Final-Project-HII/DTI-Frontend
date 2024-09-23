@@ -12,32 +12,32 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
-
+import Swal from "sweetalert2";
 
 interface ProductCardProps {
-    product: Product;
+  product: Product;
 }
 
 interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    weight: number;
-    categoryId: number;
-    categoryName: string;
-    totalStock: number;
-    productImages: ProductImage[];
-    createdAt: string;
-    updatedAt: string;
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  weight: number;
+  categoryId: number;
+  categoryName: string;
+  totalStock: number;
+  productImages: ProductImage[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ProductImage {
-    id: number;
-    productId: number;
-    imageUrl: string;
-    createdAt: string;
-    updatedAt: string;
+  id: number;
+  productId: number;
+  imageUrl: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
@@ -46,13 +46,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleAddToCart = async () => {
     try {
       await addToCart(product.id, 1);
-      alert("Product added to cart!");
+      Swal.fire({
+        title: "Product added to cart!",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      console.log("After Swal.fire"); // Debugging line
     } catch (error) {
       console.error("Failed to add product to cart:", error);
-      alert("Failed to add product to cart.");
+      Swal.fire({
+        title: "Error",
+        text: "Failed to add product to cart.",
+        icon: "error",
+      });
     }
   };
-
   const truncateDescription = (description: string, maxLength: number) => {
     if (description.length > maxLength) {
       return description.slice(0, maxLength) + "...";

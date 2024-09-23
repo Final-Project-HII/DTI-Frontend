@@ -2,48 +2,23 @@
 import React from "react";
 import { useCart } from "../../hooks/useCart";
 import { useSession } from "next-auth/react";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import NavBar from "@/components/NavBar";
 import Image from "next/image";
-import { ProductDataResponse, useProductDetails } from "@/hooks/useProduct";
 
 const CartPage: React.FC = () => {
   const { data: session, status } = useSession();
   const {
     cartItems,
-    isLoading: isCartLoading,
+    cartDetails,
+    isLoading,
+    error,
     updateQuantity,
     removeItem,
   } = useCart();
 
-  const productIds = cartItems.map((item) => item.productId);
-  const productQueries = useProductDetails(productIds);
-
-  const isLoading =
-    isCartLoading || productQueries.some((query) => query.isLoading);
-  const isError = productQueries.some((query) => query.isError);
-
-  const cartItemsWithDetails = cartItems.map((item, index) => ({
-    ...item,
-    productDetails: productQueries[index].data as ProductDataResponse,
-  }));
-
-  const totalPrice = cartItemsWithDetails.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const totalItems = cartItemsWithDetails.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  );
-
-  const handleUpdateQuantity = async (
-    productId: number,
-    newQuantity: number
-  ) => {
+  const handleUpdateQuantity = async (productId: number, newQuantity: number) => {
     if (newQuantity === 0) {
       await removeItem(productId);
     } else {
@@ -61,8 +36,8 @@ const CartPage: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  if (isError) {
-    return <div>Error loading product details</div>;
+  if (error) {
+    return <div>Error: {error}</div>;
   }
 
   if (status === "unauthenticated") {
@@ -73,23 +48,23 @@ const CartPage: React.FC = () => {
     <>
       <div className="mt-28 container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Keranjang</h1>
-        {cartItemsWithDetails.length === 0 ? (
+        {cartItems.length === 0 ? (
           <p>Your cart is empty.</p>
         ) : (
           <div className="flex gap-4">
             <Card className="flex-grow">
               <CardHeader>
-                <CardTitle>Toko Indomaret ({totalItems} produk)</CardTitle>
+                <CardTitle>Toko Indomaret ({cartDetails.totalItems} produk)</CardTitle>
               </CardHeader>
               <CardContent>
-                {cartItemsWithDetails.map((item) => (
+                {cartItems.map((item) => (
                   <div
                     key={item.id}
                     className="flex justify-between items-center mb-4 border-b pb-4"
                   >
                     <Image
                       src={
-                        item.productDetails?.productImages[0]?.imageUrl ||
+                        item.productDetails.productImages[0]?.imageUrl ||
                         "/placeholder-image.jpg"
                       }
                       alt={item.productName}
@@ -109,12 +84,7 @@ const CartPage: React.FC = () => {
                           variant="outline"
                           size="sm"
                           className="w-8 h-8 rounded-md bg-blue-500 text-white hover:bg-blue-600"
-                          onClick={() =>
-                            handleUpdateQuantity(
-                              item.productId,
-                              item.quantity - 1
-                            )
-                          }
+                          onClick={() => handleUpdateQuantity(item.productId, item.quantity - 1)}
                         >
                           -
                         </Button>
@@ -125,12 +95,7 @@ const CartPage: React.FC = () => {
                           variant="outline"
                           size="sm"
                           className="w-8 h-8 rounded-md bg-blue-500 text-white hover:bg-blue-600"
-                          onClick={() =>
-                            handleUpdateQuantity(
-                              item.productId,
-                              item.quantity + 1
-                            )
-                          }
+                          onClick={() => handleUpdateQuantity(item.productId, item.quantity + 1)}
                         >
                           +
                         </Button>
@@ -155,7 +120,7 @@ const CartPage: React.FC = () => {
                 <div className="flex flex-col gap-2">
                   <div className="flex justify-between">
                     <p>Total Harga Pesanan:</p>
-                    <p>Rp {totalPrice.toLocaleString()}</p>
+                    <p>Rp {cartDetails.totalPrice.toLocaleString()}</p>
                   </div>
                   <div className="flex justify-between text-green-600">
                     <p>Total Diskon:</p>
@@ -163,7 +128,7 @@ const CartPage: React.FC = () => {
                   </div>
                   <div className="flex justify-between font-bold text-lg">
                     <p>Total Pembayaran:</p>
-                    <p>Rp {totalPrice.toLocaleString()}</p>
+                    <p>Rp {cartDetails.totalPrice.toLocaleString()}</p>
                   </div>
                 </div>
                 <Link href="/checkout" className="w-full">

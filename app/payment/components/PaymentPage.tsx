@@ -7,7 +7,6 @@ import PaymentMethodSelection from "./PaymentMethodSelection";
 import OrderSummary from "./OrderSummary";
 import { Input } from "@/components/ui/input";
 import { useOrders } from "@/hooks/useOrder";
-import { useCart } from "@/hooks/useCart";
 import { useRouter } from "next/navigation";
 import { Order } from "@/types/order";
 
@@ -25,13 +24,7 @@ const PaymentPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { data: session, status } = useSession();
   const { toast } = useToast();
-  const { cartItems, isLoading: cartLoading } = useCart();
   const router = useRouter();
-
-  const totalAmount = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
 
   const {
     ordersData,
@@ -45,7 +38,7 @@ const PaymentPage: React.FC = () => {
     console.log("ordersData:", ordersData);
     if (
       ordersData &&
-      ordersData &&
+      ordersData.data &&
       ordersData.data.content &&
       ordersData.data.content.length > 0
     ) {
@@ -221,8 +214,8 @@ const PaymentPage: React.FC = () => {
         </div>
       )}
       <OrderSummary
-        cartItems={cartItems}
-        totalAmount={totalAmount}
+        orderItems={latestOrder.items}
+        totalAmount={latestOrder.finalAmount}
         onPayment={handlePayment}
         isLoading={isLoading}
         isPaymentDisabled={!paymentMethod}

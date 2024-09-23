@@ -9,10 +9,11 @@ import YouMayLike from "@/app/(main)/product/[productDetail]/_components/YouMayL
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
 import { addToCartApi } from "@/utils/api";
+import Swal from "sweetalert2";
 
 interface ProductImage {
-    id: number;
-    imageUrl: string;
+  id: number;
+  imageUrl: string;
 }
 
 interface Product {
@@ -27,21 +28,20 @@ interface Product {
 }
 
 interface ProductDetailProps {
-    product: Product;
+  product: Product;
 }
 
-
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
-    const [quantity, setQuantity] = useState(1);
-    const [mainImage, setMainImage] = useState(product?.productImages[0]);
-    const [isLoading, setIsLoading] = useState(true);
-    const { addToCart, updateQuantity, cartItems } = useCart();
+  const [quantity, setQuantity] = useState(1);
+  const [mainImage, setMainImage] = useState(product?.productImages[0]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { addToCart, updateQuantity, cartItems } = useCart();
 
-    useEffect(() => {
-        // Simulate loading
-        const timer = setTimeout(() => setIsLoading(false), 2000);
-        return () => clearTimeout(timer);
-    }, []);
+  useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     // Reset quantity to 1 or max stock when product changes
@@ -50,16 +50,19 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 
   const handleAddToCart = async () => {
     try {
-      await addToCart (product.id, quantity, );
-      toast({
-        title: "Added to cart",
-        description: `${quantity} ${product.name}(s) added to your cart.`,
+      await addToCart(product.id, quantity);
+      Swal.fire({
+        title: "Product added to cart",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true,
       });
     } catch (error) {
-      toast({
+      Swal.fire({
         title: "Error",
-        description: "Failed to add item to cart. Please try again.",
-        variant: "destructive",
+        text: "Failed to add item to cart. Please try again.",
+        icon: "error",
       });
     }
   };
@@ -79,9 +82,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     }).format(price);
   };
 
-    if (isLoading) {
-        return <ProductDetailSkeleton />;
-    }
+  if (isLoading) {
+    return <ProductDetailSkeleton />;
+  }
 
   return (
     <div className="w-full lg:pt-32 p-4 pt-24 md:pt-24 lg:p-16">
@@ -239,8 +242,5 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     </div>
   );
 };
-
-
-
 
 export default ProductDetail;
