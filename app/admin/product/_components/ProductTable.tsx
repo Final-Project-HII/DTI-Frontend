@@ -1,9 +1,10 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Badge } from '@/components/ui/badge';
+import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Edit, Trash2 } from 'lucide-react';
+import Image from 'next/image';
 
 interface ProductTableProps {
     products: Product[];
@@ -11,92 +12,137 @@ interface ProductTableProps {
     pageSize: number;
     onEdit: (product: Product) => void;
     onDelete: (id: number) => void;
-    isPending: boolean;
+    isLoading: boolean;
+}
+interface ProductImage {
+    id: number;
+    productId: number;
+    imageUrl: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 interface Product {
     id: number;
     name: string;
+    description: string;
     price: number;
-    productImages: { imageUrl: string }[];
+    weight: number;
+    categoryId: number;
+    categoryName: string;
+    totalStock: number;
+    productImages: ProductImage[];
+    createdAt: string;
+    updatedAt: string;
 }
 
-const ProductTable: React.FC<ProductTableProps> = ({
+interface ApiResponse {
+    content: Product[];
+    totalPages: number;
+    totalElements: number;
+    size: number;
+    number: number;
+    sort: {
+        empty: boolean;
+        sorted: boolean;
+        unsorted: boolean;
+    };
+    first: boolean;
+    last: boolean;
+    numberOfElements: number;
+    pageable: {
+        pageNumber: number;
+        pageSize: number;
+        sort: {
+            empty: boolean;
+            sorted: boolean;
+            unsorted: boolean;
+        };
+        offset: number;
+        paged: boolean;
+        unpaged: boolean;
+    };
+    empty: boolean;
+}
+
+export const ProductTable: React.FC<ProductTableProps> = ({
     products,
     currentPage,
     pageSize,
     onEdit,
     onDelete,
-    isPending
+    isLoading
 }) => {
-    const formatToRupiah = (price: number) => {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(price);
-    };
+    if (isLoading) {
+        return <TableRow><TableCell colSpan={8}><p>Loading...</p></TableCell></TableRow>;
+    }
 
     return (
-        <Table>
+        <Table className='p-4'>
             <TableHeader>
-                <TableRow>
-                    <TableHead>No</TableHead>
-                    <TableHead>Image</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Stock</TableHead>
-                    <TableHead>Ordered Qty</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Actions</TableHead>
+                <TableRow className='bg-blue-600 hover:bg-transparent-none'>
+                    <TableHead className='text-white'>No</TableHead>
+                    <TableHead className='text-white'>Image</TableHead>
+                    <TableHead className='text-white'>Name</TableHead>
+                    <TableHead className='text-white'>Stock</TableHead>
+                    <TableHead className='text-white'>Ordered Qty</TableHead>
+                    <TableHead className='text-white'>Status</TableHead>
+                    <TableHead className='text-white'>Price</TableHead>
+                    <TableHead className='text-white'>Actions</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {isPending ? (
-                    <TableRow>
-                        <TableCell colSpan={8}><p>Loading...</p></TableCell>
-                    </TableRow>
-                ) : (
-                    products.map((product, index) => (
-                        <TableRow key={product.id}>
-                            <TableCell>{currentPage * pageSize + index + 1}</TableCell>
-                            <TableCell>
+                {products.map((product, index) => (
+                    <TableRow key={product.id}>
+                        <TableCell>{currentPage * pageSize + index + 1}</TableCell>
+                        <TableCell>
+                            <div className="bg-white flex items-center justify-center p-1 w-14 h-14 rounded-xl shadow-md">
                                 {product.productImages.length > 0 && (
-                                    <img
+                                    <Image
                                         src={product.productImages[0].imageUrl}
                                         alt={product.name}
-                                        className="w-12 h-12 object-cover rounded"
+                                        // className="w-12 h-12 object-contain rounded"
+                                        className={`w-12 h-12 object-contain rounded ${product.totalStock === 0 ? 'grayscale' : ''}`}
+                                        // style={{ filter: product.totalStock === 0 ? 'grayscale(100%)' : 'none' }}
+                                        width={48}
+                                        height={48}
                                     />
                                 )}
-                            </TableCell>
-                            <TableCell>{product.name}</TableCell>
-                            <TableCell>100</TableCell>
-                            <TableCell>20</TableCell>
-                            <TableCell>
+                            </div>
+                        </TableCell>
+                        <TableCell>{product.name}</TableCell>
+                        <TableCell>{product.totalStock}</TableCell>
+                        <TableCell>20</TableCell>
+                        <TableCell>
+                            {product.totalStock > 0 ? (
                                 <Badge className="bg-green-100 text-green-700"> • Available</Badge>
-                            </TableCell>
-                            <TableCell>{formatToRupiah(product.price)}</TableCell>
-                            <TableCell>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="h-8 w-8 p-0">
-                                            <MoreVertical className="h-4 w-4" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="bg-white">
-                                        <DropdownMenuItem onClick={() => onEdit(product)}>
-                                            <Edit className="mr-2 h-4 w-4" />
-                                            <span>Edit</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => onDelete(product.id)}>
-                                            <Trash2 className="mr-2 h-4 w-4" />
-                                            <span>Delete</span>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </TableCell>
-                        </TableRow>
-                    ))
-                )}
+                            ) : (
+                                <Badge className="bg-red-100 text-red-700"> • Out of Stock</Badge>
+                            )}
+                        </TableCell>
+                        <TableCell>Rp {product.price.toLocaleString()}</TableCell>
+                        <TableCell>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" className="h-8 w-8 p-0">
+                                        <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="bg-white">
+                                    <DropdownMenuItem onClick={() => onEdit(product)}>
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        <span>Edit</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => onDelete(product.id)}>
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        <span>Delete</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </TableCell>
+                    </TableRow>
+                ))}
             </TableBody>
         </Table>
     );
 };
-
-export default ProductTable;

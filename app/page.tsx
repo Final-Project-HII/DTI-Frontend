@@ -5,13 +5,13 @@ import CategoryList from "./_components/CategoryList";
 import ReasonToShop from "./_components/ReasonToShop";
 import DownloadApp from "./_components/DownloadApp";
 import ProductList from "./_components/ProductList";
-import NavBar from "@/components/NavBar";
+import NavBar from '@/components/NavBar';
+
 
 const page = () => {
   return (
     <>
       <div className="pt-20">
-        <NavBar />
         <Carousel />
         <CategoryList />
         <ProductList category="Food" />

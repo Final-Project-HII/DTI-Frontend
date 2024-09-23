@@ -1,9 +1,24 @@
-import { useState, useEffect } from 'react';
-import { Order } from '@/types/order';
-import { useSession } from 'next-auth/react';
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { Order } from "@/types/order";
 
-export const useOrders = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
+interface OrdersResponse {
+  data: any;
+  content: Order[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+}
+
+export const useOrders = (
+  page: number,
+  size: number,
+  status?: string,
+  startDate?: Date | null,
+  endDate?: Date | null
+) => {
+  const [ordersData, setOrdersData] = useState<OrdersResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { data: session } = useSession();
@@ -17,26 +32,41 @@ export const useOrders = () => {
 
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:8080/api/orders', {
-          headers: {
-            'Authorization': `Bearer ${session.user.accessToken}`
-          }
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch orders');
+        let url = `${process.env.NEXT_PUBLIC_API_URL}api/orders?page=${page}&size=${size}`;
+
+        if (status && status !== "all") {
+          url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/filtered?page=${page}&size=${size}`;
         }
-        const data = await response.json();
-        setOrders(data);
+
+        if (startDate && endDate) {
+          url += `&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+        }
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${session.user.accessToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to fetch orders");
+        }
+        const content: OrdersResponse = await response.json();
+        setOrdersData(content);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('An unknown error occurred'));
+        console.error("Error fetching orders:", err);
+        setError(
+          err instanceof Error ? err : new Error("An unknown error occurred")
+        );
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrders();
-  }, [session]);
+  }, [session, page, size, status, startDate, endDate]);
 
-  return { orders, loading, error };
+  return { ordersData, loading, error };
 };
