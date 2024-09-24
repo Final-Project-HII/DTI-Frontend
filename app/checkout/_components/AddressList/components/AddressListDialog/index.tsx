@@ -44,7 +44,6 @@ const AddressListDialog: React.FC<AddressListDialogProps> = ({
   useEffect(() => {
     if (open) {
       fetchAddresses();
-      onDataChange()
     }
   }, [open, searchByAddressLine, size]);
 

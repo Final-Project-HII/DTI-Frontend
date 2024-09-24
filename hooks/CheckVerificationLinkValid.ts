@@ -24,7 +24,7 @@ const CheckVerificationLinkValid = (formData: FormData) => {
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}api/check-verification`,
+          `${process.env.NEXT_PUBLIC_API_URL}api/users/check-verification`,
           {
             headers: {
               'Content-Type': 'application/json',

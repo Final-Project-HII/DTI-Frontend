@@ -11,8 +11,8 @@ import { toast } from "@/components/ui/use-toast";
 import { addToCartApi } from "@/utils/api";
 
 interface ProductImage {
-    id: number;
-    imageUrl: string;
+  id: number;
+  imageUrl: string;
 }
 
 interface Product {
@@ -27,21 +27,21 @@ interface Product {
 }
 
 interface ProductDetailProps {
-    product: Product;
+  product: Product;
 }
 
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
-    const [quantity, setQuantity] = useState(1);
-    const [mainImage, setMainImage] = useState(product?.productImages[0]);
-    const [isLoading, setIsLoading] = useState(true);
-    const { addToCart, updateQuantity, cartItems } = useCart();
+  const [quantity, setQuantity] = useState(1);
+  const [mainImage, setMainImage] = useState(product?.productImages[0]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { addToCart, updateQuantity, cartItems } = useCart();
 
-    useEffect(() => {
-        // Simulate loading
-        const timer = setTimeout(() => setIsLoading(false), 2000);
-        return () => clearTimeout(timer);
-    }, []);
+  useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     // Reset quantity to 1 or max stock when product changes
@@ -50,7 +50,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 
   const handleAddToCart = async () => {
     try {
-      await addToCart (product.id, quantity, );
+      await addToCart(product.id, quantity,);
       toast({
         title: "Added to cart",
         description: `${quantity} ${product.name}(s) added to your cart.`,
@@ -79,9 +79,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     }).format(price);
   };
 
-    if (isLoading) {
-        return <ProductDetailSkeleton />;
-    }
+  if (isLoading) {
+    return <ProductDetailSkeleton />;
+  }
 
   return (
     <div className="w-full lg:pt-32 p-4 pt-24 md:pt-24 lg:p-16">
@@ -104,9 +104,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
             {product.productImages.map((image, index) => (
               <Card
                 key={image.id}
-                className={`bg-white p-1 cursor-pointer hover:shadow-md duration-300 overflow-hidden ${
-                  mainImage.id === image.id ? "ring-2 ring-blue-500" : ""
-                }`}
+                className={`bg-white p-1 cursor-pointer hover:shadow-md duration-300 overflow-hidden ${mainImage.id === image.id ? "ring-2 ring-blue-500" : ""
+                  }`}
               >
                 <CardContent className="p-0">
                   <div className="relative aspect-square">

@@ -25,7 +25,7 @@ export default async function RootLayout({
     <html lang="en">
       <SessionProvider session={session} refetchInterval={120}>
         <body className={JakartaSans.className}>
-          {/* <NavBar /> */}
+          <NavBar />
           <Providers>{children}</Providers>
           <Footer />
         </body>
