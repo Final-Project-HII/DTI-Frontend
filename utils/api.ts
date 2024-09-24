@@ -323,3 +323,94 @@ export const getActiveAddress = async (token: string): Promise<any> => {
     throw error;
   }
 };
+
+export const getAllUser = async (
+  email: string,
+  role: string | undefined,
+  page: string,
+  size: string
+): Promise<any> => {
+  const params = new URLSearchParams()
+  params.set('page', page)
+  params.set('size', size)
+
+  if (email) {
+    params.set('email', email)
+  }
+
+  if (role) {
+    params.set('role', role)
+  }
+
+  try {
+    const response = await axios.get<any>(
+      `${BASE_URL_DEV}/users?${params.toString()}`
+    )
+    return response.data.data
+  } catch (error) {
+    console.error('Error fetching user data:', error)
+    throw error
+  }
+}
+
+export const toogleUserActiveStatus = async (id: number): Promise<any> => {
+  const response = await axios.put(
+    `${BASE_URL_DEV}/users/toggle-active-user/${id}`,
+    {}
+  )
+  console.log(response)
+  return response.data
+}
+
+export const createNewAdmin = async (formData: AdminFormData): Promise<any> => {
+  const response = await axios.post(
+    `${BASE_URL_DEV}/users/register-admin`,
+    formData
+  )
+  return response.data
+}
+
+export const updateAdmin = async (formData: AdminFormData): Promise<any> => {
+  const response = await axios.put(
+    `${BASE_URL_DEV}/users/update-admin`,
+    formData
+  )
+  return response.data
+}
+
+export const getProfileData = async (token: string): Promise<any> => {
+  try {
+    const response = await axios.get<any>(`${BASE_URL_DEV}/users/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    return response.data.data
+  } catch (error) {
+    console.error('Error fetching profile data:', error)
+    throw error
+  }
+}
+
+export const updateProfile = async (
+  formData: ProfileForm,
+  token: string
+): Promise<any> => {
+  const response = await axios.put(`${BASE_URL_DEV}/users/profile`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return response.data
+}
+
+export const getShippingData = async (token: string): Promise<any> => {
+  try {
+    const response = await axios.get<any>(`${BASE_URL_DEV}/couriers`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    return response.data.data
+  } catch (error) {
+    console.error('Error fetching shipping data:', error)
+    throw error
+  }
+}
