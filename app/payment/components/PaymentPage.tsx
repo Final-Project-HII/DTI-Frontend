@@ -3,7 +3,10 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
-import PaymentMethodSelection from "./PaymentMethodSelection";
+import PaymentMethodSelection, {
+  BankType,
+  PaymentMethodType,
+} from "./PaymentMethodSelection";
 import OrderSummary from "./OrderSummary";
 import { Input } from "@/components/ui/input";
 import { useOrders } from "@/hooks/useOrder";
@@ -15,10 +18,9 @@ const CLOUDINARY_UPLOAD_PRESET = "finproHII";
 const CLOUDINARY_CLOUD_NAME = "djyevwtie";
 
 const PaymentPage: React.FC = () => {
-  const [paymentMethod, setPaymentMethod] = useState<
-    "PAYMENT_GATEWAY" | "PAYMENT_PROOF" | ""
-  >("");
-  const [selectedBank, setSelectedBank] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>("");
+  const [selectedBank, setSelectedBank] = useState<BankType>("");
+
   const [proofImageUrl, setProofImageUrl] = useState<string>("");
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -145,42 +147,6 @@ const PaymentPage: React.FC = () => {
     }
   };
 
-  const handleProofUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      setUploadingImage(true);
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-      try {
-        const response = await axios.post(
-          `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-          formData
-        );
-
-        setProofImageUrl(response.data.secure_url);
-        toast({
-          title: "Upload Successful",
-          description: "Your payment proof has been uploaded.",
-          duration: 3000,
-        });
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        toast({
-          title: "Upload Failed",
-          description: "Failed to upload payment proof. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setUploadingImage(false);
-      }
-    }
-  };
-
   if (orderLoading) return <div>Loading order details...</div>;
   if (orderError) return <div>Error loading order: {orderError.message}</div>;
   if (!latestOrder)
@@ -194,25 +160,10 @@ const PaymentPage: React.FC = () => {
         setPaymentMethod={setPaymentMethod}
         selectedBank={selectedBank}
         setSelectedBank={setSelectedBank}
+        proofImageUrl={proofImageUrl}
+        setProofImageUrl={setProofImageUrl}
       />
-      {paymentMethod === "PAYMENT_PROOF" && (
-        <div className="mb-4">
-          <Input
-            type="file"
-            onChange={handleProofUpload}
-            disabled={uploadingImage}
-            className="mt-2"
-          />
-          {uploadingImage && <p>Uploading image...</p>}
-          {proofImageUrl && (
-            <img
-              src={proofImageUrl}
-              alt="Payment Proof"
-              className="mt-2 max-w-xs"
-            />
-          )}
-        </div>
-      )}
+
       <OrderSummary
         orderItems={latestOrder.items}
         totalAmount={latestOrder.finalAmount}

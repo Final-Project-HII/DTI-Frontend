@@ -74,7 +74,19 @@ const CheckoutData = () => {
     fetchActiveAddress();
   }, []);
 
+  console.log("Session data:", session);
+  console.log("Creating order with:");
+  console.log("User ID:", session?.user?.id);
+  console.log("Active Address:", activeAddresses);
+  console.log("Selected Courier:", selectedCourier);
+
   const handleCreateOrder = async () => {
+    if (!session?.user?.email) {
+      console.error("User email is missing");
+      setError("Unable to create order: User is not properly authenticated");
+      return;
+    }
+
     if (activeAddresses == null) {
       Swal.fire({
         title: "Please Choose Your Address First Before You Continue!",

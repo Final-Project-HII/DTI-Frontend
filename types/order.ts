@@ -1,5 +1,6 @@
 export interface Order {
   id: number;
+  username : string,
   invoiceId: string;
   userId: number;
   status: string;
