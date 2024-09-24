@@ -2,7 +2,6 @@
 import { useQuery } from "@tanstack/react-query";
 import ProductDetail from "./_components/ProductDetailCard";
 
-// Interface for parsed slug
 export interface ParsedSlug {
   id: string;
   name: string;

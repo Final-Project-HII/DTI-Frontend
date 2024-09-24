@@ -90,6 +90,26 @@ export default function StockMutationPage() {
 
     //fetch all
     useEffect(() => {
+<<<<<<< HEAD
+        const fetchWarehouses = async () => {
+            try {
+                // const response = await axios.get('http://localhost:8080/api/warehouses');
+                const response = await axios.get('http://localhost:8080/api/warehouses', {
+                    headers: {
+                        Authorization: `Bearer ${session?.user?.accessToken}`,
+                    },
+                });
+
+                setWarehouses(response.data.data.content);
+            } catch (error) {
+                console.error('Error fetching warehouses:', error);
+            }
+        };
+        if (session?.user?.accessToken) {
+            fetchWarehouses();
+        }
+    }, [session]);
+=======
         // Fetch warehouses
         axios.get<{
             data: {
@@ -102,6 +122,7 @@ export default function StockMutationPage() {
             .catch(error => console.error("Failed to fetch warehouses:", error));
     }, []);
 
+>>>>>>> f59e7652a9e50590018d4b621cd077e84ce93e09
 
     const { data, isLoading, error, refetch } = useQuery<ApiResponse>({
         queryKey: ['stockMutations', selectedWarehouse, session?.user?.accessToken],

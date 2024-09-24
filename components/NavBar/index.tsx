@@ -21,7 +21,6 @@ import SearchSheet from "./_components/SearchSheet";
 import { useCart } from "@/hooks/useCart";
 import { useSearchParams } from 'next/navigation';
 import "swiper/css";
-import SignOutButton from "../SignOutBtn";
 
 
 const NavBar = () => {

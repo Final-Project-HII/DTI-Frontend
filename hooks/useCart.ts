@@ -37,7 +37,6 @@ export const useCart = () => {
       setError(null);
       const cartData = await fetchCartItems(session.user.accessToken);
 
-      // Check if cartData.items exists and is an array
       if (Array.isArray(cartData.items)) {
         setCartItems(cartData.items);
         setCartDetails({
@@ -129,6 +128,7 @@ export const useCart = () => {
   const getCartId = () => {
     return cartItems.length > 0 ? cartItems[0].id : null;
   };
+
 
   return {
     cartItems: cartItemsWithDetails,

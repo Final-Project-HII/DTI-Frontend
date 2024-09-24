@@ -31,6 +31,7 @@ interface ProductDetailProps {
   product: Product;
 }
 
+
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
   const [mainImage, setMainImage] = useState(product?.productImages[0]);
@@ -107,9 +108,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
             {product.productImages.map((image, index) => (
               <Card
                 key={image.id}
-                className={`bg-white p-1 cursor-pointer hover:shadow-md duration-300 overflow-hidden ${
-                  mainImage.id === image.id ? "ring-2 ring-blue-500" : ""
-                }`}
+                className={`bg-white p-1 cursor-pointer hover:shadow-md duration-300 overflow-hidden ${mainImage.id === image.id ? "ring-2 ring-blue-500" : ""
+                  }`}
               >
                 <CardContent className="p-0">
                   <div className="relative aspect-square">
@@ -242,5 +242,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     </div>
   );
 };
+
+
+
 
 export default ProductDetail;

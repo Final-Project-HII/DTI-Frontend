@@ -1,51 +1,55 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError } from 'axios'
 import {
   Address,
   ApiResponse,
   ApiResponseAddress,
   Product,
-} from "@/types/product";
-import { Category } from "@/types/category";
-import { Warehouse } from "@/types/warehouse";
-import { WarehouseFormData } from "@/app/admin/warehouse/components/AddWarehoseForm";
-import { Order, OrderItem } from "@/types/order";
-import { useSession } from "next-auth/react";
-import { AddressFormData } from "@/app/checkout/_components/UpdateAddressForm";
-import { CartItem } from "@/types/cartitem";
+} from '@/types/product'
+import { Category } from '@/types/category'
+import { Warehouse } from '@/types/warehouse'
+import { WarehouseFormData } from '@/app/admin/warehouse/components/AddWarehoseForm'
+import { Order, OrderItem } from '@/types/order'
+import { useSession } from 'next-auth/react'
+import { AddressFormData } from '@/app/checkout/_components/UpdateAddressForm'
+import { AdminFormData } from '@/app/admin/admin-management/_components/AdminTable/components/DataTable/components/AddAdminForm'
+import { ProfileForm } from '@/app/profile/components/ProfilePage'
+import { CartItem } from '@/types/cartitem'
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`
+
+export const BASE_URL_DEV = `http://localhost:8080/api`
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
-});
+})
 
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token')
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`
   }
-  return config;
-});
+  return config
+})
 
 export const fetchProducts = async () => {
-  const response = await axiosInstance.get("/product");
-  return response.data;
-};
+  const response = await axiosInstance.get('/product')
+  return response.data
+}
 
 export const fetchProductDetails = async (
   productId: number
 ): Promise<Product> => {
   try {
-    const response = await axiosInstance.get<Product>(`/product/${productId}`);
-    return response.data;
+    const response = await axiosInstance.get<Product>(`/product/${productId}`)
+    return response.data
   } catch (error) {
-    console.error("Error fetching product details:", error);
-    throw error;
+    console.error('Error fetching product details:', error)
+    throw error
   }
-};
+}
 
 export const fetchCartItems = async (token: string) => {
-  const response = await axiosInstance.get("/carts", {
+  const response = await axiosInstance.get('/carts', {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -59,6 +63,7 @@ export const fetchCartItems = async (token: string) => {
     (sum: number, item: CartItem) => sum + item.quantity,
     0
   );
+  
 
   return {
     items,
@@ -73,7 +78,7 @@ export const addToCartApi = async (
   quantity: number
 ) => {
   const response = await axiosInstance.post(
-    "/cart-items/add",
+    '/cart-items/add',
     {
       productId,
       quantity,
@@ -81,9 +86,9 @@ export const addToCartApi = async (
     {
       headers: { Authorization: `Bearer ${token}` },
     }
-  );
-  return response.data;
-};
+  )
+  return response.data
+}
 
 export const updateCartItemQuantityApi = async (
   token: string,
@@ -94,33 +99,33 @@ export const updateCartItemQuantityApi = async (
     `/cart-items/item/${productId}`,
     { quantity },
     { headers: { Authorization: `Bearer ${token}` } }
-  );
-  return response.data;
-};
+  )
+  return response.data
+}
 
 export const removeCartItemApi = async (token: string, productId: number) => {
   await axiosInstance.delete(`/cart-items/item/${productId}`, {
     headers: { Authorization: `Bearer ${token}` },
-  });
-};
+  })
+}
 
 export const fetchFilteredProducts = async (
   params: URLSearchParams
 ): Promise<ApiResponse> => {
   const response = await axiosInstance.get<ApiResponse>(
     `/product?${params.toString()}`
-  );
-  return response.data;
-};
+  )
+  return response.data
+}
 
 export const createProduct = async (formData: FormData): Promise<Product> => {
-  const response = await axiosInstance.post("/product/create", formData, {
+  const response = await axiosInstance.post('/product/create', formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
-  });
-  return response.data;
-};
+  })
+  return response.data
+}
 
 export const updateProduct = async (
   id: number,
@@ -128,25 +133,25 @@ export const updateProduct = async (
 ): Promise<Product> => {
   const response = await axiosInstance.put(`/product/update/${id}`, formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
-  });
-  return response.data;
-};
+  })
+  return response.data
+}
 
 export const deleteProduct = async (id: number): Promise<void> => {
-  await axiosInstance.delete(`/product/delete/${id}`);
-};
+  await axiosInstance.delete(`/product/delete/${id}`)
+}
 
 export const fetchCategories = async (): Promise<Category[]> => {
-  const response = await axiosInstance.get<Category[]>("/category");
-  return response.data;
-};
+  const response = await axiosInstance.get<Category[]>('/category')
+  return response.data
+}
 
 export const createCategory = async (name: string): Promise<Category> => {
-  const response = await axiosInstance.post("/category/create", { name });
-  return response.data;
-};
+  const response = await axiosInstance.post('/category/create', { name })
+  return response.data
+}
 
 export const updateCategory = async (
   id: number,
@@ -154,13 +159,13 @@ export const updateCategory = async (
 ): Promise<Category> => {
   const response = await axiosInstance.put(`/category/update/${id}`, {
     name,
-  });
-  return response.data;
-};
+  })
+  return response.data
+}
 
 export const deleteCategory = async (id: number): Promise<void> => {
-  await axiosInstance.delete(`/category/delete/${id}`);
-};
+  await axiosInstance.delete(`/category/delete/${id}`)
+}
 
 export const fetchOrders = async (): Promise<Order[]> => {
   const response = await axiosInstance.get<Order[]>("/orders");

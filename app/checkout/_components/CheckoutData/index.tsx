@@ -14,21 +14,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useCart } from "@/hooks/useCart";
 import { ProductDataResponse, useProductDetails } from "@/hooks/useProduct";
+import { Address } from "@/types/product";
+import { getActiveAddress, getShippingData } from "@/utils/api";
+import axios from "axios";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import { useCart } from "@/hooks/useCart";
-import AddressCard from "../AddressList";
-import { getActiveAddress } from "@/utils/api";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { FaShippingFast } from "react-icons/fa";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
-import { useRouter } from "next/navigation";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import axios from "axios";
-import { Address } from "@/types/product";
+import AddressCard from "../AddressList";
+import { Skeleton } from "@/components/ui/skeleton";
 
+
+interface Shipping {
+  id: string,
+  name: string,
+  cost: number
+}
 const CheckoutData = () => {
   const { data: session } = useSession();
   const { cartItems } = useCart();
@@ -40,6 +47,8 @@ const CheckoutData = () => {
   const [selectedCourier, setSelectedCourier] = useState<number>(1); // Default to JNE
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [shippingData, setShippingData] = useState<Shipping[]>([])
+  const [firstShippingData, setFirstShippingData] = useState<Shipping>();
 
   const handleCourierChange = (value: string) => {
     const courierId = parseInt(value);
@@ -59,12 +68,27 @@ const CheckoutData = () => {
   const fetchActiveAddress = async () => {
     try {
       const response = await getActiveAddress(session!.user.accessToken);
-      console.log(response);
       if (response == null) {
         setActiveAddresses(null);
       } else {
         setActiveAddresses(response.data);
       }
+      await fetchShippingData();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
+  const fetchShippingData = async () => {
+    try {
+      setIsLoading(true)
+      const response = await getShippingData(session!.user.accessToken);
+      setShippingData(response);
+      if (response.length > 0) {
+        setFirstShippingData(response[0]);
+      }
+      setIsLoading(false)
     } catch (error) {
       console.error(error);
     }
@@ -74,19 +98,7 @@ const CheckoutData = () => {
     fetchActiveAddress();
   }, []);
 
-  console.log("Session data:", session);
-  console.log("Creating order with:");
-  console.log("User ID:", session?.user?.id);
-  console.log("Active Address:", activeAddresses);
-  console.log("Selected Courier:", selectedCourier);
-
   const handleCreateOrder = async () => {
-    if (!session?.user?.email) {
-      console.error("User email is missing");
-      setError("Unable to create order: User is not properly authenticated");
-      return;
-    }
-
     if (activeAddresses == null) {
       Swal.fire({
         title: "Please Choose Your Address First Before You Continue!",
@@ -142,8 +154,7 @@ const CheckoutData = () => {
         console.error("Response data:", error.response.data);
         console.error("Response status:", error.response.status);
         setError(
-          `An error occurred while creating the order: ${
-            error.response.data.message || error.message
+          `An error occurred while creating the order: ${error.response.data.message || error.message
           }`
         );
       } else {
@@ -172,31 +183,28 @@ const CheckoutData = () => {
                 <p>{cartItemsWithDetails.length} produk</p>
               </CardHeader>
               <CardContent>
-                <h3 className="font-bold mb-2">Metode Pengiriman</h3>
-                <RadioGroup
-                  defaultValue="1"
-                  onValueChange={handleCourierChange}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="1" id="jne" />
-                    <Label htmlFor="jne">JNE</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="2" id="tiki" />
-                    <Label htmlFor="tiki">TIKI</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="3" id="pos" />
-                    <Label htmlFor="pos">POS</Label>
-                  </div>
-                </RadioGroup>
-                <div className="flex justify-between items-center">
-                  <span>Regular - Pilih Waktu</span>
-                  <span className="text-green-500">Gratis</span>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Hari ini, 15 Agustus 2024, 10:00-10:59
-                </p>
+                <h3 className="font-bold mb-2">Shipping Method</h3>
+                {isLoading ? <Skeleton className="h-[50px] w-full  bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" /> : (
+                  <Select defaultValue={firstShippingData?.id}>
+                    <SelectTrigger className="w-full p-8 relative">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {shippingData.map((data, index) => (
+                          <SelectItem key={index} value={data.id} className="w-full relative">
+                            <div className="flex w-full gap-2 items-center">
+                              <FaShippingFast size={25} className="text-blue-800" />
+                              <h4 className="font-bold">{data.name.toUpperCase()}</h4>
+                              <span className="absolute right-14 font-bold">Rp {(data.cost / 1000).toFixed(3).replace('.', ',')}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
+
 
                 <h3 className="font-bold mt-4 mb-2">Pesanan</h3>
                 {cartItemsWithDetails.length > 0 && (

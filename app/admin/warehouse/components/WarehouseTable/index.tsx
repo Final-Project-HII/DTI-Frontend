@@ -1,14 +1,6 @@
 'use client'
+import React from 'react'
 import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal } from "lucide-react"
-import { useEffect, useState } from 'react'
-import { DataTable } from './DataTable'
-
-import DeleteModal from "@/components/DeleteModal"
-import {
-  AlertDialog
-} from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import {
   DropdownMenu,
@@ -22,6 +14,12 @@ import { Warehouse } from '@/types/warehouse'
 import { deleteWarehouse, getAllWarehouse } from '@/utils/api'
 import UpdateWarehouseForm from '../UpdateWarehouseForm'
 import DataTablePagination from "./DataTable/components/Pagination"
+import DeleteModal from "@/components/DeleteModal"
+import { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { MoreHorizontal } from "lucide-react"
+import { DataTable } from "./DataTable"
+import { AlertDialog } from "@/components/ui/alert-dialog"
 
 const WarehouseTable = () => {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -149,6 +147,7 @@ const WarehouseTable = () => {
         onPageSizeChange={setPageSize}
       />
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DeleteModal onConfirm={handleDeleteWarehouse} onClose={handleCloseDeleteModal} description="Are you sure you want to delete the warehouse ?" />
         <DeleteModal onConfirm={handleDeleteWarehouse} onClose={handleCloseDeleteModal} description="Are you sure you want to delete the warehouse ?" />
       </AlertDialog>
       <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
