@@ -6,6 +6,7 @@ import { useOrders } from "@/hooks/useOrder";
 import OrderFilter from "./component/AdminOrderFilters";
 import OrderTable from "./component/AdminOrdertable";
 import OrderStatusModal from "./component/AdminOrderStatusModal";
+import AdminOrderPagination from "./component/AdminOrderPagination";
 
 const AdminOrderManagement = () => {
   const [page, setPage] = useState(0);
@@ -41,7 +42,6 @@ const AdminOrderManagement = () => {
     newStartDate: Date | null,
     newEndDate: Date | null
   ) => {
-    console.log("Filter changed:", { newStatus, newStartDate, newEndDate });
     setStatus(newStatus);
     setStartDate(newStartDate);
     setEndDate(newEndDate);
@@ -49,12 +49,10 @@ const AdminOrderManagement = () => {
   };
 
   const handlePageChange = (newPage: number) => {
-    console.log("Page changed:", newPage);
     setPage(newPage);
   };
 
   const handleOrderSelect = (order: Order) => {
-    console.log("Order selected:", order);
     setSelectedOrder(order);
   };
 
@@ -64,23 +62,30 @@ const AdminOrderManagement = () => {
 
   const handleStatusUpdate = useCallback(
     async (orderId: number, newStatus: string) => {
-      console.log("Updating status:", { orderId, newStatus });
       try {
+        console.log("Updating status for order:", orderId);
+        console.log("New status:", newStatus);
+
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}api/orders/${orderId}/status`,
+          `${process.env.NEXT_PUBLIC_API_URL}api/orders/${orderId}/status?status=${newStatus}`,
           {
             method: "PUT",
             headers: {
-              "Content-Type": "application/json",
               Authorization: `Bearer ${session?.user.accessToken}`,
             },
-            body: JSON.stringify({ status: newStatus }),
           }
         );
 
+        console.log("Response status:", response.status);
+
         if (!response.ok) {
-          throw new Error("Failed to update order status");
+          const errorText = await response.text();
+          console.error("Error response:", errorText);
+          throw new Error(`Failed to update order status: ${errorText}`);
         }
+
+        const updatedOrder = await response.json();
+        console.log("Updated order:", updatedOrder);
 
         console.log("Status updated successfully");
         refreshOrders();
@@ -97,7 +102,6 @@ const AdminOrderManagement = () => {
 
   const handlePaymentApproval = useCallback(
     async (orderId: number, isApproved: boolean) => {
-      console.log("Approving/Rejecting payment:", { orderId, isApproved });
       try {
         const endpoint = isApproved ? "approve-proof" : "reject-proof";
         const response = await fetch(
@@ -139,14 +143,23 @@ const AdminOrderManagement = () => {
       ) : (
         <>
           {ordersData && ordersData.data && ordersData.data.content ? (
-            <OrderTable
-              orders={ordersData.data.content}
-              onOrderSelect={handleOrderSelect}
-            />
+            <>
+              <OrderTable
+                orders={ordersData.data.content}
+                onOrderSelect={handleOrderSelect}
+                onStatusChange={handleStatusUpdate}
+              />
+              <AdminOrderPagination
+                currentPage={page + 1}
+                setCurrentPage={(newPage) => setPage(newPage - 1)}
+                pageSize={size}
+                setPageSize={setSize}
+                totalItems={ordersData.data.totalElements}
+              />
+            </>
           ) : (
             <div>No orders found</div>
           )}
-          <div className="mt-4">{/* Pagination controls */}</div>
         </>
       )}
       {selectedOrder && (

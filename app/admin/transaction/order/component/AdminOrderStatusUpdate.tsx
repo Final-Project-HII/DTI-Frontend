@@ -1,5 +1,11 @@
 import React from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AdminOrderStatusUpdateProps {
   orderId: number;
@@ -21,12 +27,12 @@ const AdminOrderStatusUpdate: React.FC<AdminOrderStatusUpdateProps> = ({
         <SelectValue placeholder="Change status" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="pending_payment">Pending Payment</SelectItem>
-        <SelectItem value="confirmation">Confirmation</SelectItem>
-        <SelectItem value="process">Process</SelectItem>
-        <SelectItem value="shipped">Shipped</SelectItem>
-        <SelectItem value="delivered">Delivered</SelectItem>
-        <SelectItem value="cancelled">Cancelled</SelectItem>
+        <SelectItem value="pending_payment">pending_payment</SelectItem>
+        <SelectItem value="confirmation">confirmation</SelectItem>
+        <SelectItem value="process">process</SelectItem>
+        <SelectItem value="shipped">shipped</SelectItem>
+        <SelectItem value="delivered">delivered</SelectItem>
+        <SelectItem value="cancelled">cancelled</SelectItem>
       </SelectContent>
     </Select>
   );

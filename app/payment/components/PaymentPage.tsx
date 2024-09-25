@@ -9,9 +9,10 @@ import PaymentMethodSelection, {
 } from "./PaymentMethodSelection";
 import OrderSummary from "./OrderSummary";
 import { Input } from "@/components/ui/input";
-import { useOrders } from "@/hooks/useOrder";
+
 import { useRouter } from "next/navigation";
 import { Order } from "@/types/order";
+import { useOrders } from "@/hooks/useOrder";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const CLOUDINARY_UPLOAD_PRESET = "finproHII";
@@ -166,6 +167,7 @@ const PaymentPage: React.FC = () => {
 
       <OrderSummary
         orderItems={latestOrder.items}
+        shippingCost={latestOrder.shippingCost}
         totalAmount={latestOrder.finalAmount}
         onPayment={handlePayment}
         isLoading={isLoading}

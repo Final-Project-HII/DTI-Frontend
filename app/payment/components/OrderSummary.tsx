@@ -2,18 +2,14 @@ import React from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { OrderItem } from "@/types/order";
 
-interface OrderItem {
-  id: number;
-  productId: number;
-  productName: string;
-  quantity: number;
-  price: number;
-}
+
 
 interface OrderSummaryProps {
   orderItems: OrderItem[];
   totalAmount: number;
+  shippingCost: number;
   onPayment?: () => void;
   isLoading?: boolean;
   isPaymentDisabled?: boolean;
@@ -22,6 +18,7 @@ interface OrderSummaryProps {
 const OrderSummary: React.FC<OrderSummaryProps> = ({
   orderItems,
   totalAmount,
+  shippingCost,
   onPayment,
   isLoading = false,
   isPaymentDisabled = false,
@@ -32,12 +29,17 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
         {orderItems.map((item) => (
           <div key={item.id} className="flex justify-between items-center mb-2">
+            <span>{item.productName}</span>
             <span>
-              {item.productName} x {item.quantity}
+              Rp{item.price.toLocaleString()} x {item.quantity}
             </span>
-            <span>Rp{item.price.toLocaleString()}</span>
           </div>
         ))}
+        <Separator className="my-4" />
+        <div className="flex justify-between items-center font-semibold">
+          <span>Shipping cost:</span>
+          <span>Rp{shippingCost.toLocaleString()}</span>
+        </div>
         <Separator className="my-4" />
         <div className="flex justify-between items-center font-semibold">
           <span>Total:</span>

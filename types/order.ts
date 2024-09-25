@@ -6,6 +6,7 @@ export interface Order {
   status: string;
   originalAmount: number;
   finalAmount: number;
+  shippingCost: number;
   totalWeight: number;
   totalQuantity: number;
   createdAt: string;

@@ -1,10 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import axios from 'axios';
-import { Order } from '@/types/order';
-import { PaymentDetails } from '@/types/payment'; // Make sure to import the new type
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import axios from "axios";
+import { Order } from "@/types/order";
+import { PaymentDetails } from "@/types/payment";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
 interface OrderStatusModalProps {
@@ -21,7 +33,9 @@ const AdminOrderStatusModal: React.FC<OrderStatusModalProps> = ({
   onPaymentApproval,
 }) => {
   const [newStatus, setNewStatus] = useState(order.status);
-  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { data: session } = useSession();
@@ -33,20 +47,22 @@ const AdminOrderStatusModal: React.FC<OrderStatusModalProps> = ({
         setLoading(false);
         return;
       }
-      
+
       try {
         setLoading(true);
         const response = await axios.get<PaymentDetails>(
           `${process.env.NEXT_PUBLIC_API_URL}api/payments/${order.id}/status`,
           {
-            headers: { Authorization: `Bearer ${session.user.accessToken}` }
+            headers: { Authorization: `Bearer ${session.user.accessToken}` },
           }
         );
-        console.log("API Response:", response.data); // Add this line for debugging
+        console.log("API Response:", response.data);
         setPaymentDetails(response.data);
       } catch (err) {
         console.error("Error fetching payment details:", err);
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
       } finally {
         setLoading(false);
       }
@@ -65,11 +81,14 @@ const AdminOrderStatusModal: React.FC<OrderStatusModalProps> = ({
     onClose();
   };
 
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Order Details</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">
+            Order Details
+          </DialogTitle>
         </DialogHeader>
         <div className="grid gap-6 py-4">
           <div className="grid grid-cols-3 items-center gap-4">
@@ -78,7 +97,7 @@ const AdminOrderStatusModal: React.FC<OrderStatusModalProps> = ({
           </div>
           <div className="grid grid-cols-3 items-center gap-4">
             <span className="font-medium text-right">Invoice ID:</span>
-            <span className="col-span-2">{order.invoiceId || 'N/A'}</span>
+            <span className="col-span-2">{order.invoiceId || "N/A"}</span>
           </div>
           <div className="grid grid-cols-3 items-center gap-4">
             <span className="font-medium text-right">Current Status:</span>
@@ -96,7 +115,9 @@ const AdminOrderStatusModal: React.FC<OrderStatusModalProps> = ({
             <>
               <div className="grid grid-cols-3 items-center gap-4">
                 <span className="font-medium text-right">Payment Method:</span>
-                <span className="col-span-2">{paymentDetails.paymentMethod}</span>
+                <span className="col-span-2">
+                  {paymentDetails.paymentMethod}
+                </span>
               </div>
               <div className="grid grid-cols-3 items-center gap-4">
                 <span className="font-medium text-right">Payment Status:</span>
@@ -108,20 +129,25 @@ const AdminOrderStatusModal: React.FC<OrderStatusModalProps> = ({
               </div>
               <div className="grid grid-cols-3 items-center gap-4">
                 <span className="font-medium text-right">Payment Date:</span>
-                <span className="col-span-2">{new Date(paymentDetails.createdAt).toLocaleString()}</span>
+                <span className="col-span-2">
+                  {new Date(paymentDetails.createdAt).toLocaleString()}
+                </span>
               </div>
-              {paymentDetails.paymentMethod === 'PAYMENT_PROOF' && paymentDetails.paymentProofUrl && (
-                <div className="grid grid-cols-3 items-center gap-4">
-                  <span className="font-medium text-right">Payment Proof:</span>
-                  <div className="col-span-2">
-                    <img 
-                      src={paymentDetails.paymentProofUrl} 
-                      alt="Payment Proof" 
-                      className="max-w-full h-auto"
-                    />
+              {paymentDetails.paymentMethod === "PAYMENT_PROOF" &&
+                paymentDetails.paymentProofUrl && (
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <span className="font-medium text-right">
+                      Payment Proof:
+                    </span>
+                    <div className="col-span-2">
+                      <img
+                        src={paymentDetails.paymentProofUrl}
+                        alt="Payment Proof"
+                        className="max-w-full h-auto"
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </>
           ) : (
             <div>No payment details available</div>
@@ -136,12 +162,14 @@ const AdminOrderStatusModal: React.FC<OrderStatusModalProps> = ({
                   <SelectValue placeholder="Select new status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending_payment">Pending Payment</SelectItem>
-                  <SelectItem value="confirmation">Confirmation</SelectItem>
-                  <SelectItem value="process">Process</SelectItem>
-                  <SelectItem value="shipped">Shipped</SelectItem>
-                  <SelectItem value="delivered">Delivered</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="pending_payment">
+                    pending_payment
+                  </SelectItem>
+                  <SelectItem value="confirmation">confirmation</SelectItem>
+                  <SelectItem value="process">process</SelectItem>
+                  <SelectItem value="shipped">shipped</SelectItem>
+                  <SelectItem value="delivered">delivered</SelectItem>
+                  <SelectItem value="cancelled">cancelled</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -152,19 +180,25 @@ const AdminOrderStatusModal: React.FC<OrderStatusModalProps> = ({
             Cancel
           </Button>
           <div className="flex gap-2">
-            <Button onClick={handleStatusUpdate}>
-              Update Status
-            </Button>
-            {paymentDetails && paymentDetails.status === 'PENDING' && paymentDetails.paymentMethod === 'PAYMENT_PROOF' && (
-              <>
-                <Button onClick={() => handlePaymentApproval(true)} variant="default">
-                  Approve Payment
-                </Button>
-                <Button onClick={() => handlePaymentApproval(false)} variant="destructive">
-                  Reject Payment
-                </Button>
-              </>
-            )}
+            <Button onClick={handleStatusUpdate}>Update Status</Button>
+            {paymentDetails &&
+              paymentDetails.status === "PENDING" &&
+              paymentDetails.paymentMethod === "PAYMENT_PROOF" && (
+                <>
+                  <Button
+                    onClick={() => handlePaymentApproval(true)}
+                    variant="default"
+                  >
+                    Approve Payment
+                  </Button>
+                  <Button
+                    onClick={() => handlePaymentApproval(false)}
+                    variant="destructive"
+                  >
+                    Reject Payment
+                  </Button>
+                </>
+              )}
           </div>
         </DialogFooter>
       </DialogContent>
