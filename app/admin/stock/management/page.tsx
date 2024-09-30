@@ -247,7 +247,6 @@ export default function StockPage() {
             )}
 
             {hasData && (
-                // <div className="flex justify-end items-center mt-4">
                 <NewPagination
                     currentPage={currentPage}
                     totalPages={data?.data.totalPages ?? 1}
@@ -256,7 +255,6 @@ export default function StockPage() {
                     onPageChange={handlePageChange}
                     onPageSizeChange={handlePageSizeChange}
                 />
-                // </div>
             )}
         </div>
     );

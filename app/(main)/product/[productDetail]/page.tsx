@@ -2,7 +2,6 @@
 import { useQuery } from "@tanstack/react-query";
 import ProductDetail from "./_components/ProductDetailCard";
 
-// Interface for parsed slug
 export interface ParsedSlug {
   id: string;
   name: string;
@@ -55,12 +54,12 @@ export interface ProductDataResponse {
 
 // Async function to fetch product data
 async function getProductData(slug: string): Promise<ProductDataResponse> {
-    const { id } = parseSlug(slug);
-    const response = await fetch(`http://localhost:8080/api/product/${id}`);
-    if (!response.ok) {
-        throw new Error('Failed to fetch product');
-    }
-    return response.json();
+  const { id } = parseSlug(slug);
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/product/${id}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch product");
+  }
+  return response.json();
 }
 
 export interface ProductDetailProps {

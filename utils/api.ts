@@ -1,4 +1,3 @@
-
 import axios, { AxiosError } from 'axios'
 import {
   Address,
@@ -9,12 +8,15 @@ import {
 import { Category } from '@/types/category'
 import { Warehouse } from '@/types/warehouse'
 import { WarehouseFormData } from '@/app/admin/warehouse/components/AddWarehoseForm'
-import { Order, OrderItem } from "@/types/order";
+import { Order, OrderItem } from '@/types/order'
 import { useSession } from 'next-auth/react'
 import { AddressFormData } from '@/app/checkout/_components/UpdateAddressForm'
+import { AdminFormData } from '@/app/admin/admin-management/_components/AdminTable/components/DataTable/components/AddAdminForm'
+import { ProfileForm } from '@/app/profile/components/ProfilePage'
 
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`
 
-const BASE_URL = 'http://localhost:8080/api'
+export const BASE_URL_DEV = `http://localhost:8080/api`
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -31,6 +33,18 @@ axiosInstance.interceptors.request.use((config) => {
 export const fetchProducts = async () => {
   const response = await axiosInstance.get('/product')
   return response.data
+}
+
+export const fetchProductDetails = async (
+  productId: number
+): Promise<Product> => {
+  try {
+    const response = await axiosInstance.get<Product>(`/product/${productId}`)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching product details:', error)
+    throw error
+  }
 }
 
 export const fetchCartItems = async (token: string) => {
@@ -136,19 +150,19 @@ export const deleteCategory = async (id: number): Promise<void> => {
 }
 
 export const fetchOrders = async (): Promise<Order[]> => {
-  const response = await axiosInstance.get<Order[]>("/orders");
-  return response.data;
-};
+  const response = await axiosInstance.get<Order[]>('/orders')
+  return response.data
+}
 
 export const createOrder = async (): Promise<OrderItem> => {
   try {
-    const response = await axios.post(BASE_URL);
-    return response.data;
+    const response = await axios.post(BASE_URL)
+    return response.data
   } catch (error) {
     console.error('Error creating order:', error);
     throw error;
   }
-};
+}
 
 export const getOrder = async (orderId: number): Promise<Order> => {
   try {
@@ -158,7 +172,7 @@ export const getOrder = async (orderId: number): Promise<Order> => {
     console.error('Error fetching order:', error);
     throw error;
   }
-};
+}
 
 export const getAllWarehouse = async (
   name: string,
@@ -168,7 +182,9 @@ export const getAllWarehouse = async (
 ): Promise<any> => {
   const params = new URLSearchParams()
   params.set('page', page)
-  params.set('size', size)
+  if (size != '') {
+    params.set('size', size)
+  }
   if (name) {
     params.set('name', name)
   }
@@ -176,7 +192,7 @@ export const getAllWarehouse = async (
     params.set('cityName', cityName)
   }
   const response = await axios.get<any>(
-    `${BASE_URL}/warehouses?${params.toString()}`
+    `${BASE_URL_DEV}/warehouses?${params.toString()}`
   )
   console.log(response.data.data)
   return response.data.data
@@ -257,7 +273,6 @@ export const createAddress = async (
   return response.data
 }
 
-
 export const toogleActiveAddress = async (
   id: number,
   token: string
@@ -293,3 +308,93 @@ export const getActiveAddress = async (token: string): Promise<any> => {
   }
 }
 
+export const getAllUser = async (
+  email: string,
+  role: string | undefined,
+  page: string,
+  size: string
+): Promise<any> => {
+  const params = new URLSearchParams()
+  params.set('page', page)
+  params.set('size', size)
+
+  if (email) {
+    params.set('email', email)
+  }
+
+  if (role) {
+    params.set('role', role)
+  }
+
+  try {
+    const response = await axios.get<any>(
+      `${BASE_URL_DEV}/users?${params.toString()}`
+    )
+    return response.data.data
+  } catch (error) {
+    console.error('Error fetching user data:', error)
+    throw error
+  }
+}
+
+export const toogleUserActiveStatus = async (id: number): Promise<any> => {
+  const response = await axios.put(
+    `${BASE_URL_DEV}/users/toggle-active-user/${id}`,
+    {}
+  )
+  console.log(response)
+  return response.data
+}
+
+export const createNewAdmin = async (formData: AdminFormData): Promise<any> => {
+  const response = await axios.post(
+    `${BASE_URL_DEV}/users/register-admin`,
+    formData
+  )
+  return response.data
+}
+
+export const updateAdmin = async (formData: AdminFormData): Promise<any> => {
+  const response = await axios.put(
+    `${BASE_URL_DEV}/users/update-admin`,
+    formData
+  )
+  return response.data
+}
+
+export const getProfileData = async (token: string): Promise<any> => {
+  try {
+    const response = await axios.get<any>(`${BASE_URL_DEV}/users/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    return response.data.data
+  } catch (error) {
+    console.error('Error fetching profile data:', error)
+    throw error
+  }
+}
+
+export const updateProfile = async (
+  formData: ProfileForm,
+  token: string
+): Promise<any> => {
+  const response = await axios.put(`${BASE_URL_DEV}/users/profile`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return response.data
+}
+
+export const getShippingData = async (token: string): Promise<any> => {
+  try {
+    const response = await axios.get<any>(`${BASE_URL_DEV}/couriers`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    return response.data.data
+  } catch (error) {
+    console.error('Error fetching shipping data:', error)
+    throw error
+  }
+}

@@ -11,10 +11,10 @@ import "swiper/css";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import axios from "axios";
 // import { Product } from '@/types/product';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from "@tanstack/react-query";
 
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
-const BASE_URL = 'http://localhost:8080/api';
 interface ProductListProps {
   category?: string;
 }

@@ -13,7 +13,7 @@ import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import ProductListSkeleton from '@/app/_components/ProductList/ProductListSkeleton';
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 interface ProductListProps {
     category?: string;

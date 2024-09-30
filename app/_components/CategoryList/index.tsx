@@ -1,17 +1,16 @@
-'use client'
-
-import React from 'react'
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { FreeMode } from 'swiper/modules'
-import 'swiper/css'
-import 'swiper/css/free-mode'
-import axios from 'axios'
-import { useQuery } from '@tanstack/react-query'
-import Link from 'next/link'
+"use client";
+import React from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { FreeMode } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/free-mode";
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 import CategoryItemSkeleton from './CategoryitemSkeleton';
 import CategoryItem from './CategoryItem'
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+
 
 interface Category {
   id: number;
@@ -66,6 +65,7 @@ const CategoryList = () => {
             1024: { slidesPerView: 12, spaceBetween: 16 },
           }}
         >
+
           {categories?.map((category) => (
             <SwiperSlide key={category.id} className='mr-0'>
               <CategoryItem category={category} />

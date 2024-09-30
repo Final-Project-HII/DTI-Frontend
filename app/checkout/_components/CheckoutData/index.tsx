@@ -1,4 +1,5 @@
 "use client";
+"use client";
 import {
   Accordion,
   AccordionContent,
@@ -13,27 +14,46 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useCart } from "@/hooks/useCart";
 import { ProductDataResponse, useProductDetails } from "@/hooks/useProduct";
+import { Address } from "@/types/product";
+import { getActiveAddress, getShippingData } from "@/utils/api";
+import axios from "axios";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import { useCart } from "@/hooks/useCart";
-import AddressCard from "../AddressList";
-import { getActiveAddress } from "@/utils/api";
-import { Address } from "@/types/product";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { FaShippingFast } from "react-icons/fa";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
-import { useRouter } from "next/navigation";
+import AddressCard from "../AddressList";
+import { Skeleton } from "@/components/ui/skeleton";
 
+
+interface Shipping {
+  id: string,
+  name: string,
+  cost: number
+}
 const CheckoutData = () => {
   const { data: session } = useSession();
   const { cartItems } = useCart();
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [activeAddresses, setActiveAddresses] = useState<Address | null>(null);
   const router = useRouter();
-
   const productIds = cartItems.map((item) => item.productId);
   const productQueries = useProductDetails(productIds);
+  const [selectedCourier, setSelectedCourier] = useState<number>(1); // Default to JNE
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [shippingData, setShippingData] = useState<Shipping[]>([])
+  const [firstShippingData, setFirstShippingData] = useState<Shipping>();
+
+  const handleCourierChange = (value: string) => {
+    const courierId = parseInt(value);
+    setSelectedCourier(courierId);
+  };
 
   const cartItemsWithDetails = cartItems.map((item, index) => ({
     ...item,
@@ -48,12 +68,27 @@ const CheckoutData = () => {
   const fetchActiveAddress = async () => {
     try {
       const response = await getActiveAddress(session!.user.accessToken);
-      console.log(response);
       if (response == null) {
         setActiveAddresses(null);
       } else {
         setActiveAddresses(response.data);
       }
+      await fetchShippingData();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
+  const fetchShippingData = async () => {
+    try {
+      setIsLoading(true)
+      const response = await getShippingData(session!.user.accessToken);
+      setShippingData(response);
+      if (response.length > 0) {
+        setFirstShippingData(response[0]);
+      }
+      setIsLoading(false)
     } catch (error) {
       console.error(error);
     }
@@ -63,7 +98,7 @@ const CheckoutData = () => {
     fetchActiveAddress();
   }, []);
 
-  const handleSubmit = () => {
+  const handleCreateOrder = async () => {
     if (activeAddresses == null) {
       Swal.fire({
         title: "Please Choose Your Address First Before You Continue!",
@@ -73,8 +108,62 @@ const CheckoutData = () => {
         showConfirmButton: false,
         timerProgressBar: true,
       });
-    } else {
-      router.push("/payment");
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      setError("Cart is empty. Please add items to your cart.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}api/orders`,
+        null,
+        {
+          params: {
+            addressId: activeAddresses.id,
+            courierId: selectedCourier,
+          },
+          headers: {
+            Authorization: `Bearer ${session?.user?.accessToken}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        Swal.fire({
+          title: "Order Created Successfully!",
+          text: "Redirecting to payment page...",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+          timerProgressBar: true,
+        }).then(() => {
+          router.push("/payment");
+        });
+      } else {
+        setError("Failed to create order. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error creating order:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        setError(
+          `An error occurred while creating the order: ${error.response.data.message || error.message
+          }`
+        );
+      } else {
+        setError(
+          "An unexpected error occurred while creating the order. Please try again."
+        );
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -94,14 +183,28 @@ const CheckoutData = () => {
                 <p>{cartItemsWithDetails.length} produk</p>
               </CardHeader>
               <CardContent>
-                <h3 className="font-bold mb-2">Metode Pengiriman</h3>
-                <div className="flex justify-between items-center">
-                  <span>Regular - Pilih Waktu</span>
-                  <span className="text-green-500">Gratis</span>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Hari ini, 15 Agustus 2024, 10:00-10:59
-                </p>
+                <h3 className="font-bold mb-2">Shipping Method</h3>
+                {isLoading ? <Skeleton className="h-[50px] w-full  bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" /> : (
+                  <Select defaultValue={firstShippingData?.id}>
+                    <SelectTrigger className="w-full p-8 relative">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {shippingData.map((data, index) => (
+                          <SelectItem key={index} value={data.id} className="w-full relative">
+                            <div className="flex w-full gap-2 items-center">
+                              <FaShippingFast size={25} className="text-blue-800" />
+                              <h4 className="font-bold">{data.name.toUpperCase()}</h4>
+                              <span className="absolute right-14 font-bold">Rp {(data.cost / 1000).toFixed(3).replace('.', ',')}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
+
 
                 <h3 className="font-bold mt-4 mb-2">Pesanan</h3>
                 {cartItemsWithDetails.length > 0 && (
@@ -186,9 +289,10 @@ const CheckoutData = () => {
               <CardFooter>
                 <Button
                   className="w-full bg-blue-500 hover:bg-blue-600"
-                  onClick={handleSubmit}
+                  onClick={handleCreateOrder}
+                  disabled={isLoading || cartItems.length === 0}
                 >
-                  Pilih Pembayaran
+                  {isLoading ? "Processing..." : "Pilih Pembayaran"}
                 </Button>
               </CardFooter>
             </Card>

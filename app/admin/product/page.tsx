@@ -77,7 +77,7 @@ interface ApiResponse {
     empty: boolean;
 }
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 const ALL_CATEGORIES = 'all';
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -320,18 +320,7 @@ export default function ProductSearchPage() {
                     isLoading={isPending}
                 />
             )}
-
-            {/* Pagination */}
             {data && (
-                // <Pagination
-                //     currentPage={currentPage}
-                //     totalPages={data.totalPages}
-                //     totalElements={data.totalElements}
-                //     pageSize={pageSize}
-                //     onPageChange={handlePageChange}
-                // />
-
-                // <div className="flex justify-end items-center mt-4">
                 <NewPagination
                     currentPage={currentPage}
                     totalPages={data.totalPages}
@@ -340,18 +329,13 @@ export default function ProductSearchPage() {
                     onPageChange={handlePageChange}
                     onPageSizeChange={handlePageSizeChange}
                 />
-                // </div>
             )}
-
-            {/* Add Product Modal */}
             <AddProductModal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
                 categories={categories}
                 openAddCategoryModal={openAddCategoryModal}
             />
-
-            {/* Edit Product Modal */}
             <EditProductModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}

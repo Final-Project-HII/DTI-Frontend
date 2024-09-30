@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Minus, Plus, ShoppingBag } from 'lucide-react';
-import { ProductDetailSkeleton } from './ProductDetailSkeleton';
+import { Minus, Plus, ShoppingBag } from "lucide-react";
+import { ProductDetailSkeleton } from "./ProductDetailSkeleton";
 import { ImageWithLoading } from "./ImageWithLoading";
 import YouMayLike from "@/app/(main)/product/[productDetail]/_components/YouMayLike";
+import { useCart } from "@/hooks/useCart";
+import { toast } from "@/components/ui/use-toast";
+import { addToCartApi } from "@/utils/api";
 
 interface ProductImage {
     id: number;
@@ -27,46 +30,36 @@ interface ProductDetailProps {
     product: Product;
 }
 
-
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     const [quantity, setQuantity] = useState(1);
     const [mainImage, setMainImage] = useState(product?.productImages[0]);
     const [isLoading, setIsLoading] = useState(true);
+    const { addToCart, updateQuantity, cartItems } = useCart();
 
     useEffect(() => {
-        // Simulate loading
         const timer = setTimeout(() => setIsLoading(false), 2000);
         return () => clearTimeout(timer);
     }, []);
 
     useEffect(() => {
-        // Reset quantity to 1 or max stock when product changes
         setQuantity(product.totalStock > 0 ? 1 : 0);
     }, [product]);
 
-
-    // const handleAddToCart = () => {
-    //     console.log(`Added ${quantity} ${product.name}(s) to cart`);
-    // };
-    // const handleAddToCart = () => {
-    //     // Pengecekan apakah user terlogin atau memiliki hak akses yang diperlukan
-    //     if (!isLoggedIn) {
-    //         console.log("Please log in to add items to the cart.");
-    //         return;
-    //     }
-
-    //     try {
-    //         // Panggil API untuk menambah item ke keranjang
-    //         console.log(`Added ${quantity} ${product.name}(s) to cart`);
-    //         // Tambahkan pemanggilan API di sini, misal:
-    //         // await api.addToCart(product.id, quantity);
-    //     } catch (error) {
-    //         // Tangkap error yang terjadi
-    //         console.error("Failed to add product to cart", error);
-    //         // Tampilkan pesan error ke user (opsional)
-    //     }
-    // };
-
+    const handleAddToCart = async () => {
+        try {
+            await addToCart(product.id, quantity,);
+            toast({
+                title: "Added to cart",
+                description: `${quantity} ${product.name}(s) added to your cart.`,
+            });
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Failed to add item to cart. Please try again.",
+                variant: "destructive",
+            });
+        }
+    };
     const decreaseQuantity = () => {
         setQuantity(Math.max(1, quantity - 1));
     };
@@ -74,11 +67,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     const increaseQuantity = () => {
         setQuantity(Math.min(product.totalStock, quantity + 1));
     };
-
     if (isLoading) {
         return <ProductDetailSkeleton />;
     }
-
     return (
         <div className="w-full pt-32 lg:pt-24 p-5 md:pt-24 lg:p-16 ">
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-8">
@@ -204,8 +195,4 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
         </div>
     );
 };
-
-
-
-
 export default ProductDetail;

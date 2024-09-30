@@ -240,14 +240,14 @@ export default function StockMutationPage() {
                 accessorKey: 'actions',
                 header: 'Actions',
                 cell: (info: RowInfo) => {
-                    const { status } = info.row.original; // Assuming 'status' is a property of your row data
-                    const isDisabled = status !== 'REQUESTED'; // Determine if the action should be disabled
+                    const { status } = info.row.original;
+                    const isDisabled = status !== 'REQUESTED';
 
                     return (
                         <UpdateStockMutationModal
                             stockMutation={info.row.original}
                             onUpdate={() => refetch()}
-                            disabled={isDisabled} // Pass the disabled state if your component accepts it
+                            disabled={isDisabled}
                         />
                     );
                 },
@@ -266,7 +266,7 @@ export default function StockMutationPage() {
         ],
         []
     );
-    // if (isLoading) return <div>Loading...</div>;
+
     if (error) return <div>Error loading stock mutation data: {(error as Error).message}</div>;
     return (
         <div className="container mx-auto p-4">
