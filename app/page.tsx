@@ -11,7 +11,7 @@ import NavBar from '@/components/NavBar';
 const page = () => {
   return (
     <>
-      <div className="pt-20">
+      <div className="pt-28 lg:pt-20 w-full">
         <NavBar />
         <Carousel />
         <CategoryList />
@@ -20,7 +20,7 @@ const page = () => {
         <ProductList category="Drink" />
         <ReasonToShop />
         <DownloadApp />
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

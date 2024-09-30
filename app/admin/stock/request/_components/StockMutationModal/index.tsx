@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Plus } from 'lucide-react';
 import WarehouseSelect from '../../../management/_components/WarehouseSelect';
 import ProductSelect from '../ProductSelect';
 import { useSession } from "next-auth/react";
@@ -41,6 +41,55 @@ interface StockMutation {
     mutationType: 'MANUAL' | 'AUTOMATIC';
     remarks: string | null;
 }
+interface Stock {
+    id: number;
+    productId: number;
+    productName: string;
+    warehouseId: number;
+    warehouseName: string;
+    quantity: number;
+    categoryId: number;
+    categoryName: string;
+    productImageUrl: string;
+    price: number;
+    weight: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface StockResponse {
+    statusCode: number;
+    message: string;
+    success: boolean;
+    data: {
+        totalElements: number;
+        totalPages: number;
+        size: number;
+        content: Stock[];
+        number: number;
+        sort: {
+            empty: boolean;
+            sorted: boolean;
+            unsorted: boolean;
+        };
+        first: boolean;
+        last: boolean;
+        numberOfElements: number;
+        pageable: {
+            pageNumber: number;
+            pageSize: number;
+            sort: {
+                empty: boolean;
+                sorted: boolean;
+                unsorted: boolean;
+            };
+            offset: number;
+            paged: boolean;
+            unpaged: boolean;
+        };
+        empty: boolean;
+    };
+}
 
 interface FormData {
     productId: string;
@@ -49,15 +98,24 @@ interface FormData {
     quantity: string;
 }
 
+interface City {
+    id: number;
+    name: string;
+}
+
 interface Warehouse {
     id: number;
     name: string;
-    // Add other relevant properties
+    addressLine: string;
+    city: City;
 }
+
 
 interface CreateStockMutationModalProps {
     warehouses: Warehouse[];
     refetchMutations: () => void;
+    selectedWarehouse: string;
+
 }
 
 const api = axios.create({
@@ -65,12 +123,12 @@ const api = axios.create({
     withCredentials: true,
 });
 
-const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ warehouses, refetchMutations }) => {
+const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ warehouses, refetchMutations, selectedWarehouse }) => {
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState<FormData>({
         productId: '',
         originWarehouseId: '',
-        destinationWarehouseId: '',
+        destinationWarehouseId: selectedWarehouse,
         quantity: '',
     });
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -79,20 +137,27 @@ const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ war
     const queryClient = useQueryClient();
     const { data: session } = useSession();
 
-    const { data: allStocks, refetch: refetchStocks } = useQuery<Stock[]>({
+    const { data: stockResponse, refetch: refetchStocks, isLoading } = useQuery<StockResponse>({
         queryKey: ['allStocks'],
-        queryFn: async () => {
-            const response = await api.get('/api/stocks');
-            return response.data.data;
+        queryFn: async ({ pageParam = 0 }) => {
+            const response = await api.get('/api/stocks', {
+                params: { page: pageParam, size: 40 }
+            });
+            return response.data;
         },
         enabled: open, // Fetch when modal is opened
     });
-
     useEffect(() => {
         if (open) {
             refetchStocks();
         }
     }, [open, refetchStocks]);
+    useEffect(() => {
+        setFormData(prev => ({
+            ...prev,
+            destinationWarehouseId: selectedWarehouse
+        }));
+    }, [selectedWarehouse]);
 
     const mutation = useMutation<any, Error, FormData>({
         mutationFn: (newMutation) => {
@@ -134,7 +199,8 @@ const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ war
         setSuccessMessage(null);
     };
 
-    const availableStocks = allStocks?.filter(stock => stock.productId.toString() === formData.productId) || [];
+    const allStocks = stockResponse?.data.content ?? [];
+    const availableStocks = allStocks.filter(stock => stock.productId.toString() === formData.productId);
 
     if (!session) {
         return <div>Please log in to access this feature.</div>;
@@ -143,7 +209,7 @@ const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ war
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" className="text-center bg-blue-600 text-white">+ Create Stock Mutation</Button>
+                <Button variant="outline" className="hover:text-white text-center bg-gradient-to-r from-blue-600 to-indigo-700 text-white "><Plus className='w-4 h-4 mr-2' strokeWidth={3} /> Create Stock Mutation</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] bg-white">
                 <DialogHeader>
@@ -156,7 +222,9 @@ const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ war
                         placeholder="Select product"
                     />
 
-                    {formData.productId && availableStocks.length > 0 && (
+                    {isLoading ? (
+                        <div>Loading stocks...</div>
+                    ) : formData.productId && availableStocks.length > 0 ? (
                         <div className="mt-4">
                             <h3 className="font-semibold mb-2">Available Stock:</h3>
                             <ul className="list-disc pl-5">
@@ -167,7 +235,9 @@ const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ war
                                 ))}
                             </ul>
                         </div>
-                    )}
+                    ) : formData.productId ? (
+                        <div>No available stock for this product.</div>
+                    ) : null}
 
                     <WarehouseSelect
                         value={formData.originWarehouseId}
@@ -181,6 +251,7 @@ const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ war
                         onChange={(value) => setFormData(prev => ({ ...prev, destinationWarehouseId: value }))}
                         warehouses={warehouses}
                         placeholder="Select destination warehouse"
+                        disabled={!!selectedWarehouse}
                     />
 
                     <Input

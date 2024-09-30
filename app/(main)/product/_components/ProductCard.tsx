@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingBag } from "lucide-react";
+import { Plus, ShoppingBag } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 
 
@@ -35,16 +35,16 @@ interface ProductImage {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-    const { addToCart } = useCart();
-    const handleAddToCart = async () => {
-        try {
-            await addToCart(product.id, 1);
-            alert("Product added to cart!");
-        } catch (error) {
-            console.error("Failed to add product to cart:", error);
-            alert("Failed to add product to cart.");
-        }
-    };
+    // const { addToCart } = useCart();
+    // const handleAddToCart = async () => {
+    //     try {
+    //         await addToCart(product.id, 1);
+    //         alert("Product added to cart!");
+    //     } catch (error) {
+    //         console.error("Failed to add product to cart:", error);
+    //         alert("Failed to add product to cart.");
+    //     }
+    // };
 
     const truncateDescription = (description: string, maxLength: number) => {
         if (description.length > maxLength) {
@@ -53,7 +53,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         return description;
     };
     return (
-        <Card className="flex flex-col h-full bg-white hover:shadow-lg transition-shadow duration-300">
+        // <Card className="flex flex-col h-full bg-white hover:shadow-lg transition-shadow duration-500 hover:ease-in-out hover:scale-105">
+
+        <Card className="flex flex-col h-full bg-white hover:shadow-lg transition-all transform hover:scale-105 duration-200 ease-in-out border-none">
             <Link href={`/product/${product.id}_${product.name.replace(/\s+/g, '-').toLowerCase()}`} passHref>
                 <CardHeader className="relative p-0 h-48">
                     <Image
@@ -64,7 +66,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         className={`rounded-t-lg ${product.totalStock === 0 ? 'grayscale' : ''}`}
                     // style={{ filter: product.totalStock === 0 ? 'grayscale(100%)' : 'none' }}
                     />
-                    <Badge className="absolute top-3 right-3 bg-white text-blue-600">
+                    <Badge className="absolute top-3 right-3 bg-gray-100 text-blue-600 hover:bg-transparent-none">
                         {product.categoryName}
                     </Badge>
                 </CardHeader>
@@ -82,9 +84,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 <Button
                     className="w-full border border-blue-600 text-blue-600 bg-transparent hover:bg-blue-50"
                     disabled={product.totalStock === 0}
-                    onClick={handleAddToCart}
+                // onClick={handleAddToCart}
                 >
-                    {product.totalStock === 0 ? 'Out of Stock' : '+ Add to Cart'}
+                    {product.totalStock > 0 && <Plus className='w-4 h-4 mr-2' strokeWidth={3} />}
+                    {product.totalStock === 0 ? 'Out of Stock' : 'Add to Cart'}
                 </Button>
             </CardFooter>
         </Card>

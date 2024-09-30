@@ -1,9 +1,10 @@
 'use client'
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Trash2, Edit, Plus, Upload } from 'lucide-react';
+import { AlertCircle, Trash2, Edit, Plus } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 import AddCategoryModal from './_components/AddCategoryModal';
@@ -21,6 +22,7 @@ import {
 } from "@tanstack/react-table"
 import { FaSearch } from 'react-icons/fa';
 import { DataTable } from './_components/DataTable';
+import StockMutationTableSkeleton from '@/app/admin/stock/request/_components/StokMutationTableSkeleton';
 
 interface Category {
     id: number;
@@ -34,18 +36,20 @@ interface Category {
 const BASE_URL = 'http://localhost:8080/api';
 
 export default function CategoryManagementPage() {
+    const { data: session, status } = useSession();
     const queryClient = useQueryClient();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+
     const fetchCategories = async (): Promise<Category[]> => {
         const response = await axios.get<Category[]>(`${BASE_URL}/category`);
         return response.data;
     };
 
-    const { data: categories, isPending, error } = useQuery<Category[], Error>({
+    const { data: categories, isPending, error, isLoading } = useQuery<Category[], Error>({
         queryKey: ['categories'],
         queryFn: fetchCategories,
     });
@@ -65,6 +69,8 @@ export default function CategoryManagementPage() {
         }
     };
 
+    const isSuperAdmin = session?.user?.role === 'SUPER';
+
     const columns: ColumnDef<Category>[] = [
         {
             accessorKey: "id",
@@ -77,7 +83,11 @@ export default function CategoryManagementPage() {
             cell: ({ row }) => (
                 <div className="bg-white flex items-center justify-center p-1 w-14 h-14 rounded-xl shadow-md">
                     <Image
-                        src={row.original.categoryImage ? row.original.categoryImage.startsWith('http') ? row.original.categoryImage : `https://res.cloudinary.com/dcjjcs49e/image/upload/${row.original.categoryImage}` : "/food.png"}
+                        src={row.original.categoryImage
+                            ? row.original.categoryImage.startsWith('http')
+                                ? row.original.categoryImage
+                                : `https://res.cloudinary.com/dcjjcs49e/image/upload/${row.original.categoryImage}`
+                            : "/food.png"}
                         alt={row.original.name}
                         width={48}
                         height={48}
@@ -105,27 +115,35 @@ export default function CategoryManagementPage() {
             header: "Updated At",
             cell: ({ row }) => new Date(row.original.updatedAt).toLocaleDateString(),
         },
-        {
-            id: "actions",
-            accessorKey: "products",
-            header: "Actions",
-            cell: ({ row }) => (
-                <div className="flex justify-center space-x-2">
-                    <Button variant="ghost" onClick={() => {
-                        setEditingCategory(row.original);
-                        setIsEditModalOpen(true);
-                    }}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit
-                    </Button>
-                    <Button variant="ghost" onClick={() => handleDeleteCategory(row.original.id)}>
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                    </Button>
-                </div>
-            ),
-        },
-    ]
+        ...(isSuperAdmin ? [
+            {
+                id: "actions",
+                accessorKey: "products",
+                header: "Actions",
+                cell: ({ row }: { row: { original: Category } }) => (
+                    <div className="flex justify-center space-x-2">
+                        <Button
+                            variant="ghost"
+                            onClick={() => {
+                                setEditingCategory(row.original);
+                                setIsEditModalOpen(true);
+                            }}
+                        >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            onClick={() => handleDeleteCategory(row.original.id)}
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                        </Button>
+                    </div>
+                ),
+            }
+        ] : []),
+    ];
 
 
     const table = useReactTable({
@@ -142,6 +160,14 @@ export default function CategoryManagementPage() {
             columnFilters,
         },
     })
+
+    if (status === "loading") {
+        return <div>Loading...</div>
+    }
+
+    if (status === "unauthenticated") {
+        return <div>Access Denied</div>
+    }
 
     return (
         <div className="container mx-auto p-4 lg:pt-14">
@@ -160,12 +186,13 @@ export default function CategoryManagementPage() {
                         />
                         <FaSearch className='size-4 absolute left-4 top-0 translate-y-3 text-gray-400' />
                     </div>
-                    <Button onClick={() => setIsAddModalOpen(true)} className="bg-blue-600 text-white">
-                        <Plus className="mr-2 h-4 w-4" /> Add Category
-                    </Button>
+                    {isSuperAdmin && (
+                        <Button onClick={() => setIsAddModalOpen(true)} className="bg-blue-600 text-white">
+                            <Plus className="mr-2 h-4 w-4" /> Add Category
+                        </Button>
+                    )}
                 </div>
             </div>
-
 
             {error && (
                 <Alert variant="destructive" className="mb-6">
@@ -175,32 +202,36 @@ export default function CategoryManagementPage() {
                 </Alert>
             )}
 
-            {isPending ? (
-                <div>Loading...</div>
-            ) : categories ? (
+            {isLoading ? (
+                <StockMutationTableSkeleton rowCount={5} />
+            ) : (
                 <DataTable
                     columns={columns}
-                    data={categories}
+                    data={categories ?? []}
                     sorting={sorting}
                     setSorting={setSorting}
                     columnFilters={columnFilters}
                     setColumnFilters={setColumnFilters}
                 />
-            ) : null}
+            )}
 
-            <AddCategoryModal
-                isOpen={isAddModalOpen}
-                onClose={() => setIsAddModalOpen(false)}
-            />
+            {isSuperAdmin && (
+                <>
+                    <AddCategoryModal
+                        isOpen={isAddModalOpen}
+                        onClose={() => setIsAddModalOpen(false)}
+                    />
 
-            <EditCategoryModal
-                isOpen={isEditModalOpen}
-                onClose={() => {
-                    setIsEditModalOpen(false);
-                    setEditingCategory(null);
-                }}
-                category={editingCategory}
-            />
+                    <EditCategoryModal
+                        isOpen={isEditModalOpen}
+                        onClose={() => {
+                            setIsEditModalOpen(false);
+                            setEditingCategory(null);
+                        }}
+                        category={editingCategory}
+                    />
+                </>
+            )}
 
             {deleteCategoryMutation.isError && (
                 <Alert variant="destructive" className="mt-4">

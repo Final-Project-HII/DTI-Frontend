@@ -45,9 +45,28 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     }, [product]);
 
 
-    const handleAddToCart = () => {
-        console.log(`Added ${quantity} ${product.name}(s) to cart`);
-    };
+    // const handleAddToCart = () => {
+    //     console.log(`Added ${quantity} ${product.name}(s) to cart`);
+    // };
+    // const handleAddToCart = () => {
+    //     // Pengecekan apakah user terlogin atau memiliki hak akses yang diperlukan
+    //     if (!isLoggedIn) {
+    //         console.log("Please log in to add items to the cart.");
+    //         return;
+    //     }
+
+    //     try {
+    //         // Panggil API untuk menambah item ke keranjang
+    //         console.log(`Added ${quantity} ${product.name}(s) to cart`);
+    //         // Tambahkan pemanggilan API di sini, misal:
+    //         // await api.addToCart(product.id, quantity);
+    //     } catch (error) {
+    //         // Tangkap error yang terjadi
+    //         console.error("Failed to add product to cart", error);
+    //         // Tampilkan pesan error ke user (opsional)
+    //     }
+    // };
+
     const decreaseQuantity = () => {
         setQuantity(Math.max(1, quantity - 1));
     };
@@ -61,7 +80,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     }
 
     return (
-        <div className="w-full lg:pt-32 p-4 pt-24 md:pt-24 lg:p-16 ">
+        <div className="w-full pt-32 lg:pt-24 p-5 md:pt-24 lg:p-16 ">
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-8">
                 <div className="space-y-4">
                     <Card className="w-full bg-white overflow-hidden p-2">
@@ -144,7 +163,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                                         <span className='text-xs md:text-sm'>from <strong className='text-blue-800'> {product.totalStock} </strong> items in stock</span>
                                     </div>
                                     <Button
-                                        onClick={handleAddToCart}
+                                        // onClick={handleAddToCart}
                                         className="h-12 px-6 text-white text-sm md:text-base lg:text-lg bg-blue-600 hover:bg-blue-700 transition-colors duration-300"
                                         disabled={product.totalStock === 0}
                                     >

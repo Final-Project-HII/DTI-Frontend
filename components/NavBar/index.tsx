@@ -18,10 +18,9 @@ import CategoryDropdown from "./_components/CategoryDropdown";
 import CategorySwiper from "./_components/CategorySwiper";
 import SearchInput from "./_components/SearchInput";
 import SearchSheet from "./_components/SearchSheet";
-import { useCart } from "@/hooks/useCart";
+// import { useCart } from "@/hooks/useCart";
 import { useSearchParams } from 'next/navigation';
 import "swiper/css";
-import SignOutButton from "../SignOutBtn";
 
 
 const NavBar = () => {
@@ -41,7 +40,7 @@ const NavBar = () => {
   const [openHamburgerMenu, setOpenHamburgerMenu] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [openDropdownMenu, setOpenDropdownMenu] = useState(false);
-  const { getCartItemCount } = useCart();
+  // const { getCartItemCount } = useCart();
   const [itemCount, setItemCount] = useState(0);
   const { data } = useSession();
   const searchParams = useSearchParams();
@@ -51,13 +50,13 @@ const NavBar = () => {
     signOut()
   }
 
-  useEffect(() => {
-    if (session) {
-      setItemCount(getCartItemCount());
-    } else {
-      setItemCount(0);
-    }
-  }, [session, getCartItemCount]);
+  // useEffect(() => {
+  //   if (session) {
+  //     setItemCount(getCartItemCount());
+  //   } else {
+  //     setItemCount(0);
+  //   }
+  // }, [session, getCartItemCount]);
 
 
   const toggleMenu = () => {
@@ -114,14 +113,28 @@ const NavBar = () => {
                     }`}
                 ></span>
               </button>
+              {/* add logo */}
+              {/* <div className="block lg:hidden text-2xl font-bold text-blue-600 italic">
+                <Link href="/">Click</Link>
+              </div> */}
+              <Link href="/">
+                <img
+                  src="/hiimart v0.png"
+                  alt="HiiMart Logo"
+                  className="w-7 h-auto block lg:hidden"
+                />
+              </Link>
+
               <div className="hidden lg:block lg:text-2xl font-bold text-blue-600 italic">
                 <Link href="/">Click</Link>
               </div>
-              <img
-                src="/hiimart v6.png"
-                alt="HiiMart Logo"
-                className="w-24 h-auto hidden lg:block"
-              />
+              <Link href="/">
+                <img
+                  src="/hiimart v6.png"
+                  alt="HiiMart Logo"
+                  className="w-24 h-auto hidden lg:block"
+                />
+              </Link>
               <div className="hidden lg:block">
                 <CategoryDropdown />
               </div>
