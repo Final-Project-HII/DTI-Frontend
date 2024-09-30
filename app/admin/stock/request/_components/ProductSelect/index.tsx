@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { ChevronsUpDown } from 'lucide-react';
+import { Popover, PopoverTrigger, PopoverContent } from '@radix-ui/react-popover';
+import { Button } from '@/components/ui/button';
 
 interface Product {
     id: number;
@@ -26,9 +29,10 @@ interface Product {
 }
 
 interface ProductSelectProps {
-    value: string;
+    value: string | undefined;
     onChange: (value: string) => void;
     placeholder?: string;
+    disabled?: boolean;
 }
 
 const fetchProducts = async (): Promise<Product[]> => {
@@ -41,7 +45,7 @@ const fetchProducts = async (): Promise<Product[]> => {
             params: {
                 page: currentPage,
                 size: 100, // Adjust this value based on your API's maximum allowed page size
-            }
+            },
         });
 
         allProducts = [...allProducts, ...response.data.content];
@@ -52,30 +56,71 @@ const fetchProducts = async (): Promise<Product[]> => {
     return allProducts;
 };
 
-const ProductSelect: React.FC<ProductSelectProps> = ({ value, onChange, placeholder = "Select a product" }) => {
+const ProductSelect: React.FC<ProductSelectProps> = ({
+    value,
+    onChange,
+    placeholder = 'Select a product',
+}) => {
     const { data: products, isLoading, error } = useQuery<Product[]>({
         queryKey: ['products'],
         queryFn: fetchProducts,
     });
 
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
+    const filteredProducts = products
+        ? products.filter(
+            (product) =>
+                product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                product.description.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        : [];
+
     if (isLoading) return <div>Loading products...</div>;
     if (error) return <div>Error loading products</div>;
 
+    const selectedProductName = products?.find(
+        (product) => product.id.toString() === value
+    )?.name;
+
     return (
-        <div>
-            <Select value={value} onValueChange={onChange}>
-                <SelectTrigger>
-                    <SelectValue placeholder={placeholder} />
-                </SelectTrigger>
-                <SelectContent>
-                    {products && products.map((product) => (
-                        <SelectItem key={product.id} value={product.id.toString()}>
-                            {product.name} (Total Stock: {product.totalStock})
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-        </div>
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+            <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" className="justify-between w-full">
+                    {selectedProductName || placeholder}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0 w-[25vw] z-40 border">
+                <Command>
+                    <CommandInput
+                        placeholder="Search products..."
+                        value={searchQuery}
+                        onValueChange={setSearchQuery}
+                        className="w-full"
+                    />
+                    <CommandList>
+                        {filteredProducts.length === 0 && (
+                            <CommandEmpty>No matching products found.</CommandEmpty>
+                        )}
+                        <CommandGroup>
+                            {filteredProducts.map((product) => (
+                                <CommandItem
+                                    key={product.id}
+                                    onSelect={() => {
+                                        onChange(product.id.toString());
+                                        setIsPopoverOpen(false);
+                                    }}
+                                >
+                                    {product.name} (Total Stock: {product.totalStock})
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
     );
 };
 

@@ -1,91 +1,74 @@
 "use client";
-import Image from "next/image";
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/free-mode";
-import CategoryDummyData from "@/utils/CategoryDummyData";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import SkeletonCardCategory from '@/components/SkeletonCardCategory'
+import CategoryItemSkeleton from './CategoryitemSkeleton';
+import CategoryItem from './CategoryItem'
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+
 
 interface Category {
   id: number;
   name: string;
   categoryImage: string;
 }
+
 const fetchCategories = async (): Promise<Category[]> => {
   const response = await axios.get<Category[]>(`${BASE_URL}/category`);
   return response.data;
 };
 
+const CategoryListSkeleton = () => {
+  return (
+    <div className="px-5 sm:px-4 lg:px-16 mb-4">
+      <div className="bg-[#bbddff] p-2 sm:p-3 lg:p-5 rounded-xl">
+        <h1 className="font-semibold text-sm sm:text-base lg:text-lg mb-2">Product Categories</h1>
+        <div className="flex overflow-x-auto lg:gap-7 gap-2 flex-nowrap">
+          {Array(12).fill(null).map((_, index) => (
+            <CategoryItemSkeleton key={index} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const CategoryList = () => {
-  const {
-    data: categories,
-    isLoading,
-    error,
-  } = useQuery<Category[], Error>({
+  const { data: categories, isLoading, error } = useQuery<Category[], Error>({
     queryKey: ["categories"],
     queryFn: fetchCategories,
   });
 
-  if (isLoading) return <div>Loading categories...</div>;
-  // if (isLoading) return <div><SkeletonCardCategory /></div>;
+  if (isLoading) return <div><CategoryListSkeleton /></div>;
   if (error) return <div>Error loading categories: {error.message}</div>;
 
   return (
-
-    <div className="px-5 lg:px-40 mb-7">
-      <div className="bg-[#bbddff] p-5 rounded-xl">
-        <h1 className="font-semibold text-lg">Product Category</h1>
+    <div className="px-5 sm:px-4 lg:px-16 mb-4">
+      <div className="bg-[#bbddff] p-2 sm:p-3 lg:p-5 rounded-xl">
+        <h1 className="font-semibold text-sm sm:text-base lg:text-lg mb-2">Product Categories</h1>
 
         <Swiper
-          slidesPerView={10}
-          spaceBetween={20}
+          slidesPerView={5}
+          spaceBetween={0}
           freeMode={true}
           modules={[FreeMode]}
-          className="mt-3"
+          className="mt-2"
           breakpoints={{
-            320: {
-              slidesPerView: 3,
-            },
-
-            768: {
-              slidesPerView: 5,
-            },
-            1024: {
-              slidesPerView: 10,
-            },
+            320: { slidesPerView: 5.5, spaceBetween: 0 },
+            640: { slidesPerView: 8, spaceBetween: 5 },
+            768: { slidesPerView: 10, spaceBetween: 12 },
+            1024: { slidesPerView: 12, spaceBetween: 16 },
           }}
         >
 
           {categories?.map((category) => (
-            <SwiperSlide key={category.id} className="w-auto">
-              <div className='flex flex-col gap-2 items-center'>
-                {/* http://localhost:3000/product?page=0&categoryName=Milk */}
-                <Link href={`/product?page=0&category=${category.name}`}>
-                  <div className="bg-white items-center p-5 w-24 rounded-xl shadow-md">
-                    <Image
-                      src={
-                        category.categoryImage
-                          ? category.categoryImage.startsWith("http")
-                            ? category.categoryImage
-                            : `https://res.cloudinary.com/dcjjcs49e/image/upload/${category.categoryImage}`
-                          : "/food.png"
-                      }
-                      width={1000}
-                      height={1000}
-                      alt={category.name}
-                      className="w-96 size-14"
-                    />
-                  </div>
-                </Link>
-                <h2 className="text-center">{category.name}</h2>
-              </div>
+            <SwiperSlide key={category.id} className='mr-0'>
+              <CategoryItem category={category} />
             </SwiperSlide>
           ))}
         </Swiper>

@@ -54,11 +54,11 @@ export function DataTable<TData, TValue>({
 
     return (
         <>
-            <div className="rounded-md border">
+            <div className="flex flex-col h-[450px] overflow-hidden bg-white shadow-lg rounded-lg transition-all duration-300 ease-in-out mb-5">
                 <Table>
-                    <TableHeader className="bg-blue-600 text-center">
+                    <TableHeader className="sticky-header bg-blue-600 hover:opacity-100 hover:bg-blue-600">
                         {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
+                            <TableRow key={headerGroup.id} className='bg-gradient-to-r from-blue-600 to-indigo-700 text-white'>
                                 {headerGroup.headers.map((header) => (
                                     <TableHead key={header.id} className="text-center text-white">
                                         {header.isPlaceholder
@@ -78,6 +78,7 @@ export function DataTable<TData, TValue>({
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
+                                    className='text-center'
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>

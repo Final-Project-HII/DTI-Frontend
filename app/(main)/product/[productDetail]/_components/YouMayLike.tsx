@@ -11,6 +11,7 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import axios from 'axios';
 // import { Product } from '@/types/product';
 import { useQuery } from '@tanstack/react-query';
+import ProductListSkeleton from '@/app/_components/ProductList/ProductListSkeleton';
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
@@ -58,8 +59,10 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
         queryFn: () => fetchProducts(category),
     });
 
-    if (isLoading) return <div>Loading products...</div>;
+    if (isLoading) return <div><ProductListSkeleton /></div>;
     if (error) return <div>Error loading products: {error.message}</div>;
+
+    const sortedProducts = products?.sort((a, b) => (a.totalStock === 0 ? 1 : -1));
 
     return (
         <div className="py-2 rounded-xl ">
@@ -96,7 +99,7 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
                     }}
 
                 >
-                    {products?.map((product) => (
+                    {sortedProducts?.map((product) => (
                         <SwiperSlide key={product.id}>
                             <ProductCard key={product.id} product={product} />
                         </SwiperSlide>

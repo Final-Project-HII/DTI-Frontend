@@ -4,6 +4,7 @@ import { ProductCard } from "@/app/(main)/product/_components/ProductCard";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import Link from "next/link";
+import ProductListSkeleton from "./ProductListSkeleton";
 
 // Import Swiper styles
 import "swiper/css";
@@ -64,11 +65,12 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
     queryFn: () => fetchProducts(category),
   });
 
-  if (isLoading) return <div>Loading products...</div>;
+  if (isLoading) return <div><ProductListSkeleton /></div>;
   if (error) return <div>Error loading products: {error.message}</div>;
+  const sortedProducts = products?.sort((a, b) => (a.totalStock === 0 ? 1 : -1));
 
   return (
-    <div className="px-5 py-2 rounded-xl lg:px-40">
+    <div className="px-5 py-2 rounded-xl lg:px-16">
       <div className="bg-white rounded-xl p-5 flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h1 className="font-semibold text-lg">{category ? `${category} Products` : 'All Products'}</h1>
@@ -91,17 +93,23 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
           }}
           breakpoints={{
             640: {
-              slidesPerView: 2,
+              slidesPerView: 2.5,
             },
             768: {
               slidesPerView: 3,
             },
             1024: {
+              slidesPerView: 5,
+            },
+            1280: {
               slidesPerView: 6,
+            },
+            1536: {
+              slidesPerView: 8,
             },
           }}
         >
-          {products?.map((product) => (
+          {sortedProducts?.map((product) => (
             <SwiperSlide key={product.id}>
               <div className="h-full">
                 <ProductCard product={product} />

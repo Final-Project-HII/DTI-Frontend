@@ -19,8 +19,8 @@ import SkeletonCarousel from "@/components/SkeletonCarousel";
 
 const Carousel = () => {
   return (
-    <main className=" p-5 lg:px-20 lg:py-10">
-      <div className="justify-center items-center lg:px-20">
+    <main className="p-5 lg:px-16 lg:py-10">
+      <div className="justify-center items-center">
         <Swiper
           slidesPerView={1.3}
           initialSlide={1}
