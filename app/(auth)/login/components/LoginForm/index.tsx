@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { AiOutlineMail } from 'react-icons/ai';
 import { signIn } from 'next-auth/react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Modal from '@/components/Modal';
 import GenereteNewVerificationModalLogin from '@/components/GenereteNewVerificationModalLogin';
 import { setCookie } from 'cookies-next';
@@ -42,15 +42,17 @@ const LoginForm = () => {
   const togglePasswordVisibility = () => {
     setShowPassword(prevState => !prevState);
   };
-  const router = useRouter();
   const param = useSearchParams();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const pathname = usePathname();
+  const encodeCallbackUrl = encodeURIComponent(callbackUrl);
 
   useEffect(() => {
     const errorParam = param.get('error');
     if (errorParam == "email_not_found") {
       setIsRegistered(true)
       setTimeout(() => setIsRegistered(false), 4000);
-      window.history.replaceState(null, '', '/login');
     } else if (errorParam == "email_not_verified") {
       const emailParam = param.get('email');
       if (emailParam !== null) {
@@ -60,7 +62,6 @@ const LoginForm = () => {
     } else if (errorParam == "password_not_correct") {
       setErrorModal(true)
       setTimeout(() => setErrorModal(false), 4000);
-      window.history.replaceState(null, '', '/login');
     }
   }, [param]);
 
@@ -69,8 +70,9 @@ const LoginForm = () => {
   const handleSocialLogin = async () => {
     try {
       setCookie('auth_action', "login")
+      setCookie('callbackUrl', encodeCallbackUrl)
       const result = await signIn("google", {
-        callbackUrl: '/'
+        callbackUrl: callbackUrl
       });
       console.log(result)
     } catch (error) {
@@ -82,10 +84,12 @@ const LoginForm = () => {
 
   const onSubmit = async (data: loginData) => {
     try {
+      console.log(callbackUrl)
+      setCookie('callbackUrl', encodeCallbackUrl)
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        callbackUrl: '/'
+        callbackUrl: callbackUrl
       });
     } catch (error) {
       console.error("An unexpected error occurred:", error);
@@ -94,7 +98,6 @@ const LoginForm = () => {
 
   const closeModal = () => {
     setIsNotVerified(false);
-    router.push("/login")
   };
   return (
     <div className="flex justify-center items-center pt-10 pb-20">

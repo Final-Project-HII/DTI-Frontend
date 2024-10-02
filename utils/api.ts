@@ -12,7 +12,7 @@ import { Order, OrderItem } from '@/types/order'
 import { useSession } from 'next-auth/react'
 import { AddressFormData } from '@/app/checkout/_components/UpdateAddressForm'
 import { AdminFormData } from '@/app/admin/admin-management/_components/AdminTable/components/DataTable/components/AddAdminForm'
-import { ProfileForm } from '@/app/profile/components/ProfilePage'
+import { InfoForm } from '@/app/profile/components/ProfilePage'
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`
 
@@ -194,7 +194,6 @@ export const getAllWarehouse = async (
   const response = await axios.get<any>(
     `${BASE_URL_DEV}/warehouses?${params.toString()}`
   )
-  console.log(response.data.data)
   return response.data.data
 }
 
@@ -277,7 +276,6 @@ export const toogleActiveAddress = async (
   id: number,
   token: string
 ): Promise<any> => {
-  console.log(token)
   const response = await axios.put(
     `${BASE_URL}/addresses/change-primary-address/${id}`,
     {},
@@ -342,7 +340,6 @@ export const toogleUserActiveStatus = async (id: number): Promise<any> => {
     `${BASE_URL_DEV}/users/toggle-active-user/${id}`,
     {}
   )
-  console.log(response)
   return response.data
 }
 
@@ -375,10 +372,23 @@ export const getProfileData = async (token: string): Promise<any> => {
 }
 
 export const updateProfile = async (
-  formData: ProfileForm,
+  formData: InfoForm,
   token: string
 ): Promise<any> => {
   const response = await axios.put(`${BASE_URL_DEV}/users/profile`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return response.data
+}
+
+export const updateAvatar = async (
+  formData: any,
+  token: string
+): Promise<any> => {
+  const response = await axios.put(`${BASE_URL_DEV}/users/avatar`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`,
@@ -397,4 +407,26 @@ export const getShippingData = async (token: string): Promise<any> => {
     console.error('Error fetching shipping data:', error)
     throw error
   }
+}
+
+export const resetPassword = async (formData: any): Promise<any> => {
+  const response = await axios.post(
+    `${BASE_URL_DEV}/users/set-password`,
+    formData
+  )
+  return response.data
+}
+
+export const changeEmail = async (
+  formData: any,
+  token: string
+): Promise<any> => {
+  const response = await axios.put(
+    `${BASE_URL_DEV}/users/change-email`,
+    formData,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  )
+  return response.data
 }

@@ -8,6 +8,7 @@ import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 import Footer from "@/components/Footer";
 import NavBar from "../components/NavBar";
+import { ProfileProvider } from "@/contexts/ProfileContext";
 
 const JakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
@@ -24,11 +25,13 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <SessionProvider session={session} refetchInterval={120}>
-        <body className={JakartaSans.className}>
-          <NavBar />
-          <Providers>{children}</Providers>
-          <Footer />
-        </body>
+        <ProfileProvider>
+          <body className={JakartaSans.className}>
+            <NavBar />
+            <Providers>{children}</Providers>
+            <Footer />
+          </body>
+        </ProfileProvider>
       </SessionProvider>
     </html>
   );
