@@ -16,21 +16,18 @@ type LoginRequestLinkModal = {
 const GenereteNewVerificationModalLogin: React.FC<LoginRequestLinkModal> = ({ email, title, description, closeModal, reset }) => {
   const { AddNewVerificationLink, isLoading } = SendNewVerificationLink();
   const [showNewVerificationLinkModal, setShowNewVerificationLinkModal] = useState(false);
-  const router = useRouter();
 
 
 
   const handleNewLink = async () => {
     try {
-      const result = await AddNewVerificationLink(email);
-      if (result) {
-        setShowNewVerificationLinkModal(true);
-        setTimeout(() => {
-          setShowNewVerificationLinkModal(false);
-          closeModal()
-          reset()
-        }, 6000);
-      }
+      await AddNewVerificationLink(email);
+      setShowNewVerificationLinkModal(true);
+      setTimeout(() => {
+        setShowNewVerificationLinkModal(false);
+        closeModal()
+        reset()
+      }, 6000);
     } catch (error) {
       console.log("Error:", error);
     }

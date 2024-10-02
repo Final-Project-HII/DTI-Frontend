@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+'use client'
+import React, { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,16 +24,13 @@ import { City } from '@/types/cities';
 import { z } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createWarehouse, updateWarehouse } from '@/utils/api';
+import { updateWarehouse } from '@/utils/api';
 import { Warehouse } from '@/types/warehouse';
 
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+const MapComponent = dynamic(() => import('../MapComponent'), {
+  ssr: false,
+  loading: () => <p>Loading Map...</p>
 });
-
 
 const warehouseSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -60,11 +56,6 @@ interface AddWarehouseFormProps {
   onWarehouseUpdated: () => void;
 }
 
-interface DraggableMarkerProps {
-  position: LatLng;
-  setPosition: (position: LatLng) => void;
-}
-
 interface Suggestion {
   place_id: number;
   licence: string;
@@ -82,36 +73,6 @@ interface Suggestion {
     [key: string]: string | undefined;
   };
 }
-
-const DraggableMarker: React.FC<DraggableMarkerProps> = ({ position, setPosition }) => {
-  const markerRef = useRef<L.Marker | null>(null);
-  const map = useMap();
-
-  useEffect(() => {
-    if (markerRef.current) {
-      markerRef.current.on('dragend', () => {
-        const marker = markerRef.current;
-        if (marker != null) {
-          const newPos = marker.getLatLng();
-          setPosition(newPos);
-          map.panTo(newPos);
-        }
-      });
-    }
-  }, [map, setPosition]);
-
-  useEffect(() => {
-    map.panTo(position);
-  }, [map, position]);
-
-  return (
-    <Marker
-      draggable={true}
-      position={position}
-      ref={markerRef}
-    />
-  );
-};
 
 const UpdateWarehouseForm: React.FC<AddWarehouseFormProps> = ({ data, onClose, onWarehouseUpdated }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
@@ -180,12 +141,13 @@ const UpdateWarehouseForm: React.FC<AddWarehouseFormProps> = ({ data, onClose, o
       onClose();
       onWarehouseUpdated()
     } catch (error) {
-      console.error('Error creating warehouse:', error);
+      console.error('Error updating warehouse:', error);
     }
   };
+
   return (
     <div className="p-4">
-      <h2 className="text-lg font-bold text-center">Warehouse Details</h2>
+      <h2 className="text-lg font-bold text-center">Update Warehouse Details</h2>
       <div className="flex mt-3 gap-4 flex-col lg:flex-row">
         <form onSubmit={handleSubmit(onSubmit)} className='gap-6 flex flex-col w-full'>
           <div className="flex flex-col gap-2 lg:gap-4">
@@ -196,15 +158,6 @@ const UpdateWarehouseForm: React.FC<AddWarehouseFormProps> = ({ data, onClose, o
               render={({ field }) => <Input {...field} id="name" />}
             />
             {errors.name?.message && <div className="text-red-500">{errors.name.message}</div>}
-
-            <Label htmlFor="addressLine">Address</Label>
-            <Controller
-              name="addressLine"
-              control={control}
-              render={({ field }) => <Textarea {...field} id="addressLine" />}
-            />
-            {errors.addressLine?.message && <div className="text-red-500">{errors.addressLine.message}</div>}
-
             <Label htmlFor="postalCode">Postal Code</Label>
             <Controller
               name="postalCode"
@@ -236,6 +189,16 @@ const UpdateWarehouseForm: React.FC<AddWarehouseFormProps> = ({ data, onClose, o
                 ))}
               </ul>
             )}
+
+            <Label htmlFor="addressLine">Address</Label>
+            <Controller
+              name="addressLine"
+              control={control}
+              render={({ field }) => <Textarea {...field} id="addressLine" />}
+            />
+            {errors.addressLine?.message && <div className="text-red-500">{errors.addressLine.message}</div>}
+
+
 
             <Label htmlFor="city">City</Label>
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
@@ -270,20 +233,11 @@ const UpdateWarehouseForm: React.FC<AddWarehouseFormProps> = ({ data, onClose, o
             {errors.cityId && <div className="text-red-500">{errors.cityId.message}</div>}
           </div>
           <Button type="submit" className="w-full bg-blue-600 text-white">
-            Update
+            Update Warehouse
           </Button>
         </form>
         <div className="w-full h-64 lg:h-auto">
-          <MapContainer
-            center={[position.lat, position.lng]}
-            zoom={13}
-            style={{ height: '100%', width: '100%' }}
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <DraggableMarker position={position} setPosition={setPosition} />
-          </MapContainer>
+          <MapComponent position={position} setPosition={setPosition} />
         </div>
       </div>
     </div>

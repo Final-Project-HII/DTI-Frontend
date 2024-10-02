@@ -21,7 +21,7 @@ import React, { useState } from 'react'
 import { FaSearch } from 'react-icons/fa'
 import AddWarehouseForm from "../../AddWarehoseForm"
 import CityComboBox from "./components/CityComboBox"
-import DataTablePagination from "./components/Pagination"
+import WarehouseTableSkeleton from "../../WarehouseTableSkeleton"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -44,7 +44,7 @@ export function DataTable<TData, TValue>({
   selectedCity,
   setSelectedCity,
   onDataChanged,
-  onPageChanged
+  onPageChanged,
 }: DataTableProps<TData, TValue>) {
   const [openNewWarehouseForm, setOpenNewWarehouseForm] = useState(false);
   const table = useReactTable({
@@ -76,7 +76,7 @@ export function DataTable<TData, TValue>({
         <div className="flex gap-3 items-end">
           <h1 className="text-2xl font-bold">Warehouse List</h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-col lg:flex-row">
           <div className="flex relative">
             <Input
               placeholder="search name..."
@@ -92,62 +92,68 @@ export function DataTable<TData, TValue>({
               <Button className="bg-blue-600  flex items-center gap-2"><PlusIcon size={20} /> Add New Warehouse </Button>
             </DialogTrigger>
             <DialogTitle></DialogTitle>
-            <DialogContent className="max-w-md lg:max-w-4xl">
+            <DialogContent className="max-w-md lg:max-w-4xl" onInteractOutside={(e) => {
+              e.preventDefault();
+            }} >
               <AddWarehouseForm onClose={handleClose} onWarehouseAdded={onDataChanged} />
             </DialogContent>
           </Dialog>
         </div>
       </div>
-      <div className="flex flex-col h-96">
-        <Table>
-          <TableHeader className="sticky-header bg-blue-600 hover:opacity-100 hover:bg-blue-600">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} className="text-white">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  Loading...
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
+      {loading ? (
+        <WarehouseTableSkeleton rowCount={5} />
+      ) : (
+        <div className="flex flex-col h-[400px] overflow-hidden bg-white shadow-lg rounded-lg transition-all duration-300 ease-in-out">
+          <Table>
+            <TableHeader className="sticky-header bg-blue-600 hover:opacity-100 hover:bg-blue-600">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className='bg-gradient-to-r from-blue-600 to-indigo-700 text-white'>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id} className="text-white">
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      </TableHead>
+                    )
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </div >
   )
 }

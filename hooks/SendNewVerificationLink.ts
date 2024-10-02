@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import axios from 'axios'
+import { useState } from 'react'
 
 const SendNewVerificationLink = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -8,19 +9,18 @@ const SendNewVerificationLink = () => {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(
+      const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}api/users/new-verification-link?email=${email}`,
         {
           headers: {
             'Content-Type': 'application/json',
           },
-          method: 'POST',
         }
       )
-      if (!response.ok) {
+      if (!response.data) {
         throw new Error('Failed to create event')
       }
-      const data = await response.json()
+      const data = response.data
       setIsLoading(false)
       return data.data
     } catch (err) {

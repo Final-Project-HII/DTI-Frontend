@@ -6,9 +6,9 @@ export interface ProductLayoutProps {
 
 export default function Layout({ children }: ProductLayoutProps) {
     return (
-        <div className="flex">
+        <div className="flex w-full ">
             <AdminLeftNavbar />
-            <main className="flex-1 p-4">
+            <main className="flex-1 p-4 w-full overflow-x-auto">
                 {children}
             </main>
         </div>

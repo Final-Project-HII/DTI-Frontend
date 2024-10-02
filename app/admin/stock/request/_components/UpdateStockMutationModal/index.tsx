@@ -16,16 +16,15 @@ import { AlertCircle, CheckCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const BASE_URL = 'http://localhost:8080';
-
-// Create an axios instance with default config
 const api = axios.create({
     baseURL: BASE_URL,
-    withCredentials: true, // This is important for sending cookies
+    withCredentials: true,
 });
 
 interface UpdateStockMutationModalProps {
     stockMutation: StockMutation;
     onUpdate: () => void;
+    disabled?: boolean;
 }
 
 interface StockMutation {
@@ -49,12 +48,24 @@ interface StockMutationUpdateDto {
     status: 'APPROVED' | 'IN_TRANSIT' | 'COMPLETED' | 'CANCELLED';
 }
 
-const UpdateStockMutationModal: React.FC<UpdateStockMutationModalProps> = ({ stockMutation, onUpdate }) => {
+const UpdateStockMutationModal: React.FC<UpdateStockMutationModalProps> = ({ stockMutation, onUpdate, disabled }) => {
     const [open, setOpen] = useState(false);
+    const getNextStatus = (currentStatus: string) => {
+        switch (currentStatus) {
+            case 'REQUESTED':
+                return 'APPROVED';
+            case 'APPROVED':
+                return 'IN_TRANSIT';
+            case 'IN_TRANSIT':
+                return 'COMPLETED';
+            default:
+                return 'CANCELLED';
+        }
+    };
     const [formData, setFormData] = useState<StockMutationUpdateDto>({
         id: stockMutation.id,
         remarks: '',
-        status: 'COMPLETED',
+        status: getNextStatus(stockMutation.status),
     });
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -93,15 +104,49 @@ const UpdateStockMutationModal: React.FC<UpdateStockMutationModalProps> = ({ sto
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
+    const renderSelectOptions = () => {
+        switch (stockMutation.status) {
+            case 'REQUESTED':
+                return (
+                    <>
+                        <SelectItem value="APPROVED">Approved</SelectItem>
+                        <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                    </>
+                );
+            case 'APPROVED':
+                return (
+                    <>
+                        <SelectItem value="IN_TRANSIT">In Transit</SelectItem>
+                        <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                    </>
+                );
+            case 'IN_TRANSIT':
+                return (
+                    <>
+                        <SelectItem value="COMPLETED">Completed</SelectItem>
+                        <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                    </>
+                );
+            default:
+                return null;
+        }
+    };
+    const isButtonDisabled = stockMutation.status === 'COMPLETED' || stockMutation.status === 'CANCELLED';
 
     if (!session) {
         return <div>Please log in to update stock mutations.</div>;
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(newOpen) => !disabled && setOpen(newOpen)}>
             <DialogTrigger asChild>
-                <Button variant="outline">Proccess</Button>
+                <Button
+                    variant="outline"
+                    disabled={isButtonDisabled}
+                    className={isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}
+                >
+                    Proccess
+                </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] bg-white">
                 <DialogHeader>
@@ -118,20 +163,19 @@ const UpdateStockMutationModal: React.FC<UpdateStockMutationModalProps> = ({ sto
                             <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="APPROVED">Approved</SelectItem>
-                            <SelectItem value="IN_TRANSIT">In Transit</SelectItem>
-                            <SelectItem value="COMPLETED">Completed</SelectItem>
-                            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                            {renderSelectOptions()}
                         </SelectContent>
                     </Select>
 
-                    <Input
-                        name="remarks"
-                        value={formData.remarks}
-                        onChange={handleChange}
-                        placeholder="Remarks"
-                        required
-                    />
+                    {formData.status === 'CANCELLED' && (
+                        <Input
+                            name="remarks"
+                            value={formData.remarks}
+                            onChange={handleChange}
+                            placeholder="Remarks (required for cancellation)"
+                            required
+                        />
+                    )}
 
                     <Button type="submit" disabled={mutation.status === 'pending'} className="w-full bg-blue-600 text-white">
                         {mutation.status === 'pending' ? 'Updating...' : 'Update Status'}
