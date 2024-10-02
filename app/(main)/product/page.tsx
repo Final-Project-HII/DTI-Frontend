@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -15,59 +14,59 @@ import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbS
 import NewPagination from '@/app/admin/warehouse/components/WarehouseTable/DataTable/components/Pagination'
 
 interface ProductImage {
-    id: number;
-    productId: number;
-    imageUrl: string;
-    createdAt: string;
-    updatedAt: string;
+  id: number;
+  productId: number;
+  imageUrl: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    weight: number;
-    categoryId: number;
-    categoryName: string;
-    totalStock: number;
-    productImages: ProductImage[];
-    createdAt: string;
-    updatedAt: string;
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  weight: number;
+  categoryId: number;
+  categoryName: string;
+  totalStock: number;
+  productImages: ProductImage[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ApiResponse {
-    content: Product[];
-    totalPages: number;
-    totalElements: number;
-    size: number;
-    number: number;
-    sort: {
-        empty: boolean;
-        sorted: boolean;
-        unsorted: boolean;
-    };
-    first: boolean;
-    last: boolean;
-    numberOfElements: number;
-    pageable: {
-        pageNumber: number;
-        pageSize: number;
-        sort: {
-            empty: boolean;
-            sorted: boolean;
-            unsorted: boolean;
-        };
-        offset: number;
-        paged: boolean;
-        unpaged: boolean;
-    };
+  content: Product[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+  sort: {
     empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
+  };
+  first: boolean;
+  last: boolean;
+  numberOfElements: number;
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      empty: boolean;
+      sorted: boolean;
+      unsorted: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  empty: boolean;
 }
 
 interface Category {
-    id: number;
-    name: string;
+  id: number;
+  name: string;
 }
 
 

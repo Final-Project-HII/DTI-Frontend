@@ -1,18 +1,18 @@
 'use client'
-import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
-import qr from '@/public/QR.png'
-import { useForm } from "react-hook-form";
-import { z, ZodType } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from 'next/link';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { AiOutlineMail } from 'react-icons/ai';
-import { signIn } from 'next-auth/react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import Modal from '@/components/Modal';
 import GenereteNewVerificationModalLogin from '@/components/GenereteNewVerificationModalLogin';
+import Modal from '@/components/Modal';
+import qr from '@/public/QR.png';
+import { zodResolver } from "@hookform/resolvers/zod";
 import { setCookie } from 'cookies-next';
+import { signIn } from 'next-auth/react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useForm } from "react-hook-form";
+import { AiOutlineMail } from 'react-icons/ai';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { z, ZodType } from "zod";
 
 type loginData = {
   email: string
@@ -42,15 +42,18 @@ const LoginForm = () => {
   const togglePasswordVisibility = () => {
     setShowPassword(prevState => !prevState);
   };
-  const router = useRouter();
   const param = useSearchParams();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const encodeCallbackUrl = encodeURIComponent(callbackUrl);
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const errorParam = param.get('error');
     if (errorParam == "email_not_found") {
       setIsRegistered(true)
       setTimeout(() => setIsRegistered(false), 4000);
-      window.history.replaceState(null, '', '/login');
     } else if (errorParam == "email_not_verified") {
       const emailParam = param.get('email');
       if (emailParam !== null) {
@@ -60,7 +63,6 @@ const LoginForm = () => {
     } else if (errorParam == "password_not_correct") {
       setErrorModal(true)
       setTimeout(() => setErrorModal(false), 4000);
-      window.history.replaceState(null, '', '/login');
     }
   }, [param]);
 
@@ -68,11 +70,13 @@ const LoginForm = () => {
 
   const handleSocialLogin = async () => {
     try {
+      setIsLoading(true)
       setCookie('auth_action', "login")
+      setCookie('callbackUrl', encodeCallbackUrl)
       const result = await signIn("google", {
-        callbackUrl: '/'
+        callbackUrl: callbackUrl
       });
-      console.log(result)
+      setIsLoading(false)
     } catch (error) {
       throw error
     }
@@ -82,11 +86,14 @@ const LoginForm = () => {
 
   const onSubmit = async (data: loginData) => {
     try {
+      setIsLoading(true)
+      setCookie('callbackUrl', encodeCallbackUrl)
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        callbackUrl: '/'
+        callbackUrl: callbackUrl
       });
+      setIsLoading(false)
     } catch (error) {
       console.error("An unexpected error occurred:", error);
     }
@@ -142,8 +149,9 @@ const LoginForm = () => {
           <button
             type="submit"
             className="mt-2 py-2 px-4 text-sm font-semibold w-full text-white bg-blue-500 rounded-md hover:bg-blue-600 transition duration-300"
+            disabled={isLoading}
           >
-            LOGIN
+            {isLoading ? "Loading ... " : "Login"}
           </button>
         </form>
         <Link href="/reset-password" className='text-xs text-blue-500 font-semibold mt-2 hover:underline'>

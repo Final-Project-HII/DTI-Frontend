@@ -1,17 +1,19 @@
 "use client";
-import avatar from "@/public/promo1.jpg";
+import useProfileData from "@/contexts/ProfileContext";
+import { useCart } from "@/hooks/useCart";
 import {
   ChevronDown,
   LogOutIcon,
   ShoppingCart
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { IoIosListBox } from "react-icons/io";
 import "swiper/css";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import CategoryDropdown from "./_components/CategoryDropdown";
@@ -22,29 +24,21 @@ import SearchSheet from "./_components/SearchSheet";
 import { useSearchParams } from 'next/navigation';
 import "swiper/css";
 
-
 const NavBar = () => {
   const { data: session } = useSession();
-  const categories = [
-    "Electronics",
-    "Clothing",
-    "Books",
-    "Home & Garden",
-    "Electronics",
-    "Clothing",
-    "Books",
-    "Home & Garden",
-  ];
   const [open, setOpen] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
   const [openHamburgerMenu, setOpenHamburgerMenu] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [openDropdownMenu, setOpenDropdownMenu] = useState(false);
   // const { getCartItemCount } = useCart();
   const [itemCount, setItemCount] = useState(0);
   const { data } = useSession();
+  const { profileData } = useProfileData()
   const searchParams = useSearchParams();
-  const defaultSearchTerm = searchParams.get('search') || '';
+  const pathname = usePathname();
+  const loginHref = `/login?callbackUrl=${encodeURIComponent(pathname)}`;
+
+
 
   const handleSignOut = () => {
     signOut()
@@ -165,15 +159,12 @@ const NavBar = () => {
                     className="flex items-center hover:bg-gray-50 hover:bg-opacity-40 gap-2 px-1 py-[2px]"
                     onClick={handleToggleDropdown}
                   >
-                    <Image
-                      src={avatar}
-                      width={25}
-                      height={25}
-                      className="rounded-full object-fit h-7 w-7"
-                      alt=""
-                    />
+                    <Avatar className="w-7 h-7">
+                      <AvatarImage src={profileData?.avatar || undefined} alt="Profile" />
+                      <AvatarFallback>{profileData?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                    </Avatar>
                     <h3 className="font-semibold text-sm text-black line-clamp-1">
-                      Hendry Tjahaja Surijanto Putra
+                      {profileData?.displayName}
                     </h3>
                     <ChevronDown
                       height={40}
@@ -183,10 +174,10 @@ const NavBar = () => {
                   </div>
                   {openDropdownMenu && (
                     <div className="absolute bottom-0 w-60  translate-y-full -left-full bg-white rounded-xl  ">
-                      <div className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 group hover:bg-blue-600">
+                      <Link href='/profile' className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 group hover:bg-blue-600">
                         <div className="flex gap-4 items-center">
                           <h3 className="font-semibold text-xs text-black line-clamp-1 group-hover:text-white">
-                            Hi, Hendry Tjahaja Surijanto Putra
+                            Hi, {profileData?.displayName}
                           </h3>
                         </div>
                         <FaEdit
@@ -194,7 +185,7 @@ const NavBar = () => {
                           height={20}
                           className="text-blue-600 group-hover:text-white"
                         />
-                      </div>
+                      </Link>
                       <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group" onClick={handleSignOut}>
                         <LogOutIcon
                           width={16}
@@ -217,7 +208,7 @@ const NavBar = () => {
                       Sign Up
                     </Button>
                   </Link>
-                  <Link href="/login">
+                  <Link href={loginHref}>
                     <Button className="bg-blue-600 text-white hover:bg-blue-700">
                       Login
                     </Button>
@@ -243,17 +234,14 @@ const NavBar = () => {
         >
           {data?.user.role == "USER" ? (
             <>
-              <div className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 hover:bg-blue-600 group">
+              <Link href='/profile' className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 hover:bg-blue-600 group">
                 <div className="flex gap-4 items-center">
-                  <Image
-                    src={avatar}
-                    width={25}
-                    height={25}
-                    className="rounded-full object-fit h-7 w-7"
-                    alt=""
-                  />
+                  <Avatar className="w-7 h-7">
+                    <AvatarImage src={profileData?.avatar || undefined} alt="Profile" />
+                    <AvatarFallback>{profileData?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                  </Avatar>
                   <h3 className="font-semibold text-sm text-black group-hover:text-white">
-                    Hai, Hendry Tjahaja Surijanto Putra
+                    Hi, {profileData?.displayName}
                   </h3>
                 </div>
                 <FaEdit
@@ -261,7 +249,7 @@ const NavBar = () => {
                   height={20}
                   className="text-black group-hover:text-white"
                 />
-              </div>
+              </Link>
               <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group" onClick={handleSignOut}>
                 <LogOutIcon width={25} height={25} className='text-red-600' />
                 <h3 className='text-sm text-black group-hover:text-white'>Logout</h3>

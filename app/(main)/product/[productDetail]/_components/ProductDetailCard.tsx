@@ -11,8 +11,8 @@ import { toast } from "@/components/ui/use-toast";
 import { addToCartApi } from "@/utils/api";
 
 interface ProductImage {
-    id: number;
-    imageUrl: string;
+  id: number;
+  imageUrl: string;
 }
 
 interface Product {
@@ -27,14 +27,14 @@ interface Product {
 }
 
 interface ProductDetailProps {
-    product: Product;
+  product: Product;
 }
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
-    const [quantity, setQuantity] = useState(1);
-    const [mainImage, setMainImage] = useState(product?.productImages[0]);
-    const [isLoading, setIsLoading] = useState(true);
-    const { addToCart, updateQuantity, cartItems } = useCart();
+  const [quantity, setQuantity] = useState(1);
+  const [mainImage, setMainImage] = useState(product?.productImages[0]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { addToCart, updateQuantity, cartItems } = useCart();
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 2000);
