@@ -24,7 +24,7 @@ import tiki from '@/public/tiki.png'
 
 const Footer = () => {
   return (
-    <div className='p-5  lg:px-40 lg:py-10 bg-white'>
+    <div className='p-5  lg:px-40 lg:py-10 bg-white max-w-full'>
       <div className="grid grid-cols-1 gap-10 lg:gap-20 lg:grid-cols-5">
         <div className="flex flex-col gap-4 col-span-2">
           <Image alt="logo" src={logo} width={150} height={150} />

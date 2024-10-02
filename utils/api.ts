@@ -4,15 +4,15 @@ import {
   ApiResponse,
   ApiResponseAddress,
   Product,
-} from "@/types/product";
-import { Category } from "@/types/category";
-import { Warehouse } from "@/types/warehouse";
-import { WarehouseFormData } from "@/app/admin/warehouse/components/AddWarehoseForm";
-import { Order, OrderItem } from "@/types/order";
-import { useSession } from "next-auth/react";
-import { AddressFormData } from "@/app/checkout/_components/UpdateAddressForm";
-import { AdminFormData } from "@/app/admin/admin-management/_components/AdminTable/components/DataTable/components/AddAdminForm";
-import { ProfileForm } from "@/app/profile/components/ProfilePage";
+} from '@/types/product'
+import { Category } from '@/types/category'
+import { Warehouse } from '@/types/warehouse'
+import { WarehouseFormData } from '@/app/admin/warehouse/components/AddWarehoseForm'
+import { Order, OrderItem } from '@/types/order'
+import { useSession } from 'next-auth/react'
+import { AddressFormData } from '@/app/checkout/_components/UpdateAddressForm'
+import { AdminFormData } from '@/app/admin/admin-management/_components/AdminTable/components/DataTable/components/AddAdminForm'
+import { InfoForm } from '@/app/profile/components/ProfilePage'
 import { CartItem } from "@/types/cartitem";
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
@@ -207,11 +207,10 @@ export const getAllWarehouse = async (
     params.set("cityName", cityName);
   }
   const response = await axios.get<any>(
-    `${BASE_URL}/warehouses?${params.toString()}`
-  );
-  console.log(response.data.data);
-  return response.data.data;
-};
+    `${BASE_URL_DEV}/warehouses?${params.toString()}`
+  )
+  return response.data.data
+}
 
 export const createWarehouse = async (
   formData: WarehouseFormData
@@ -292,7 +291,6 @@ export const toogleActiveAddress = async (
   id: number,
   token: string
 ): Promise<any> => {
-  console.log(token);
   const response = await axios.put(
     `${BASE_URL}/addresses/change-primary-address/${id}`,
     {},
@@ -356,10 +354,9 @@ export const toogleUserActiveStatus = async (id: number): Promise<any> => {
   const response = await axios.put(
     `${BASE_URL}/users/toggle-active-user/${id}`,
     {}
-  );
-  console.log(response);
-  return response.data;
-};
+  )
+  return response.data
+}
 
 export const createNewAdmin = async (formData: AdminFormData): Promise<any> => {
   const response = await axios.post(
@@ -390,7 +387,7 @@ export const getProfileData = async (token: string): Promise<any> => {
 };
 
 export const updateProfile = async (
-  formData: ProfileForm,
+  formData: InfoForm,
   token: string
 ): Promise<any> => {
   const response = await axios.put(`${BASE_URL}/users/profile`, formData, {
@@ -398,9 +395,22 @@ export const updateProfile = async (
       "Content-Type": "multipart/form-data",
       Authorization: `Bearer ${token}`,
     },
-  });
-  return response.data;
-};
+  })
+  return response.data
+}
+
+export const updateAvatar = async (
+  formData: any,
+  token: string
+): Promise<any> => {
+  const response = await axios.put(`${BASE_URL_DEV}/users/avatar`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return response.data
+}
 
 export const getShippingData = async (token: string): Promise<any> => {
   try {
@@ -412,4 +422,26 @@ export const getShippingData = async (token: string): Promise<any> => {
     console.error("Error fetching shipping data:", error);
     throw error;
   }
-};
+}
+
+export const resetPassword = async (formData: any): Promise<any> => {
+  const response = await axios.post(
+    `${BASE_URL_DEV}/users/set-password`,
+    formData
+  )
+  return response.data
+}
+
+export const changeEmail = async (
+  formData: any,
+  token: string
+): Promise<any> => {
+  const response = await axios.put(
+    `${BASE_URL_DEV}/users/change-email`,
+    formData,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  )
+  return response.data
+}

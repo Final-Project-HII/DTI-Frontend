@@ -15,6 +15,9 @@ import EditProductModal from './_components/EditProductModal';
 import { Pagination } from '@/app/(main)/product/_components/Pagination';
 import { FaSearch } from 'react-icons/fa';
 import { ProductTable } from './_components/ProductTable';
+import NewPagination from '@/app/admin/warehouse/components/WarehouseTable/DataTable/components/Pagination';
+import StockMutationTableSkeleton from '@/app/admin/stock/request/_components/StokMutationTableSkeleton';
+import { useSession } from "next-auth/react";
 
 interface ProductImage {
     id: number;
@@ -41,6 +44,8 @@ interface Product {
     productImages: ProductImage[];
     createdAt: string;
     updatedAt: string;
+    onEdit: (product: Product) => void;
+    onDelete: (id: number) => void;
 }
 
 interface ApiResponse {
@@ -74,8 +79,12 @@ interface ApiResponse {
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 const ALL_CATEGORIES = 'all';
+const DEFAULT_PAGE_SIZE = 10;
+
+
 
 export default function ProductSearchPage() {
+
     const router = useRouter();
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
@@ -86,6 +95,13 @@ export default function ProductSearchPage() {
     const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
     const [addingCategoryFor, setAddingCategoryFor] = useState<'new' | 'edit' | null>(null);
+    const [localPageSize, setLocalPageSize] = useState(DEFAULT_PAGE_SIZE);
+    const { data: session, status } = useSession();
+    const isSuperAdmin = session?.user?.role === 'SUPER';
+
+    useEffect(() => {
+        setLocalPageSize(parseInt(getParamValue("size", DEFAULT_PAGE_SIZE.toString())));
+    }, [searchParams]);
 
     const getParamValue = useCallback((key: string, defaultValue: string) => {
         return searchParams.get(key) || defaultValue;
@@ -94,7 +110,7 @@ export default function ProductSearchPage() {
     const searchTerm = getParamValue("search", "");
     const categoryName = getParamValue("categoryName", ALL_CATEGORIES);
     const currentPage = parseInt(getParamValue("page", "0"));
-    const pageSize = parseInt(getParamValue("size", "8"));
+    const pageSize = parseInt(getParamValue("size", DEFAULT_PAGE_SIZE.toString()));
     const sortBy = getParamValue("sortBy", "related");
     const sortDirection = getParamValue("sortDirection", "asc");
 
@@ -114,8 +130,8 @@ export default function ProductSearchPage() {
         return response.data;
     };
 
-    const { data, isPending, error } = useQuery<ApiResponse, Error, ApiResponse, readonly [string, string, string, string, string, string, string]>({
-        queryKey: ['products', currentPage.toString(), pageSize.toString(), categoryName, sortBy, sortDirection, searchTerm] as const,
+    const { data, isPending, error, isLoading } = useQuery<ApiResponse, Error, ApiResponse, readonly [string, string, string, string, string, string, string]>({
+        queryKey: ['products', currentPage.toString(), localPageSize.toString(), categoryName, sortBy, sortDirection, searchTerm] as const,
         queryFn: fetchProducts,
         staleTime: 60000, // 1 minute
     });
@@ -138,7 +154,7 @@ export default function ProductSearchPage() {
                 params.set(key, value);
             }
         });
-        if (updates.page === undefined) params.set('page', '0');
+        if (updates.page === undefined && updates.size !== undefined) params.set('page', '0');
         router.push(`?${params.toString()}`, { scroll: false });
     }, 1000);
 
@@ -187,6 +203,10 @@ export default function ProductSearchPage() {
     const openEditModal = (product: Product) => {
         setEditingProduct(product);
         setIsEditModalOpen(true);
+    };
+    const handlePageSizeChange = (newSize: number) => {
+        setLocalPageSize(newSize);
+        updateSearchParams({ size: newSize.toString(), page: '0' });
     };
 
     const createCategoryMutation = useMutation({
@@ -271,9 +291,13 @@ export default function ProductSearchPage() {
                             </SelectContent>
                         </Select>
                     )}
-                    <Button onClick={() => setIsAddModalOpen(true)} className="mb-4 bg-blue-600 text-white">
-                        + Add Product
-                    </Button>
+                    {/* start */}
+                    {isSuperAdmin && (
+                        <Button onClick={() => setIsAddModalOpen(true)} className="mb-4 bg-blue-600 text-white">
+                            + Add Product
+                        </Button>
+                    )}
+                    {/* end */}
                 </div>
             </div>
 
@@ -284,36 +308,34 @@ export default function ProductSearchPage() {
                     <AlertDescription>{error.message}</AlertDescription>
                 </Alert>
             )}
-
-            <ProductTable
-                products={data?.content || []}
-                currentPage={currentPage}
-                pageSize={pageSize}
-                onEdit={openEditModal}
-                onDelete={handleDelete}
-                isLoading={isPending}
-            />
-
-            {/* Pagination */}
-            {data && (
-                <Pagination
+            {isLoading ? (
+                <StockMutationTableSkeleton rowCount={5} />
+            ) : (
+                <ProductTable
+                    products={data?.content || []}
                     currentPage={currentPage}
-                    totalPages={data.totalPages}
-                    totalElements={data.totalElements}
                     pageSize={pageSize}
-                    onPageChange={handlePageChange}
+                    onEdit={openEditModal}
+                    onDelete={handleDelete}
+                    isLoading={isPending}
                 />
             )}
-
-            {/* Add Product Modal */}
+            {data && (
+                <NewPagination
+                    currentPage={currentPage}
+                    totalPages={data.totalPages}
+                    pageSize={localPageSize}
+                    totalElements={data.totalElements}
+                    onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
+                />
+            )}
             <AddProductModal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
                 categories={categories}
                 openAddCategoryModal={openAddCategoryModal}
             />
-
-            {/* Edit Product Modal */}
             <EditProductModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}

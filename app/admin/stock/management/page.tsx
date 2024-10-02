@@ -1,19 +1,14 @@
 'use client';
-import React, { useState, useCallback, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
-import { useDebouncedCallback } from 'use-debounce';
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Pagination } from '@/app/(main)/product/_components/Pagination';
-import { FaSearch } from 'react-icons/fa';
-import { ProductTable } from './_components/StockTable';
-import AddStockModal from './_components/AddStockModal';
+import { useSession } from 'next-auth/react';
+import { useQuery } from '@tanstack/react-query';
+import { DataTable } from './_components/DataTable';
+import NewPagination from '../../warehouse/components/WarehouseTable/DataTable/components/Pagination';
+import Image from 'next/image';
+import StockMutationTableSkeleton from '../request/_components/StokMutationTableSkeleton';
 import UpdateStockModal from './_components/UpdateStockModal';
-// import ProductStockManagement from './_components/ProductStockManagement';
+import AddStockModal from './_components/AddStockModal';
 
 interface City {
     id: number;
@@ -27,240 +22,240 @@ interface Warehouse {
     city: City;
 }
 
-
-interface ProductImage {
-    id: number;
-    productId: number;
-    imageUrl: string;
-    createdAt: string;
+interface StockItem {
+    id: string;
+    productName: string;
+    quantity: number;
+    warehouseName: string;
     updatedAt: string;
-}
-
-interface Product {
-    id: number;
-    name: string;
-    description: string;
+    createdAt: string;
+    warehouseId: string;
+    productId: string;
+    productImageUrl: string;
+    loginWarehouseId: string;
     price: number;
     weight: number;
-    categoryId: number;
+    categoryId: string;
     categoryName: string;
-    totalStock: number;
-    productImages: ProductImage[];
-    stocks: Stocks[];
-    createdAt: string;
-    updatedAt: string;
 }
 
-interface Stocks {
-    id: number;
-    warehouseId: number;
-    warehouseName: string;
-    quantity: number;
-}
-
-interface Stock {
-    id: number;
-    productId: number;
-    warehouseId: number;
-    quantity: number;
-}
-
-interface ApiResponse {
-    content: Product[];
-    totalPages: number;
-    totalElements: number;
-    size: number;
-    number: number;
-    sort: {
-        empty: boolean;
-        sorted: boolean;
-        unsorted: boolean;
+interface StockResponse {
+    statusCode: number;
+    message: string;
+    success: boolean;
+    data: {
+        content: StockItem[];
+        totalPages: number | undefined;
+        totalElements: number | undefined;
+        size: number;
     };
-    first: boolean;
-    last: boolean;
-    numberOfElements: number;
-    pageable: {
-        pageNumber: number;
-        pageSize: number;
-        sort: {
-            empty: boolean;
-            sorted: boolean;
-            unsorted: boolean;
-        };
-        offset: number;
-        paged: boolean;
-        unpaged: boolean;
-    };
-    empty: boolean;
 }
 
-const BASE_URL = 'http://localhost:8080';
-
-export default function StockManagementPage() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const queryClient = useQueryClient();
-    const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-    const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
-
-    const getParamValue = useCallback((key: string, defaultValue: string) => {
-        return searchParams.get(key) || defaultValue;
-    }, [searchParams]);
-
-    const searchTerm = getParamValue("search", "");
-    const currentPage = parseInt(getParamValue("page", "0"));
-    const pageSize = parseInt(getParamValue("size", "5"));
-    const sortBy = getParamValue("sortBy", "name");
-    const sortDirection = getParamValue("sortDirection", "asc");
-
-    const fetchProducts = async ({ queryKey }: { queryKey: readonly unknown[] }): Promise<ApiResponse> => {
-        const [_, page, size, sort, direction, search] = queryKey as [string, string, string, string, string, string];
-        const params = new URLSearchParams();
-        params.set('page', page);
-        params.set('size', size);
-        params.set('sortBy', sort);
-        params.set('sortDirection', direction);
-        if (search) params.set('search', search);
-
-        const response = await axios.get<ApiResponse>(`${BASE_URL}/api/product?${params.toString()}`);
-        return response.data;
+interface RowInfo {
+    row: {
+        original: StockItem;
     };
+}
 
-    const { data, isPending, error } = useQuery<ApiResponse, Error, ApiResponse, readonly [string, string, string, string, string, string]>({
-        queryKey: ['products', currentPage.toString(), pageSize.toString(), sortBy, sortDirection, searchTerm] as const,
-        queryFn: fetchProducts,
-        staleTime: 60000, // 1 minute
+const fetchStock = async (
+    warehouseId?: string,
+    token?: string,
+    page: number = 0,
+    size: number = 10
+): Promise<StockResponse> => {
+    const params = new URLSearchParams();
+    if (warehouseId) {
+        params.append('warehouseId', warehouseId);
+    }
+    params.append('page', String(page));
+    params.append('size', String(size));
+
+    const response = await axios.get<StockResponse>(`http://localhost:8080/api/stocks?${params.toString()}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
     });
-    //fetch all
+    return response.data;
+};
+
+export default function StockPage() {
+    const [selectedWarehouse, setSelectedWarehouse] = useState<string>('2');
+    const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+    const [currentPage, setCurrentPage] = useState<number>(0);
+    const [pageSize, setPageSize] = useState<number>(5);
+    const { data: session, status } = useSession();
+    const isSuperAdmin = session?.user?.role === 'SUPER';
+    const isAdmin = session?.user?.role === 'ADMIN';
+
     useEffect(() => {
-        // Fetch warehouses
-        axios.get<{
-            data: {
-                content: Warehouse[];
-            };
-        }>(`${BASE_URL}/api/warehouses`)
+        axios.get<{ data: { content: Warehouse[] } }>(`http://localhost:8080/api/warehouses`)
             .then(response => {
                 setWarehouses(response.data.data.content);
             })
             .catch(error => console.error("Failed to fetch warehouses:", error));
     }, []);
 
-    const updateSearchParams = useDebouncedCallback((updates: Record<string, string | undefined>) => {
-        const params = new URLSearchParams(searchParams.toString());
-        Object.entries(updates).forEach(([key, value]) => {
-            if (value === undefined) {
-                params.delete(key);
-            } else {
-                params.set(key, value);
+    const { data, isLoading, error, refetch } = useQuery<StockResponse>({
+        queryKey: ['stock', selectedWarehouse, currentPage, pageSize, session?.user?.accessToken],
+        queryFn: () => fetchStock(selectedWarehouse, session?.user?.accessToken, currentPage, pageSize),
+        enabled: !!session?.user?.accessToken,
+    });
+    useEffect(() => {
+        if (isAdmin && data?.data?.content && data.data.content.length > 0) {
+            const loginWarehouseId = data.data.content[0].loginWarehouseId;
+            if (loginWarehouseId !== undefined) {
+                setSelectedWarehouse(loginWarehouseId.toString());
             }
-        });
-        if (updates.page === undefined) params.set('page', '0');
-        router.push(`?${params.toString()}`, { scroll: false });
-    }, 300);
+        }
+    }, [isAdmin, data]);
 
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        updateSearchParams({ search: value });
+    const handlePageChange = (newPage: number) => {
+        setCurrentPage(newPage);
     };
 
-    const handleSortChange = (newSortBy: string) => updateSearchParams({ sortBy: newSortBy });
-    const handleSortDirectionChange = (newDirection: string) => updateSearchParams({ sortDirection: newDirection });
-    const handlePageChange = (newPage: number) => updateSearchParams({ page: newPage.toString() });
-
-    const openAddModal = (product: Product) => {
-        setSelectedProduct(product);
-        setIsAddModalOpen(true);
+    const handlePageSizeChange = (newSize: number) => {
+        setPageSize(newSize);
+        setCurrentPage(0);
+        refetch();
     };
 
-    const openUpdateModal = (stock: Stock) => {
-        setSelectedStock(stock);
-        setIsUpdateModalOpen(true);
+    const handleWarehouseChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedWarehouse(event.target.value);
+        setCurrentPage(0);
     };
+
+
+    const stockItems = data?.data.content ?? [];
+    const hasData = stockItems.length > 0;
+
+    const columns = useMemo(() => [
+        {
+            accessorKey: 'id',
+            header: 'ID',
+        },
+        {
+            accessorKey: 'productImageUrl',
+            header: 'Image',
+            cell: (info: RowInfo) => (
+                <Image
+                    src={info.row.original.productImageUrl}
+                    alt={info.row.original.productName}
+                    width={50}
+                    height={50}
+                    className="rounded-md object-cover"
+                />
+            )
+        },
+        {
+            accessorKey: 'productName',
+            header: 'Product Name',
+        },
+        {
+            accessorKey: 'quantity',
+            header: 'Quantity',
+        },
+        {
+            accessorKey: 'categoryName',
+            header: 'Category',
+        },
+        {
+            accessorKey: 'price',
+            header: 'Price (IDR)',
+            cell: (info: RowInfo) => (
+                <span>Rp{info.row.original.price.toLocaleString()}</span>
+            ),
+        },
+        {
+            accessorKey: 'weight',
+            header: 'Weight (g)',
+            cell: (info: RowInfo) => (
+                <span>{info.row.original.weight} g</span>
+            ),
+        },
+        {
+            accessorKey: 'updatedAt',
+            header: 'Last Restock',
+            cell: (info: RowInfo) => (
+                <span>{new Date(info.row.original.updatedAt).toLocaleString()}</span>
+            ),
+        },
+        {
+            accessorKey: 'actions',
+            header: 'Actions',
+            cell: (info: RowInfo) => (
+                <UpdateStockModal
+                    stockItem={info.row.original}
+                    selectedWarehouse={selectedWarehouse}
+                    onUpdate={() => refetch()}
+                />
+            ),
+        },
+    ], [selectedWarehouse, refetch]);
+    if (error) return <div>Error loading stock data: {(error as Error).message}</div>;
+
 
     return (
-        <div className="container mx-auto p-4 lg:pt-14">
-            {/* <ProductStockManagement /> */}
-            <div className="flex gap-4 mb-6 justify-between flex-wrap w-auto">
-                <div className='flex gap-2 justify-start w-auto'>
-                    <h1 className="text-2xl font-bold flex w-full">Stock Management</h1>
-                </div>
-                <div className='flex gap-2 justify-end w-auto'>
-                    <div className="flex relative w-full">
-                        <Input
-                            placeholder="Search products..."
-                            defaultValue={searchTerm}
-                            onChange={handleSearch}
-                            className="w-full pl-10"
-                        />
-                        <FaSearch className='size-4 absolute left-4 top-0 translate-y-3 text-gray-400' />
+        <div className="container mx-auto p-4">
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold">Stock Management</h1>
+            </div>
+            <div className='mb-4 flex justify-between'>
+                {isSuperAdmin && (
+                    <select
+                        id="warehouse-select"
+                        value={selectedWarehouse}
+                        onChange={handleWarehouseChange}
+                        className="mb-4 p-2 border border-gray-300 rounded-md w-full max-w-xs"
+                    >
+                        <option value="">All Warehouses</option>
+                        {warehouses.map((warehouse) => (
+                            <option key={warehouse.id} value={warehouse.id.toString()}>
+                                {warehouse.name}
+                            </option>
+                        ))}
+                    </select>
+                )}
+
+                {isAdmin && selectedWarehouse && (
+                    <div className='mb-4'>
+                        <p>Selected Warehouse: {warehouses.find(w => w.id.toString() === selectedWarehouse)?.name}</p>
                     </div>
-                    <Select value={sortBy} onValueChange={handleSortChange}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Sort By" />
-                        </SelectTrigger>
-                        <SelectContent className='bg-white'>
-                            <SelectItem value="name">Name</SelectItem>
-                            {/* <SelectItem value="totalStock">Total Stock</SelectItem> */}
-                            <SelectItem value="price">Price</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Select value={sortDirection} onValueChange={handleSortDirectionChange}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Sort Direction" />
-                        </SelectTrigger>
-                        <SelectContent className='bg-white'>
-                            <SelectItem value="asc">Ascending</SelectItem>
-                            <SelectItem value="desc">Descending</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+                )}
+                <AddStockModal
+                    warehouses={warehouses}
+                    onAdd={() => refetch()}
+                    selectedWarehouse={selectedWarehouse}
+                />
             </div>
 
-            {error instanceof Error && (
-                <Alert variant="destructive" className="mb-6">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{error.message}</AlertDescription>
-                </Alert>
+            {isLoading ? (
+                <StockMutationTableSkeleton rowCount={5} />
+            ) : (
+                <div className="bg-white rounded-lg shadow-inner">
+                    <DataTable
+                        columns={columns}
+                        data={stockItems}
+                        loading={isLoading}
+                        nameFilter=""
+                        setNameFilter={() => { }}
+                        selectedCity={undefined}
+                        setSelectedCity={() => { }}
+                        onDataChanged={() => { }}
+                        onPageChanged={handlePageChange}
+                    />
+                </div>
             )}
 
-            <ProductTable
-                products={data?.content || []}
-                currentPage={currentPage}
-                pageSize={pageSize}
-                onAddStock={openAddModal}
-                onUpdateStock={openUpdateModal}
-                isLoading={isPending}
-            />
-
-            {data && (
-                <Pagination
+            {hasData && (
+                <NewPagination
                     currentPage={currentPage}
-                    totalPages={data.totalPages}
-                    totalElements={data.totalElements}
+                    totalPages={data?.data.totalPages ?? 1}
                     pageSize={pageSize}
+                    totalElements={data?.data.totalElements ?? 0}
                     onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
                 />
             )}
-
-            <AddStockModal
-                products={data?.content || []}
-                isOpen={isAddModalOpen}
-                onClose={() => setIsAddModalOpen(false)}
-                warehouses={warehouses}
-                productId={selectedProduct?.id || 0}
-            />
-
-            <UpdateStockModal
-                products={data?.content || []}
-                isOpen={isUpdateModalOpen}
-                onClose={() => setIsUpdateModalOpen(false)}
-                warehouses={warehouses}
-                stock={selectedStock}
-            />
         </div>
     );
 }

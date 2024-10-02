@@ -41,16 +41,16 @@ const DataTablePagination: React.FC<PaginationProps> = ({
   const noData = totalElements === 0;
 
   return (
-    <div className="flex items-center justify-between px-2 mt-5 lg:mt-0">
-      <div className="flex-1 text-sm text-muted-foreground hidden lg:block">
+    <div className="flex flex-col sm:flex-row items-center justify-between px-2 mt-5 space-y-4 sm:space-y-0">
+      <div className="text-sm text-muted-foreground hidden lg:block">
         {noData
           ? "No data available"
           : `Showing ${Math.min(pageSize, totalElements - currentPage * pageSize)} of ${totalElements} row(s).`
         }
       </div>
-      <div className="flex items-center space-x-12 lg:space-x-8">
-        <div className="flex items-center space-x-1">
-          <p className="font-medium text-xs lg:text-sm">Rows per page</p>
+      <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 lg:space-x-8">
+        <div className="flex items-center space-x-2">
+          <p className="font-medium text-xs sm:text-sm">Rows per page</p>
           <Select
             value={`${pageSize}`}
             onValueChange={(value) => {
@@ -71,17 +71,17 @@ const DataTablePagination: React.FC<PaginationProps> = ({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+        <div className="flex items-center justify-center text-sm font-medium">
           Page {noData ? 0 : currentPage + 1} of {totalPages}
         </div>
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 hidden sm:inline-flex"
             onClick={() => onPageChange(0)}
             disabled={noData || currentPage === 0}
           >
-            <HiChevronDoubleLeft />
+            <HiChevronDoubleLeft className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
@@ -96,7 +96,7 @@ const DataTablePagination: React.FC<PaginationProps> = ({
             <Button
               key={pageNumber}
               variant={currentPage === pageNumber ? "default" : "outline"}
-              className={`h-8 w-8 p-0 ${currentPage === pageNumber ? "bg-blue-600" : ""}`}
+              className={`h-8 w-8 p-0 ${currentPage === pageNumber ? "bg-blue-600" : ""} hidden sm:inline-flex`}
               onClick={() => onPageChange(pageNumber)}
             >
               {pageNumber + 1}
@@ -113,11 +113,11 @@ const DataTablePagination: React.FC<PaginationProps> = ({
           </Button>
           <Button
             variant="outline"
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 hidden sm:inline-flex"
             onClick={() => onPageChange(totalPages - 1)}
             disabled={noData || currentPage === totalPages - 1}
           >
-            <HiChevronDoubleRight />
+            <HiChevronDoubleRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
