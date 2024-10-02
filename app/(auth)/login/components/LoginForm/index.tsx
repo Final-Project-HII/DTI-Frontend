@@ -1,18 +1,18 @@
 'use client'
-import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
-import qr from '@/public/QR.png'
-import { useForm } from "react-hook-form";
-import { z, ZodType } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from 'next/link';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { AiOutlineMail } from 'react-icons/ai';
-import { signIn } from 'next-auth/react';
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
-import Modal from '@/components/Modal';
 import GenereteNewVerificationModalLogin from '@/components/GenereteNewVerificationModalLogin';
+import Modal from '@/components/Modal';
+import qr from '@/public/QR.png';
+import { zodResolver } from "@hookform/resolvers/zod";
 import { setCookie } from 'cookies-next';
+import { signIn } from 'next-auth/react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useForm } from "react-hook-form";
+import { AiOutlineMail } from 'react-icons/ai';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { z, ZodType } from "zod";
 
 type loginData = {
   email: string
@@ -45,8 +45,9 @@ const LoginForm = () => {
   const param = useSearchParams();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
-  const pathname = usePathname();
   const encodeCallbackUrl = encodeURIComponent(callbackUrl);
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const errorParam = param.get('error');
@@ -69,12 +70,13 @@ const LoginForm = () => {
 
   const handleSocialLogin = async () => {
     try {
+      setIsLoading(true)
       setCookie('auth_action', "login")
       setCookie('callbackUrl', encodeCallbackUrl)
       const result = await signIn("google", {
         callbackUrl: callbackUrl
       });
-      console.log(result)
+      setIsLoading(false)
     } catch (error) {
       throw error
     }
@@ -84,13 +86,14 @@ const LoginForm = () => {
 
   const onSubmit = async (data: loginData) => {
     try {
-      console.log(callbackUrl)
+      setIsLoading(true)
       setCookie('callbackUrl', encodeCallbackUrl)
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
         callbackUrl: callbackUrl
       });
+      setIsLoading(false)
     } catch (error) {
       console.error("An unexpected error occurred:", error);
     }
@@ -98,6 +101,7 @@ const LoginForm = () => {
 
   const closeModal = () => {
     setIsNotVerified(false);
+    router.push("/login")
   };
   return (
     <div className="flex justify-center items-center pt-10 pb-20">
@@ -145,8 +149,9 @@ const LoginForm = () => {
           <button
             type="submit"
             className="mt-2 py-2 px-4 text-sm font-semibold w-full text-white bg-blue-500 rounded-md hover:bg-blue-600 transition duration-300"
+            disabled={isLoading}
           >
-            LOGIN
+            {isLoading ? "Loading ... " : "Login"}
           </button>
         </form>
         <Link href="/reset-password" className='text-xs text-blue-500 font-semibold mt-2 hover:underline'>

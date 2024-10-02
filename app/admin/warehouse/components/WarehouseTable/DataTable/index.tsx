@@ -21,7 +21,6 @@ import React, { useState } from 'react'
 import { FaSearch } from 'react-icons/fa'
 import AddWarehouseForm from "../../AddWarehoseForm"
 import CityComboBox from "./components/CityComboBox"
-import DataTablePagination from "./components/Pagination"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]

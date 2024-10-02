@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { resetPassword } from '@/utils/api';
 import Modal from '@/components/Modal';
+import SetNewPassword from '@/hooks/SetNewPassword';
 
 interface ResetPasswordFormProps {
   email: string | undefined,
@@ -45,6 +46,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showVerifiedModal, setShowVerifiedModal] = useState(false);
+  const { AddNewPassword } = SetNewPassword()
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(managePasswordSchema)
@@ -54,7 +56,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
     try {
       setIsLoading(true);
       const formDataWithEmail = { ...data, email: email };
-      const response = await resetPassword(formDataWithEmail)
+      const response = await AddNewPassword(formDataWithEmail)
       if (response) {
         setIsLoading(false);
         onDataChange();

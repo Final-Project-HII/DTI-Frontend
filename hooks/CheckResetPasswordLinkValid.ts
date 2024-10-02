@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+import axios from 'axios'
+
 interface FormData {
   email: string | null
   token: string | null
@@ -7,6 +9,7 @@ interface FormData {
 interface ResetPasswordResponse {
   data: boolean
 }
+
 const CheckResetPasswordLinkValid = (formData: FormData) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -21,25 +24,23 @@ const CheckResetPasswordLinkValid = (formData: FormData) => {
       }
 
       try {
-        const response = await fetch(
+        const response = await axios.post<ResetPasswordResponse>(
           `${process.env.NEXT_PUBLIC_API_URL}api/users/check-reset-password`,
+          formData,
           {
             headers: {
               'Content-Type': 'application/json',
             },
-            method: 'POST',
-            body: JSON.stringify(formData),
           }
         )
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch verification link status')
-        }
-
-        const data: ResetPasswordResponse = await response.json()
-        setResetPasswordLinkStatus(data.data)
+        setResetPasswordLinkStatus(response.data.data)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
+        if (axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || err.message)
+        } else {
+          setError('An unexpected error occurred')
+        }
       } finally {
         setLoading(false)
       }

@@ -141,7 +141,7 @@ const RegisterForm = () => {
             disabled={isLoading}
             className="mt-2 py-2 px-4 text-sm font-semibold w-full text-white bg-blue-500 rounded-md hover:bg-blue-600 transition duration-300"
           >
-            {isLoading ? "Loading ... " : "REGISTER"}
+            {isLoading ? "Loading ... " : "Register"}
           </button>
         </form>
         <div className="flex items-center my-4">
