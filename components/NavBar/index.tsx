@@ -1,14 +1,10 @@
 "use client";
 import useProfileData from "@/contexts/ProfileContext";
 import { useCart } from "@/hooks/useCart";
-import {
-  ChevronDown,
-  LogOutIcon,
-  ShoppingCart
-} from "lucide-react";
+import { ChevronDown, LogOutIcon, ShoppingCart } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { IoIosListBox } from "react-icons/io";
@@ -20,9 +16,8 @@ import CategoryDropdown from "./_components/CategoryDropdown";
 import CategorySwiper from "./_components/CategorySwiper";
 import SearchInput from "./_components/SearchInput";
 import SearchSheet from "./_components/SearchSheet";
-// import { useCart } from "@/hooks/useCart";
-import { useSearchParams } from 'next/navigation';
 import "swiper/css";
+import React from "react";
 
 const NavBar = () => {
   const { data: session } = useSession();
@@ -33,16 +28,14 @@ const NavBar = () => {
   // const { getCartItemCount } = useCart();
   const [itemCount, setItemCount] = useState(0);
   const { data } = useSession();
-  const { profileData } = useProfileData()
+  const { profileData } = useProfileData();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const loginHref = `/login?callbackUrl=${encodeURIComponent(pathname)}`;
 
-
-
   const handleSignOut = () => {
-    signOut()
-  }
+    signOut();
+  };
 
   // useEffect(() => {
   //   if (session) {
@@ -51,7 +44,6 @@ const NavBar = () => {
   //     setItemCount(0);
   //   }
   // }, [session, getCartItemCount]);
-
 
   const toggleMenu = () => {
     setOpenHamburgerMenu((prev) => !prev);
@@ -95,16 +87,19 @@ const NavBar = () => {
                 onClick={toggleMenu}
               >
                 <span
-                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${open ? "rotate-45 translate-y-1" : ""
-                    }`}
+                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${
+                    open ? "rotate-45 translate-y-1" : ""
+                  }`}
                 ></span>
                 <span
-                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${open ? "opacity-0" : "my-1"
-                    }`}
+                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${
+                    open ? "opacity-0" : "my-1"
+                  }`}
                 ></span>
                 <span
-                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${open ? "-rotate-45 -translate-y-1" : ""
-                    }`}
+                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${
+                    open ? "-rotate-45 -translate-y-1" : ""
+                  }`}
                 ></span>
               </button>
               {/* add logo */}
@@ -134,7 +129,9 @@ const NavBar = () => {
               </div>
             </div>
             <div className="flex-grow mx-1 lg:mx-4 max-w-xl hidden lg:block">
-              <SearchInput defaultSearchTerm={searchParams.get('search') || ''} />
+              <SearchInput
+                defaultSearchTerm={searchParams.get("search") || ""}
+              />
             </div>
 
             <div className="flex items-center lg:space-x-4 space-x-1">
@@ -160,8 +157,13 @@ const NavBar = () => {
                     onClick={handleToggleDropdown}
                   >
                     <Avatar className="w-7 h-7">
-                      <AvatarImage src={profileData?.avatar || undefined} alt="Profile" />
-                      <AvatarFallback>{profileData?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                      <AvatarImage
+                        src={profileData?.avatar || undefined}
+                        alt="Profile"
+                      />
+                      <AvatarFallback>
+                        {profileData?.displayName?.charAt(0) || "U"}
+                      </AvatarFallback>
                     </Avatar>
                     <h3 className="font-semibold text-sm text-black line-clamp-1">
                       {profileData?.displayName}
@@ -174,7 +176,10 @@ const NavBar = () => {
                   </div>
                   {openDropdownMenu && (
                     <div className="absolute bottom-0 w-60  translate-y-full -left-full bg-white rounded-xl  ">
-                      <Link href='/profile' className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 group hover:bg-blue-600">
+                      <Link
+                        href="/profile"
+                        className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 group hover:bg-blue-600"
+                      >
                         <div className="flex gap-4 items-center">
                           <h3 className="font-semibold text-xs text-black line-clamp-1 group-hover:text-white">
                             Hi, {profileData?.displayName}
@@ -186,13 +191,18 @@ const NavBar = () => {
                           className="text-blue-600 group-hover:text-white"
                         />
                       </Link>
-                      <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group" onClick={handleSignOut}>
+                      <div
+                        className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group"
+                        onClick={handleSignOut}
+                      >
                         <LogOutIcon
                           width={16}
                           height={16}
                           className="text-red-600"
                         />
-                        <h3 className='text-xs font-semibold text-black group-hover:text-white'>Logout</h3>
+                        <h3 className="text-xs font-semibold text-black group-hover:text-white">
+                          Logout
+                        </h3>
                       </div>
                     </div>
                   )}
@@ -227,18 +237,27 @@ const NavBar = () => {
           <CategorySwiper />
         </div>
         <div
-          className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${openHamburgerMenu
-            ? "translate-y-full h-screen"
-            : "translate-y-0 overflow-hidden"
-            }`}
+          className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${
+            openHamburgerMenu
+              ? "translate-y-full h-screen"
+              : "translate-y-0 overflow-hidden"
+          }`}
         >
           {data?.user.role == "USER" ? (
             <>
-              <Link href='/profile' className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 hover:bg-blue-600 group">
+              <Link
+                href="/profile"
+                className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 hover:bg-blue-600 group"
+              >
                 <div className="flex gap-4 items-center">
                   <Avatar className="w-7 h-7">
-                    <AvatarImage src={profileData?.avatar || undefined} alt="Profile" />
-                    <AvatarFallback>{profileData?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                    <AvatarImage
+                      src={profileData?.avatar || undefined}
+                      alt="Profile"
+                    />
+                    <AvatarFallback>
+                      {profileData?.displayName?.charAt(0) || "U"}
+                    </AvatarFallback>
                   </Avatar>
                   <h3 className="font-semibold text-sm text-black group-hover:text-white">
                     Hi, {profileData?.displayName}
@@ -250,9 +269,14 @@ const NavBar = () => {
                   className="text-black group-hover:text-white"
                 />
               </Link>
-              <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group" onClick={handleSignOut}>
-                <LogOutIcon width={25} height={25} className='text-red-600' />
-                <h3 className='text-sm text-black group-hover:text-white'>Logout</h3>
+              <div
+                className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group"
+                onClick={handleSignOut}
+              >
+                <LogOutIcon width={25} height={25} className="text-red-600" />
+                <h3 className="text-sm text-black group-hover:text-white">
+                  Logout
+                </h3>
               </div>
             </>
           ) : (
