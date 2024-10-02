@@ -34,7 +34,7 @@ const SearchSheet = () => {
           <FaSearch className="h-6 w-6 text-blue-600" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="bg-white w-full h-full p-0 flex flex-col  [&>button]:hidden lg:hidden" >
+      <SheetContent className=" bg-transparent w-full p-0 flex flex-col h-auto max-h-20  [&>button]:hidden lg:hidden" >
         <div className="px-2 bg-gray-300">
           <div className="flex  justify-center w-full py-5 gap-4">
             <SheetClose asChild>
@@ -47,9 +47,9 @@ const SearchSheet = () => {
             </div>
           </div>
         </div>
-        <nav className="flex flex-col space-y-4 px-8 ">
+        {/* <nav className="flex flex-col space-y-4 px-8 ">
           <h1 className='font-bold text-xl'>Kata Kunci</h1>
-        </nav>
+        </nav> */}
 
       </SheetContent>
     </Sheet>

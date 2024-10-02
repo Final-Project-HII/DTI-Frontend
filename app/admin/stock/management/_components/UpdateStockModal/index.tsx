@@ -1,215 +1,123 @@
-import React, { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { Input } from "@/components/ui/input";
+import { useSession } from 'next-auth/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, CheckCircle, Package } from 'lucide-react';
-import WarehouseSelect from '../WarehouseSelect';
-
-interface City {
-    id: number;
-    name: string;
-}
-
-interface Warehouse {
-    id: number;
-    name: string;
-    addressLine: string;
-    city: City;
-}
-
-interface WarehouseSelectProps {
-    value: string | undefined;
-    onChange: (value: string) => void;
-    warehouses: Warehouse[];
-    placeholder?: string;
-}
-
-interface Stock {
-    id: number;
-    productId: number;
-    warehouseId: number;
-    quantity: number;
-}
+import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 
 interface UpdateStockModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    warehouses: Warehouse[];
-    stock: Stock | null;
-    products: Product[];
-}
-interface ProductImage {
-    id: number;
-    productId: number;
-    imageUrl: string;
-    createdAt: string;
-    updatedAt: string;
+    stockItem: StockItem;
+    selectedWarehouse: string;
+    onUpdate: () => void;
 }
 
-interface Product {
-    id: number;
-    name: string;
-    description: string;
+interface StockItem {
+    id: string;
+    productName: string;
+    quantity: number;
+    warehouseName: string;
+    updatedAt: string;
+    createdAt: string;
+    warehouseId: string;
+    productId: string;
+    productImageUrl: string;
     price: number;
     weight: number;
-    categoryId: number;
+    categoryId: string;
     categoryName: string;
-    totalStock: number;
-    productImages: ProductImage[];
-    stocks: Stocks[];
-    createdAt: string;
-    updatedAt: string;
 }
 
-interface Stocks {
-    id: number;
-    warehouseId: number;
-    warehouseName: string;
-    quantity: number;
-}
-
-const BASE_URL = 'http://localhost:8080';
-
-export default function UpdateStockModal({ isOpen, onClose, warehouses, stock, products }: UpdateStockModalProps) {
-    const [updatedStock, setUpdatedStock] = useState<Stock | null>(null);
+const UpdateStockModal: React.FC<UpdateStockModalProps> = ({ stockItem, selectedWarehouse, onUpdate }) => {
+    const [open, setOpen] = useState(false);
+    const [quantity, setQuantity] = useState(stockItem.quantity.toString());
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [currentStocks, setCurrentStocks] = useState<Stocks[]>([]);
-    const [selectedStockId, setSelectedStockId] = useState<number | null>(null);
 
+    const { data: session } = useSession();
     const queryClient = useQueryClient();
 
-    useEffect(() => {
-        if (stock) {
-            setUpdatedStock(stock);
-            const product = products.find(p => p.id === stock.productId);
-            if (product) {
-                setCurrentStocks(product.stocks);
-            }
-        }
-    }, [stock, products]);
-
-    const updateStockMutation = useMutation({
-        mutationFn: async (formData: { productId: number, warehouseId: number, quantity: number }) => {
-            const response = await axios.put(`${BASE_URL}/api/stocks/${selectedStockId}`, formData);
+    const mutation = useMutation({
+        mutationFn: async (updateData: { productId: string; quantity: number; warehouseId: string }) => {
+            const response = await axios.put(
+                `http://localhost:8080/api/stocks/${stockItem.id}`,
+                updateData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${session?.user?.accessToken}`,
+                    },
+                    withCredentials: true,
+                }
+            );
             return response.data;
         },
-        onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ['products'] });
+        onSuccess: () => {
+            setOpen(false);
+            onUpdate();
+            queryClient.invalidateQueries({ queryKey: ['stock'] });
             setSuccessMessage("Stock updated successfully!");
-            setCurrentStocks(prevStocks =>
-                prevStocks.map(s =>
-                    s.id === data.data.id ? { ...s, quantity: data.data.quantity } : s
-                )
-            );
         },
         onError: (error: any) => {
             setErrorMessage(error.response?.data?.message || 'An unexpected error occurred.');
-        }
+        },
     });
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setUpdatedStock(prev => prev ? { ...prev, [name]: parseInt(value) } : null);
-    };
-
-    const handleWarehouseChange = (warehouseId: string) => {
-        setUpdatedStock(prev => prev ? { ...prev, warehouseId: parseInt(warehouseId) } : null);
-    };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (updatedStock && selectedStockId) {
-            updateStockMutation.mutate({
-                productId: updatedStock.productId,
-                warehouseId: updatedStock.warehouseId,
-                quantity: updatedStock.quantity
-            });
-        }
+        mutation.mutate({
+            productId: stockItem.productId,
+            quantity: Number(quantity),
+            warehouseId: selectedWarehouse || stockItem.warehouseId,
+        });
     };
-
-    const handleSelectStock = (stockId: number) => {
-        setSelectedStockId(stockId);
-        const selectedStock = currentStocks.find(s => s.id === stockId);
-        if (selectedStock) {
-            setUpdatedStock({
-                id: selectedStock.id,
-                productId: stock?.productId || 0,
-                warehouseId: selectedStock.warehouseId,
-                quantity: selectedStock.quantity
-            });
-        }
-    };
-
-    if (!stock) return null;
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[700px] bg-white">
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline" className="bg-blue-500 text-white hover:text-white hover:bg-blue-600">Update Stock</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-center mb-4">Update Stock</DialogTitle>
+                    <DialogTitle className="text-xl font-semibold text-gray-900">Update Stock for {stockItem.productName}</DialogTitle>
                 </DialogHeader>
-                <div className="flex space-x-6">
-                    <div className="w-1/2 bg-gray-50 p-4 rounded-lg">
-                        <h3 className="font-semibold mb-3 text-lg">Select Stock to Update:</h3>
-                        <ul className="space-y-2">
-                            {currentStocks.map((stock) => (
-                                <li
-                                    key={stock.id}
-                                    className={`cursor-pointer p-2 rounded transition-colors duration-200 ease-in-out
-                                        ${selectedStockId === stock.id
-                                            ? 'bg-blue-100 text-blue-700'
-                                            : 'hover:bg-gray-200'}`}
-                                    onClick={() => handleSelectStock(stock.id)}
-                                >
-                                    <Package className="inline-block mr-2" size={18} />
-                                    <span className="font-medium">{stock.warehouseName}:</span> {stock.quantity}
-                                </li>
-                            ))}
-                        </ul>
+                <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+                    <div>
+                        <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">
+                            New Quantity
+                        </label>
+                        <Input
+                            id="quantity"
+                            type="number"
+                            value={quantity}
+                            onChange={(e) => setQuantity(e.target.value)}
+                            placeholder="Enter new quantity"
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-50 "
+                        />
                     </div>
-                    <div className="w-1/2">
-                        {selectedStockId && updatedStock ? (
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Warehouse</label>
-                                    <WarehouseSelect
-                                        value={updatedStock.warehouseId.toString()}
-                                        onChange={handleWarehouseChange}
-                                        warehouses={warehouses}
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                                    <Input
-                                        id="quantity"
-                                        name="quantity"
-                                        type="number"
-                                        value={updatedStock.quantity}
-                                        onChange={handleInputChange}
-                                        placeholder="Enter new quantity"
-                                        required
-                                        className="w-full"
-                                    />
-                                </div>
-                                <Button
-                                    type="submit"
-                                    disabled={updateStockMutation.status === 'pending'}
-                                    className="w-full bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
-                                >
-                                    {updateStockMutation.status === 'pending' ? 'Updating...' : 'Update Stock'}
-                                </Button>
-                            </form>
+                    <Button
+                        type="submit"
+                        // disabled={mutation.isLoading || mutation.isPending}
+                        className="w-full bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+                    >
+                        {mutation.isPending ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Updating...
+                            </>
                         ) : (
-                            <div className="flex items-center justify-center h-full text-gray-500">
-                                Select a stock to update
-                            </div>
+                            'Update Stock'
                         )}
-                    </div>
-                </div>
+                    </Button>
+                </form>
                 {errorMessage && (
                     <Alert variant="destructive" className="mt-4">
                         <AlertCircle className="h-4 w-4" />
@@ -218,7 +126,7 @@ export default function UpdateStockModal({ isOpen, onClose, warehouses, stock, p
                     </Alert>
                 )}
                 {successMessage && (
-                    <Alert className="mt-4 bg-green-100 text-green-700 border border-green-500">
+                    <Alert variant="default" className="mt-4 bg-green-100 border-green-400 text-green-700">
                         <CheckCircle className="h-4 w-4" />
                         <AlertTitle>Success</AlertTitle>
                         <AlertDescription>{successMessage}</AlertDescription>
@@ -227,4 +135,6 @@ export default function UpdateStockModal({ isOpen, onClose, warehouses, stock, p
             </DialogContent>
         </Dialog>
     );
-}
+};
+
+export default UpdateStockModal;

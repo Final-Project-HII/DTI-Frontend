@@ -94,3 +94,38 @@ export interface ApiResponseAddress {
   };
   empty: boolean;
 }
+
+// Stock Mutation
+export interface StockMutationResponse {
+  statusCode: number;
+  message: string;
+  success: boolean;
+  data: StockMutationData;
+}
+
+export interface StockMutationData {
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  content: StockMutation[];
+}
+
+export interface StockMutation {
+  id: number;
+  productId: number;
+  productName: string;
+  productImageUrl: string;
+  originWarehouseId: number;
+  originWarehouseName: string;
+  destinationWarehouseId: number;
+  destinationWarehouseName: string;
+  quantity: number;
+  status: 'COMPLETED' | 'REQUESTED' | 'IN_TRANSIT' | 'CANCELLED' | 'APPROVED';
+  loginWarehouseId: number;
+  mutationType: 'MANUAL';
+  remarks: string | null;
+  requestedBy: string;
+  handledBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+}

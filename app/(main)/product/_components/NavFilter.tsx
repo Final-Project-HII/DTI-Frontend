@@ -1,22 +1,164 @@
-// File: components/ProductFilter.tsx
+// 'use client';
+
+// import React from 'react';
+// import { Package, SortAsc, ArrowUpDown } from "lucide-react";
+// import {
+//     Accordion,
+//     AccordionContent,
+//     AccordionItem,
+//     AccordionTrigger,
+// } from "@/components/ui/accordion";
+// import { Checkbox } from "@/components/ui/checkbox";
+// import { Button } from "@/components/ui/button";
+
+// interface Category {
+//     id: number;
+//     name: string;
+// }
+
+// interface ProductFilterProps {
+//     selectedCategories: string[];
+//     sortBy: string;
+//     sortDirection: string;
+//     categories: Category[];
+//     onCategoryChange: (newCategories: string[]) => void;
+//     onSortChange: (newSortBy: string, newSortDirection: string) => void;
+// }
+
+// const ProductFilter: React.FC<ProductFilterProps> = ({
+//     selectedCategories,
+//     sortBy,
+//     sortDirection,
+//     categories,
+//     onCategoryChange,
+//     onSortChange,
+// }) => {
+//     const sortOptions = [
+//         { value: 'related', label: 'Related' },
+//         { value: 'price', label: 'Price' },
+//         { value: 'name', label: 'Name' },
+//         { value: 'createdAt', label: 'Date Added' }
+//     ];
+
+//     const directionOptions = [
+//         { value: 'asc', label: 'Ascending' },
+//         { value: 'desc', label: 'Descending' }
+//     ];
+
+//     const handleCategoryChange = (category: string) => {
+//         const updatedCategories = selectedCategories.includes(category)
+//             ? selectedCategories.filter(c => c !== category)
+//             : [...selectedCategories, category];
+//         onCategoryChange(updatedCategories);
+//     };
+
+//     const handleSortChange = (newSortBy: string) => {
+//         onSortChange(newSortBy, sortDirection);
+//     };
+
+//     const handleSortDirectionChange = (newDirection: string) => {
+//         onSortChange(sortBy, newDirection);
+//     };
+
+//     return (
+//         <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-[200px] h-full sticky top-0 hidden lg:block">
+//             <h2 className="text-xl font-semibold text-gray-800 mb-4">Product Filters</h2>
+
+//             <Accordion type="multiple" defaultValue={["categories", "sort"]} className="w-full">
+//                 <AccordionItem value="categories">
+//                     <AccordionTrigger>
+//                         <div className="flex items-center">
+//                             <Package className="mr-2 h-5 w-5" />
+//                             <span>Categories</span>
+//                         </div>
+//                     </AccordionTrigger>
+//                     <AccordionContent>
+//                         <div className="space-y-2">
+//                             {categories.map((category) => (
+//                                 <div key={category.id} className="flex items-center space-x-2">
+//                                     <Checkbox
+//                                         id={`category-${category.id}`}
+//                                         checked={selectedCategories.includes(category.name)}
+//                                         onCheckedChange={() => handleCategoryChange(category.name)}
+//                                     />
+//                                     <label
+//                                         htmlFor={`category-${category.id}`}
+//                                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+//                                     >
+//                                         {category.name}
+//                                     </label>
+//                                 </div>
+//                             ))}
+//                         </div>
+//                     </AccordionContent>
+//                 </AccordionItem>
+
+//                 <AccordionItem value="sort">
+//                     <AccordionTrigger>
+//                         <div className="flex items-center">
+//                             <SortAsc className="mr-2 h-5 w-5" />
+//                             <span>Sort By</span>
+//                         </div>
+//                     </AccordionTrigger>
+//                     <AccordionContent>
+//                         <div className="space-y-2">
+//                             {sortOptions.map((option) => (
+//                                 <Button
+//                                     key={option.value}
+//                                     variant={sortBy === option.value ? "secondary" : "ghost"}
+//                                     className="w-full justify-start"
+//                                     onClick={() => handleSortChange(option.value)}
+//                                 >
+//                                     {option.label}
+//                                 </Button>
+//                             ))}
+//                         </div>
+//                     </AccordionContent>
+//                 </AccordionItem>
+
+//                 {sortBy !== "related" && (
+//                     <AccordionItem value="direction">
+//                         <AccordionTrigger>
+//                             <div className="flex items-center">
+//                                 <ArrowUpDown className="mr-2 h-5 w-5" />
+//                                 <span>Sort Direction</span>
+//                             </div>
+//                         </AccordionTrigger>
+//                         <AccordionContent>
+//                             <div className="space-y-2">
+//                                 {directionOptions.map((option) => (
+//                                     <Button
+//                                         key={option.value}
+//                                         variant={sortDirection === option.value ? "secondary" : "ghost"}
+//                                         className="w-full justify-start"
+//                                         onClick={() => handleSortDirectionChange(option.value)}
+//                                     >
+//                                         {option.label}
+//                                     </Button>
+//                                 ))}
+//                             </div>
+//                         </AccordionContent>
+//                     </AccordionItem>
+//                 )}
+//             </Accordion>
+//         </div>
+//     );
+// };
+
+// export default ProductFilter;
+
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from "@/lib/utils";
+import { Package, SortAsc, ArrowUpDown } from "lucide-react";
 import {
-    ChevronDown,
-    Package,
-    SortAsc,
-    ArrowUpDown
-} from "lucide-react";
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 
 interface Category {
     id: number;
@@ -24,28 +166,22 @@ interface Category {
 }
 
 interface ProductFilterProps {
-    categoryName: string;
+    selectedCategories: string[];
     sortBy: string;
     sortDirection: string;
     categories: Category[];
-    onCategoryChange: (newCategory: string) => void;
-    onSortChange: (newSortBy: string) => void;
-    onSortDirectionChange: (newDirection: string) => void;
+    onCategoryChange: (newCategories: string[]) => void;
+    onSortChange: (newSortBy: string, newSortDirection: string) => void;
 }
 
-const ALL_CATEGORIES = 'all';
-
 const ProductFilter: React.FC<ProductFilterProps> = ({
-    categoryName,
+    selectedCategories,
     sortBy,
     sortDirection,
     categories,
     onCategoryChange,
     onSortChange,
-    onSortDirectionChange,
 }) => {
-    const pathname = usePathname();
-
     const sortOptions = [
         { value: 'related', label: 'Related' },
         { value: 'price', label: 'Price' },
@@ -58,94 +194,105 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
         { value: 'desc', label: 'Descending' }
     ];
 
+    const handleCategoryChange = (category: string) => {
+        const updatedCategories = selectedCategories.includes(category)
+            ? selectedCategories.filter(c => c !== category)
+            : [...selectedCategories, category];
+        onCategoryChange(updatedCategories);
+    };
+
+    const handleSortChange = (newSortBy: string) => {
+        onSortChange(newSortBy, sortDirection);
+    };
+
+    const handleSortDirectionChange = (newDirection: string) => {
+        onSortChange(sortBy, newDirection);
+    };
+
     return (
-        <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-xs">
+        <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-[200px] h-full sticky top-0 hidden lg:block">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Product Filters</h2>
 
-            <Collapsible defaultOpen={true} className="mb-4">
-                <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-gray-100 rounded-md transition-colors duration-200">
-                    <div className="flex items-center">
-                        <Package className="mr-2 h-5 w-5" />
-                        <span className="font-medium">Categories</span>
-                    </div>
-                    <ChevronDown className="h-5 w-5" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-2">
-                    <Link
-                        href={`/product`}
-                        className={cn(
-                            "block pl-9 py-2 text-sm hover:bg-gray-100 rounded-md transition-colors duration-200",
-                            categoryName === ALL_CATEGORIES && "bg-blue-100 text-blue-700 font-semibold"
-                        )}
-                        onClick={() => onCategoryChange(ALL_CATEGORIES)}
-                    >
-                        All Categories
-                    </Link>
-                    {categories.map((category) => (
-                        <Link
-                            key={category.id}
-                            href={`/product?category=${category.name}`}
-                            className={cn(
-                                "block pl-9 py-2 text-sm hover:bg-gray-100 rounded-md transition-colors duration-200",
-                                categoryName === category.name && "bg-blue-100 text-blue-700 font-semibold"
-                            )}
-                            onClick={() => onCategoryChange(category.name)}
-                        >
-                            {category.name}
-                        </Link>
-                    ))}
-                </CollapsibleContent>
-            </Collapsible>
-
-            <Collapsible defaultOpen={true} className="mb-4">
-                <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-gray-100 rounded-md transition-colors duration-200">
-                    <div className="flex items-center">
-                        <SortAsc className="mr-2 h-5 w-5" />
-                        <span className="font-medium">Sort By</span>
-                    </div>
-                    <ChevronDown className="h-5 w-5" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-2">
-                    {sortOptions.map((option) => (
-                        <button
-                            key={option.value}
-                            className={cn(
-                                "block w-full text-left pl-9 py-2 text-sm hover:bg-gray-100 rounded-md transition-colors duration-200",
-                                sortBy === option.value && "bg-blue-100 text-blue-700 font-semibold"
-                            )}
-                            onClick={() => onSortChange(option.value)}
-                        >
-                            {option.label}
-                        </button>
-                    ))}
-                </CollapsibleContent>
-            </Collapsible>
-
-            {sortBy !== "related" && (
-                <Collapsible defaultOpen={true}>
-                    <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-gray-100 rounded-md transition-colors duration-200">
+            <Accordion type="multiple" defaultValue={["categories", "sort"]} className="w-full">
+                <AccordionItem value="categories">
+                    <AccordionTrigger>
                         <div className="flex items-center">
-                            <ArrowUpDown className="mr-2 h-5 w-5" />
-                            <span className="font-medium">Sort Direction</span>
+                            <Package className="mr-2 h-5 w-5" />
+                            <span>Categories</span>
                         </div>
-                        <ChevronDown className="h-5 w-5" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="mt-2">
-                        {directionOptions.map((option) => (
-                            <button
-                                key={option.value}
-                                className={cn(
-                                    "block w-full text-left pl-9 py-2 text-sm hover:bg-gray-100 rounded-md transition-colors duration-200",
-                                    sortDirection === option.value && "bg-blue-100 text-blue-700 font-semibold"
-                                )}
-                                onClick={() => onSortDirectionChange(option.value)}
-                            >
-                                {option.label}
-                            </button>
-                        ))}
-                    </CollapsibleContent>
-                </Collapsible>
-            )}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        <div className="space-y-1">
+                            {categories.map((category) => (
+                                <div
+                                    key={category.id}
+                                    className="flex items-center space-x-3 py-1 px-1 rounded-md hover:bg-gray-100 transition-colors duration-200"
+                                >
+                                    <Checkbox
+                                        id={`category-${category.id}`}
+                                        checked={selectedCategories.includes(category.name)}
+                                        onCheckedChange={() => handleCategoryChange(category.name)}
+                                    />
+                                    <label
+                                        htmlFor={`category-${category.id}`}
+                                        className="text-sm text-gray-700 leading-none cursor-pointer select-none"
+                                    >
+                                        {category.name}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="sort">
+                    <AccordionTrigger>
+                        <div className="flex items-center">
+                            <SortAsc className="mr-2 h-5 w-5" />
+                            <span>Sort By</span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        <div className="space-y-2">
+                            {sortOptions.map((option) => (
+                                <Button
+                                    key={option.value}
+                                    variant={sortBy === option.value ? "secondary" : "ghost"}
+                                    className="w-full justify-start"
+                                    onClick={() => handleSortChange(option.value)}
+                                >
+                                    {option.label}
+                                </Button>
+                            ))}
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+
+                {sortBy !== "related" && (
+                    <AccordionItem value="direction">
+                        <AccordionTrigger>
+                            <div className="flex items-center">
+                                <ArrowUpDown className="mr-2 h-5 w-5" />
+                                <span>Sort Direction</span>
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="space-y-2">
+                                {directionOptions.map((option) => (
+                                    <Button
+                                        key={option.value}
+                                        variant={sortDirection === option.value ? "secondary" : "ghost"}
+                                        className="w-full justify-start"
+                                        onClick={() => handleSortDirectionChange(option.value)}
+                                    >
+                                        {option.label}
+                                    </Button>
+                                ))}
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                )}
+            </Accordion>
         </div>
     );
 };

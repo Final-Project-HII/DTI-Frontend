@@ -1,171 +1,325 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import WarehouseSelect from '../management/_components/WarehouseSelect';
+import { useSession } from 'next-auth/react';
+import { useQuery } from '@tanstack/react-query';
+import { DataTable } from '../request/_components/StockMutationTable';
+import NewPagination from '../../warehouse/components/WarehouseTable/DataTable/components/Pagination';
 import Image from 'next/image';
-import CreateStockMutationModal from '../request/_components/StockMutationModal';
+import StockMutationTableSkeleton from '../request/_components/StokMutationTableSkeleton';
+import {
+    ColumnDef,
+    flexRender,
+    getCoreRowModel,
+    useReactTable,
+} from '@tanstack/react-table';
 import UpdateStockMutationModal from '../request/_components/UpdateStockMutationModal';
+import RemarkButton from '../request/_components/RemarkButton';
+// import CreateStockMutationModal from './_components/StockMutationModal';
+
+
+interface Warehouse {
+    id: number;
+    name: string;
+    addressLine: string;
+    city: {
+        id: number;
+        name: string;
+    };
+}
 
 interface StockMutation {
     id: number;
-    productName: string;
     productId: number;
+    productName: string;
     productImageUrl: string;
     originWarehouseId: number;
     originWarehouseName: string;
     destinationWarehouseId: number;
     destinationWarehouseName: string;
     quantity: number;
-    requestedBy: string;
-    handledBy: string;
-    createdAt: string;
-    status: 'REQUESTED' | 'APPROVED' | 'IN_TRANSIT' | 'COMPLETED' | 'CANCELLED';
-    mutationType: 'MANUAL' | 'AUTOMATIC';
+    status: 'COMPLETED' | 'REQUESTED' | 'IN_TRANSIT' | 'CANCELLED' | 'APPROVED';
+    loginWarehouseId: number;
+    mutationType: 'MANUAL';
     remarks: string | null;
+    requestedBy: string;
+    handledBy: string | null;
+    createdAt: string;
+    updatedAt: string;
 }
 
-interface ApiResponse {
+interface StockMutationResponse {
+    statusCode: number;
+    message: string;
+    success: boolean;
     data: {
         content: StockMutation[];
+        totalPages: number | undefined;
+        totalElements: number | undefined;
+        size: number;
     };
 }
 
-interface Warehouse {
-    id: number;
-    name: string;
+interface RowInfo {
+    row: {
+        original: {
+            id: number;
+            productId: number;
+            productName: string;
+            productImageUrl: string;
+            originWarehouseId: number;
+            originWarehouseName: string;
+            destinationWarehouseId: number;
+            destinationWarehouseName: string;
+            quantity: number;
+            status: 'COMPLETED' | 'REQUESTED' | 'IN_TRANSIT' | 'CANCELLED' | 'APPROVED';
+            loginWarehouseId: number;
+            mutationType: 'MANUAL';
+            remarks: string | null;
+            requestedBy: string;
+            handledBy: string | null;
+            createdAt: string;
+            updatedAt: string;
+        };
+    };
 }
 
-const fetchStockMutations = async (destinationWarehouseId?: string): Promise<ApiResponse> => {
+const fetchStockMutations = async (
+    originWarehouseId?: string,
+    // destinationWarehouseId?: string,
+    token?: string,
+    page: number = 0,
+    size: number = 10
+): Promise<StockMutationResponse> => {
     const params = new URLSearchParams();
-    if (destinationWarehouseId) {
-        params.append('destinationWarehouseId', destinationWarehouseId);
+    if (originWarehouseId) {
+        params.append('originWarehouseId', originWarehouseId);
     }
-    const response = await axios.get(`http://localhost:8080/api/stock-mutations?${params.toString()}`);
+    // if (destinationWarehouseId) {
+    //     params.append('destinationWarehouseId', destinationWarehouseId); // Filter berdasarkan destination
+    // }
+    params.append('page', String(page));
+    params.append('size', String(size));
+
+    const response = await axios.get<StockMutationResponse>(`http://localhost:8080/api/stock-mutations?${params.toString()}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
     return response.data;
 };
 
-const getStatusBadge = (status: string) => {
-    switch (status) {
-        case 'REQUESTED':
-            return <Badge className="bg-yellow-100 text-yellow-600"> •Requested</Badge>;
-        case 'APPROVED':
-            return <Badge className="bg-green-100 text-green-700"> •Approved</Badge>;
-        case 'COMPLETED':
-            return <Badge className="bg-blue-100 text-blue-700"> •Completed</Badge>;
-        case 'REJECTED':
-            return <Badge className="bg-violet-100 text-violet-700"> •In_Transit</Badge>;
-        case 'CANCELLED':
-            return <Badge className="bg-red-100 text-red-700"> •Cancelled</Badge>;
-        default:
-            return <Badge className="bg-gray-100 text-gray-700"> •Unknown</Badge>;
-    }
-};
-
 export default function StockMutationPage() {
-    const [selectedWarehouse, setSelectedWarehouse] = useState<string>('');
+    const [selectedWarehouse, setSelectedWarehouse] = useState<string>('2');
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+    const [currentPage, setCurrentPage] = useState<number>(0);
+    const [pageSize, setPageSize] = useState<number>(5);
+    const { data: session, status } = useSession();
+    const isSuperAdmin = session?.user?.role === 'SUPER';
+    const isAdmin = session?.user?.role === 'ADMIN';
 
     useEffect(() => {
-        const fetchWarehouses = async () => {
-            try {
-                const response = await axios.get('http://localhost:8080/api/warehouses');
-                setWarehouses(response.data.data);
-            } catch (error) {
-                console.error('Error fetching warehouses:', error);
-            }
-        };
-        fetchWarehouses();
+        axios.get<{ data: { content: Warehouse[] } }>(`http://localhost:8080/api/warehouses`)
+            .then(response => {
+                setWarehouses(response.data.data.content);
+            })
+            .catch(error => console.error("Failed to fetch warehouses:", error));
     }, []);
 
-    const { data, isLoading, error, refetch } = useQuery<ApiResponse>({
-        queryKey: ['stockMutations', selectedWarehouse],
-        queryFn: () => fetchStockMutations(selectedWarehouse),
+    const { data, isLoading, error, refetch } = useQuery<StockMutationResponse>({
+        queryKey: ['stock-mutations', selectedWarehouse, currentPage, pageSize, session?.user?.accessToken],
+        queryFn: () => fetchStockMutations(selectedWarehouse, session?.user?.accessToken, currentPage, pageSize),
+        enabled: !!session?.user?.accessToken,
     });
+    useEffect(() => {
+        if (isAdmin && data?.data?.content && data.data.content.length > 0) {
+            const loginWarehouseId = data.data.content[0].loginWarehouseId;
+            if (loginWarehouseId !== undefined) {
+                setSelectedWarehouse(loginWarehouseId.toString());
+            }
+        }
+    }, [isAdmin, data]);
 
-    const handleWarehouseChange = (value: string) => {
-        setSelectedWarehouse(value);
+    const handlePageChange = (newPage: number) => {
+        setCurrentPage(newPage);
+    };
+    const handlePageSizeChange = (newSize: number) => {
+        setPageSize(newSize);
+        setCurrentPage(0);
         refetch();
     };
 
-    if (isLoading) return <div>Loading...</div>;
-    if (error) return <div>An error occurred: {(error as Error).message}</div>;
+    const handleWarehouseChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedWarehouse(event.target.value);
+        setCurrentPage(0);
+    };
 
+    const stockMutations = data?.data.content ?? [];
+    const hasData = stockMutations.length > 0;
+
+    const columns: ColumnDef<StockMutation, any>[] = useMemo(
+        () => [
+            {
+                accessorKey: 'id',
+                header: 'ID',
+            },
+            {
+                accessorKey: 'productImageUrl',
+                header: 'Image',
+                cell: (info: RowInfo) => (
+                    <Image
+                        src={info.row.original.productImageUrl}
+                        alt={info.row.original.productName}
+                        width={50}
+                        height={50}
+                        className="rounded-md object-cover"
+                    />
+                )
+            },
+            {
+                accessorKey: 'productName',
+                header: 'Product Name',
+            },
+            // {
+            //     accessorKey: 'originWarehouseName',
+            //     header: 'Origin Warehouse',
+            // },
+            {
+                accessorKey: 'destinationWarehouseName',
+                header: 'Destination Warehouse',
+            },
+            {
+                accessorKey: 'quantity',
+                header: 'Quantity',
+            },
+            {
+                accessorKey: 'status',
+                header: 'Status',
+                cell: (info: RowInfo) => {
+                    const status = info.row.original.status;
+                    const baseClasses = "px-2 py-1 rounded-full text-xs font-semibold";
+
+                    switch (status) {
+                        case 'REQUESTED':
+                            return <span className={`${baseClasses} bg-yellow-100 text-yellow-800`}>Requested</span>;
+                        case 'APPROVED':
+                            return <span className={`${baseClasses} bg-green-100 text-green-800`}>Approved</span>;
+                        case 'COMPLETED':
+                            return <span className={`${baseClasses} bg-blue-100 text-blue-800`}>Completed</span>;
+                        case 'IN_TRANSIT':
+                            return <span className={`${baseClasses} bg-purple-100 text-purple-800`}>In Transit</span>;
+                        case 'CANCELLED':
+                            return <span className={`${baseClasses} bg-red-100 text-red-800`}>Cancelled</span>;
+                        default:
+                            return <span className={`${baseClasses} bg-gray-100 text-gray-800`}>Unknown</span>;
+                    }
+                },
+            },
+            {
+                accessorKey: 'requestedBy',
+                header: 'Requested By',
+            },
+            {
+                accessorKey: 'createdAt',
+                header: 'Created Req',
+                cell: (info: RowInfo) => (
+                    <span>{new Date(info.row.original.createdAt).toLocaleString()}</span>
+                ),
+            },
+            {
+                accessorKey: 'updatedAt',
+                header: 'Updated Status',
+                cell: (info: RowInfo) => (
+                    <span>{new Date(info.row.original.updatedAt).toLocaleString()}</span>
+                ),
+            },
+            {
+                accessorKey: 'actions',
+                header: 'Actions',
+                cell: (info: RowInfo) => (
+                    <UpdateStockMutationModal
+                        stockMutation={info.row.original}
+                        onUpdate={() => refetch()}
+                    />
+                ),
+            },
+            {
+                accessorKey: 'remarks',
+                header: 'Remark',
+                cell: (info: RowInfo) => (
+                    <RemarkButton
+                        remarks={info.row.original.remarks}
+                        status={info.row.original.status}
+                    />
+                ),
+            },
+        ],
+        []
+    );
+    // if (isLoading) return <div>Loading...</div>;
+    if (error) return <div>Error loading stock mutation data: {(error as Error).message}</div>;
     return (
-        <div className="container mx-auto py-10">
-            <div className='flex gap-3 justify-between items-center'>
-                <h1 className="text-2xl font-bold mb-4">Stock Mutation Approval</h1>
-                <div className='flex gap-3 mb-4'>
-                    <p className='text-sm items-center'>Select Destination Warehouse</p>
-                    <WarehouseSelect
+        <div className="container mx-auto p-4">
+            <h1 className="text-2xl font-bold mb-4">Stock Mutation Approval</h1>
+
+            {/* <label htmlFor="warehouse-select" className="block mb-2 font-medium">
+                Select Warehouse:
+            </label> */}
+            {isSuperAdmin && (
+                <div className='mb-4 flex justify-between'>
+                    <select
+                        id="warehouse-select"
                         value={selectedWarehouse}
                         onChange={handleWarehouseChange}
-                        warehouses={warehouses}
-                        placeholder="Select Destination Warehouse"
-                    />
-                    {/* <CreateStockMutationModal warehouses={warehouses} refetchMutations={refetch} /> */}
+                        className="mb-4 p-2 border border-gray-300 rounded-md w-full max-w-xs"
+                    >
+                        <option value="">All Warehouses</option>
+                        {warehouses.map((warehouse) => (
+                            <option key={warehouse.id} value={warehouse.id.toString()}>
+                                {warehouse.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
-            </div>
-            <Table>
-                <TableHeader>
-                    <TableRow className='bg-blue-600 text-white'>
-                        <TableHead className='text-white'>Image</TableHead>
-                        <TableHead className='text-white'>Product Name</TableHead>
-                        <TableHead className='text-white'>Origin Warehouse</TableHead>
-                        <TableHead className='text-white'>Quantity</TableHead>
-                        <TableHead className='text-white'>Status</TableHead>
-                        <TableHead className='text-white'>Type</TableHead>
-                        <TableHead className='text-white'>Handled By</TableHead>
-                        <TableHead className='text-white'>Created At</TableHead>
-                        <TableHead className='text-white'>Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {data?.data.content.map((mutation) => (
-                        <TableRow key={mutation.id}>
-                            <TableCell>
-                                <div className="bg-white flex items-center justify-center p-2 w-14 h-14 rounded-xl shadow-md">
-                                    <Image
-                                        src={mutation.productImageUrl}
-                                        alt={mutation.productName}
-                                        className={`w-12 h-12 object-contain rounded ${mutation.quantity === 0 ? 'grayscale' : ''}`}
-                                        width={48}
-                                        height={48}
-                                    />
-                                </div>
-                            </TableCell>
-                            <TableCell>{mutation.productName}</TableCell>
-                            <TableCell>{mutation.originWarehouseName}</TableCell>
-                            <TableCell>{mutation.quantity}</TableCell>
-                            <TableCell>{getStatusBadge(mutation.status)}</TableCell>
-                            <TableCell>{mutation.mutationType}</TableCell>
-                            <TableCell>{mutation.handledBy}</TableCell>
-                            <TableCell>
-                                {new Date(mutation.createdAt).toLocaleDateString('id-ID', {
-                                    day: 'numeric',
-                                    month: 'short',
-                                    year: '2-digit',
-                                })}
-                            </TableCell>
-                            <TableCell>
-                                <UpdateStockMutationModal
-                                    stockMutation={mutation}
-                                    onUpdate={refetch}
-                                />
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+            )}
+
+            {isAdmin && selectedWarehouse && (
+                <div className='mb-4'>
+                    <p>Selected Warehouse: {warehouses.find(w => w.id.toString() === selectedWarehouse)?.name}</p>
+                </div>
+            )}
+            {/* <CreateStockMutationModal warehouses={warehouses} selectedWarehouse={selectedWarehouse} refetchMutations={refetch} /> */}
+            {isLoading ? (
+                <StockMutationTableSkeleton rowCount={5} />
+            ) : (
+                <div className="bg-white rounded-lg shadow-inner">
+                    <DataTable
+                        columns={columns}
+                        data={stockMutations}
+                        loading={isLoading}
+                        nameFilter=""
+                        setNameFilter={() => { }}
+                        selectedCity={undefined}
+                        setSelectedCity={() => { }}
+                        onDataChanged={() => { }}
+                        onPageChanged={handlePageChange}
+                    />
+                </div>
+            )}
+
+            {/* Pagination Controls */}
+            {hasData && (
+                // <div className="flex justify-end items-center mt-4">
+                <NewPagination
+                    currentPage={currentPage}
+                    totalPages={data?.data.totalPages ?? 1}
+                    pageSize={pageSize}
+                    totalElements={data?.data.totalElements ?? 0}
+                    onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
+                />
+                // </div>
+            )}
         </div>
     );
 }

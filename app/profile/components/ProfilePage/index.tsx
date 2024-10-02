@@ -110,7 +110,6 @@ const ProfilePage: React.FC = () => {
       }
     }
   };
-
   return (
     <div className="px-5 lg:px-80 py-12">
       <div className='bg-white rounded-lg p-10 flex flex-col'>

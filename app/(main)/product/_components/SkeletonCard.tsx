@@ -1,24 +1,26 @@
 import React from 'react';
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import Image from 'next/image';
+import LoadingImage from "@/public/loading.png";
 
-export const SkeletonCard: React.FC = () => (
-    <div>
+const ProductCardSkeleton: React.FC = () => {
+    return (
+        <div className="flex flex-col h-full bg-white shadow-sm rounded-lg animate-pulse">
+            <div className="relative h-48 bg-skeletonGray rounded-t-lg">
+                <Image
+                    src={LoadingImage}
+                    alt="Loading placeholder"
+                    layout="fill"
+                    objectFit="cover"
+                    className="opacity-30"
+                />
+            </div>
+            <div className="flex-grow flex flex-col p-4">
+                <div className="h-6 bg-skeletonGray rounded mb-2"></div>
+                <div className="h-4 bg-skeletonGray rounded mb-1"></div>
+                <div className="h-4 bg-skeletonGray rounded mb-1"></div>
+            </div>
+        </div>
+    );
+};
 
-        <Card className="shadow-lg rounded-xl border border-gray-200 bg-white">
-            <CardHeader className="p-0">
-                <Skeleton className="h-[200px] w-full rounded-t-xl bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
-            </CardHeader>
-            <CardContent className="p-4 space-y-3">
-                <Skeleton className="h-6 w-3/4 mb-2 rounded-md bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
-                <Skeleton className="h-4 w-full mb-2 rounded-md bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
-                <Skeleton className="h-4 w-2/3 mb-2 rounded-md bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
-                <Skeleton className="h-5 w-1/3 mb-2 rounded-md bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
-                <Skeleton className="h-4 w-1/2 rounded-md bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
-            </CardContent>
-            <CardFooter className="p-4">
-                <Skeleton className="h-10 w-full rounded-lg bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
-            </CardFooter>
-        </Card>
-    </div>
-);
+export default ProductCardSkeleton;
