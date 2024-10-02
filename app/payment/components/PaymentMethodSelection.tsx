@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { FaMoneyBillWave, FaCreditCard } from "react-icons/fa";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -29,12 +29,14 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
   selectedBank,
   setSelectedBank,
   proofImageUrl,
-  setProofImageUrl
+  setProofImageUrl,
 }) => {
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
   const { toast } = useToast();
 
-  const handleProofUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProofUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       setUploadingImage(true);
@@ -71,8 +73,8 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
   return (
     <Card className="mb-8 shadow-lg">
       <CardContent className="pt-6">
-        <RadioGroup 
-          onValueChange={(value: PaymentMethodType) => setPaymentMethod(value)} 
+        <RadioGroup
+          onValueChange={(value: PaymentMethodType) => setPaymentMethod(value)}
           value={paymentMethod}
         >
           <div className="space-y-6">
@@ -89,11 +91,13 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
 
             {paymentMethod === "PAYMENT_PROOF" && (
               <div className="ml-6 mt-2 space-y-4">
-                <div className="bg-gray-100 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-2">Bank Transfer Information:</h3>
-                  <p>Bank: Example Bank</p>
+                <div className="bg-gray-100 p-4 rounded-lg font-bold">
+                  <h3 className="font-semibold mb-2">
+                    Bank Transfer Information:
+                  </h3>
+                  <p>Bank: Bank Central Asia</p>
                   <p>Account Number: 1234567890</p>
-                  <p>Account Name: Your Company Name</p>
+                  <p>Account Name: HII-Mart</p>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Upload Payment Proof:</h3>
@@ -130,21 +134,29 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
 
             {paymentMethod === "PAYMENT_GATEWAY" && (
               <div className="ml-6 mt-2">
-                <RadioGroup 
-                  onValueChange={(value: BankType) => setSelectedBank(value)} 
+                <RadioGroup
+                  onValueChange={(value: BankType) => setSelectedBank(value)}
                   value={selectedBank}
                 >
                   <div className="space-y-4">
-                    {['bca', 'bri', 'bni'].map((bank) => (
-                      <div key={bank} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
+                    {["bca", "bri", "bni"].map((bank) => (
+                      <div
+                        key={bank}
+                        className="flex items-center space-x-3 p-3 bg-white rounded-lg border"
+                      >
                         <RadioGroupItem value={bank} id={bank} />
-                        <Label htmlFor={bank} className="flex items-center space-x-3 cursor-pointer">
+                        <Label
+                          htmlFor={bank}
+                          className="flex items-center space-x-3 cursor-pointer"
+                        >
                           <img
                             src={`/${bank}.png`}
                             alt={`${bank.toUpperCase()} logo`}
                             className="w-20 h-10 object-contain"
                           />
-                          <span className="font-semibold">{bank.toUpperCase()}</span>
+                          <span className="font-semibold">
+                            {bank.toUpperCase()}
+                          </span>
                         </Label>
                       </div>
                     ))}

@@ -6,23 +6,9 @@ import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { PaymentDetails, PaymentStatus } from "@/types/payment";
 
-interface PaymentDetails {
-  va_numbers?: { bank: string; va_number: string }[];
-  method?: string;
-  orderId: string;
-  proofImageUrl?: string;
-  status?: string;
-}
 
-interface PaymentStatus {
-  createdAt: string;
-  amount: number;
-  orderId: string;
-  paymentMethod: string;
-  status: string;
-  paymentProofUrl?: string;
-}
 
 interface OrderDetails {
   id: string;
@@ -128,7 +114,7 @@ const PaymentProcessPage: React.FC = () => {
           <CardTitle>Payment Process</CardTitle>
         </CardHeader>
         <CardContent>
-          {paymentDetails.method === "PAYMENT_PROOF" ? (
+          {paymentDetails.paymentMethod === "PAYMENT_PROOF" ? (
             <div>
               <p>
                 Your manual payment proof has been submitted for Invoice #

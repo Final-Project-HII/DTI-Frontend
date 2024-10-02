@@ -1,6 +1,6 @@
 export interface Order {
   id: number;
-  username : string,
+  username: string;
   invoiceId: string;
   userId: number;
   status: string;
@@ -11,6 +11,7 @@ export interface Order {
   totalQuantity: number;
   createdAt: string;
   updatedAt: string;
+  orderDate: string;
   items: OrderItem[];
   warehouseId: number;
   warehouseName: string;

@@ -146,7 +146,7 @@ const CheckoutData = () => {
         }
       );
 
-      if (response.status === 200) {
+      if (response.data.success) {
         Swal.fire({
           title: "Order Created Successfully!",
           text: "Redirecting to payment page...",
@@ -158,20 +158,28 @@ const CheckoutData = () => {
           router.push("/payment");
         });
       } else {
-        setError("Failed to create order. Please try again.");
+        throw new Error(response.data.message);
       }
     } catch (error) {
       console.error("Error creating order:", error);
+
       if (axios.isAxiosError(error) && error.response) {
-        setError(
-          `An error occurred while creating the order: ${
-            error.response.data.message || error.message
-          }`
-        );
+        const responseData = error.response.data;
+
+        if (responseData.message.includes("pending order")) {
+          Swal.fire({
+            title: "Pending Order",
+            text: responseData.message,
+            icon: "warning",
+            confirmButtonText: "OK",
+          });
+        } else {
+          setError(responseData.message || "An unexpected error occurred. Please try again.");
+        }
+      } else if (error instanceof Error) {
+        setError(error.message);
       } else {
-        setError(
-          "An unexpected error occurred while creating the order. Please try again."
-        );
+        setError("An unexpected error occurred. Please try again.");
       }
     } finally {
       setIsLoading(false);

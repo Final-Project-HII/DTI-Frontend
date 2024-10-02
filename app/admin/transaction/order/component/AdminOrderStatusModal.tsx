@@ -81,7 +81,6 @@ const AdminOrderStatusModal: React.FC<OrderStatusModalProps> = ({
     onClose();
   };
 
-
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
@@ -134,14 +133,14 @@ const AdminOrderStatusModal: React.FC<OrderStatusModalProps> = ({
                 </span>
               </div>
               {paymentDetails.paymentMethod === "PAYMENT_PROOF" &&
-                paymentDetails.paymentProofUrl && (
+                paymentDetails.proofImageUrl && (
                   <div className="grid grid-cols-3 items-center gap-4">
                     <span className="font-medium text-right">
                       Payment Proof:
                     </span>
                     <div className="col-span-2">
                       <img
-                        src={paymentDetails.paymentProofUrl}
+                        src={paymentDetails.proofImageUrl}
                         alt="Payment Proof"
                         className="max-w-full h-auto"
                       />

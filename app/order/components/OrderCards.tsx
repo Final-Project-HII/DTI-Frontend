@@ -4,6 +4,7 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Order } from "@/types/order";
@@ -17,6 +18,15 @@ interface OrderCardProps {
 }
 
 const OrderCard: React.FC<OrderCardProps> = ({ order, productDetails }) => {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
   const firstItem =
     order.items && order.items.length > 0 ? order.items[0] : null;
 
@@ -24,12 +34,10 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, productDetails }) => {
     <Card>
       <CardHeader className="flex flex-row justify-between items-center">
         <div className="flex items-center gap-2">
-          <span className="font-bold">Order #{order.id}</span>
-          <span className="text-sm text-gray-500">
-            {order.createdAt
-              ? new Date(order.createdAt).toLocaleDateString()
-              : "N/A"}
-          </span>
+          <CardTitle className="text-lg font-semibold">
+            {order.invoiceId}
+          </CardTitle>
+          <p className="text-sm text-gray-500">{formatDate(order.orderDate)}</p>
         </div>
         <div className="flex items-center gap-2">
           <div

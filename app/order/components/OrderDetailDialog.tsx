@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,21 +16,37 @@ import {
 } from "@/components/ui/accordion";
 import { Order } from "@/types/order";
 import { MessageCircle, HelpCircle, Package } from "lucide-react";
+import { PaymentDetails } from "@/types/payment";
+import axios from "axios";
 
 interface OrderDetailDialogProps {
   order: Order;
 }
 
 const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order }) => {
+  const [payment, setPayment] = useState<PaymentDetails | null>(null);
+
+  useEffect(() => {
+    const fetchPaymentDetails = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}api/payments/${order.id}/status`
+        );
+        setPayment(response.data);
+      } catch (error) {
+        console.error("Error fetching payment details:", error);
+      }
+    };
+
+    fetchPaymentDetails();
+  }, [order.id]);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString("id-ID", {
       day: "numeric",
       month: "long",
       year: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      timeZoneName: "short",
     });
   };
 
@@ -78,8 +94,23 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order }) => {
                 </div>
               </div>
               <p className="text-sm text-gray-600 mt-2">
-                Tanggal Pembelian: {formatDate(order.createdAt)}
+                Tanggal Pembelian: {formatDate(order.orderDate)}
               </p>
+              {order.status === "pending_payment" &&
+                payment &&
+                payment.paymentMethod === "PAYMENT_GATEWAY" &&
+                payment.va_numbers &&
+                payment.va_numbers.length > 0 && (
+                  <div className="mt-2 p-2 bg-blue-100 rounded">
+                    <p className="text-sm font-semibold text-blue-800">
+                      Selesaikan pembayaran Anda ke nomor Virtual Account:
+                    </p>
+                    <p className="text-lg font-bold text-blue-900">
+                      {payment.va_numbers[0].va_number} (
+                      {payment.va_numbers[0].bank.toUpperCase()})
+                    </p>
+                  </div>
+                )}
             </div>
 
             <div>
@@ -160,6 +191,10 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order }) => {
                 <div className="flex justify-between mb-2">
                   <p>Total Harga Pesanan</p>
                   <p>{formatCurrency(order.originalAmount)}</p>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <p>Biaya Pengiriman</p>
+                  <p>{formatCurrency(order.shippingCost)}</p>
                 </div>
                 <div className="flex justify-between font-semibold">
                   <p>Total Pembayaran</p>
