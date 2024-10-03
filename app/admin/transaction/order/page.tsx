@@ -2,32 +2,46 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Order } from "@/types/order";
-import { useOrders } from "@/hooks/useOrder";
 import OrderFilter from "./component/AdminOrderFilters";
 import OrderTable from "./component/AdminOrdertable";
 import OrderStatusModal from "./component/AdminOrderStatusModal";
 import AdminOrderPagination from "./component/AdminOrderPagination";
+import { useRouter } from "next/navigation";
+import { useAdminOrders } from "@/hooks/useAdminOrders";
 
 const AdminOrderManagement = () => {
+  const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
+
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
-  const [status, setStatus] = useState("all");
+  const [orderStatus, setOrderStatus] = useState("all");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const { data: session } = useSession();
 
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const { ordersData, loading, error } = useOrders(
+  const { ordersData, loading, error } = useAdminOrders(
     page,
     size,
-    status,
+    orderStatus,
     startDate,
     endDate
   );
 
   const [localOrdersData, setLocalOrdersData] = useState(ordersData);
+
+  useEffect(() => {
+    if (sessionStatus === "unauthenticated") {
+      router.push("/login");
+    } else if (
+      sessionStatus === "authenticated" &&
+      session?.user?.role !== "ADMIN"
+    ) {
+      router.push("/unauthorized");
+    }
+  }, [sessionStatus, session, router]);
 
   useEffect(() => {
     setLocalOrdersData(ordersData);
@@ -42,7 +56,7 @@ const AdminOrderManagement = () => {
     newStartDate: Date | null,
     newEndDate: Date | null
   ) => {
-    setStatus(newStatus);
+    setOrderStatus(newStatus);
     setStartDate(newStartDate);
     setEndDate(newEndDate);
     setPage(0);
@@ -133,6 +147,17 @@ const AdminOrderManagement = () => {
     },
     [session, selectedOrder, refreshOrders]
   );
+
+  if (sessionStatus === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (
+    sessionStatus === "unauthenticated" ||
+    (sessionStatus === "authenticated" && session?.user?.role !== "ADMIN")
+  ) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto p-4 mt-20">

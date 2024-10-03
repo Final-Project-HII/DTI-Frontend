@@ -22,8 +22,7 @@ const OrderList: React.FC = () => {
   const { data: session } = useSession();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("Semua");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [totalItems, setTotalItems] = useState(0);
 
   const [dateRange, setDateRange] = useState<{
@@ -34,33 +33,16 @@ const OrderList: React.FC = () => {
   const { ordersData, loading, error } = useOrders(
     currentPage - 1,
     pageSize,
-    statusFilter,
+    statusFilter === "all" ? "" : statusFilter,
     dateRange.startDate,
     dateRange.endDate
   );
 
-  const filteredOrders = React.useMemo(() => {
-    if (!ordersData || !ordersData.content) {
-      return [];
-    }
-
-    let filtered = ordersData.content;
-
-    if (globalFilter) {
-      filtered = filtered.filter((order) =>
-        order.id.toString().includes(globalFilter)
-      );
-    }
-
-    if (statusFilter !== "Semua") {
-      filtered = filtered.filter((order) => order.status === statusFilter);
-    }
-
-    return filtered;
-  }, [ordersData, globalFilter, statusFilter]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    if (ordersData) {
+    if (ordersData && ordersData.content) {
+      setFilteredOrders(ordersData.content);
       setTotalItems(ordersData.totalElements);
     }
   }, [ordersData]);
@@ -81,6 +63,14 @@ const OrderList: React.FC = () => {
     return map;
   }, [productQueryResults]);
 
+  const handleOrderUpdate = (updatedOrder: Order) => {
+    setFilteredOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order.id === updatedOrder.id ? updatedOrder : order
+      )
+    );
+  };
+
   if (!session) return <div>Please log in to view your orders.</div>;
   if (error) return <div>Error loading orders: {error.message}</div>;
 
@@ -88,8 +78,6 @@ const OrderList: React.FC = () => {
     <div className="space-y-4 mt-28 mx-28">
       <OrderHeader />
       <OrderFilters
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
         setDateRange={(startDate, endDate) =>
@@ -98,7 +86,6 @@ const OrderList: React.FC = () => {
       />
       <div className="space-y-4">
         {loading ? (
-          // Display skeletons while loading
           Array.from({ length: 5 }).map((_, index) => (
             <OrderSkeleton key={index} />
           ))
@@ -110,6 +97,7 @@ const OrderList: React.FC = () => {
               key={order.id}
               order={order}
               productDetails={productDetailsMap.get(order.items[0]?.productId)}
+              onOrderUpdate={handleOrderUpdate}
             />
           ))
         )}

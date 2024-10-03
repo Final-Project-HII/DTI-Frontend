@@ -18,13 +18,19 @@ import { Order } from "@/types/order";
 import { MessageCircle, HelpCircle, Package } from "lucide-react";
 import { PaymentDetails } from "@/types/payment";
 import axios from "axios";
+import { useToast } from "@/components/ui/use-toast";
 
 interface OrderDetailDialogProps {
   order: Order;
+  onOrderUpdate: (updatedOrder: Order) => void;
+  canBeCancelled: boolean;
 }
 
-const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order }) => {
+const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order, onOrderUpdate, canBeCancelled }) => {
   const [payment, setPayment] = useState<PaymentDetails | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
 
   useEffect(() => {
     const fetchPaymentDetails = async () => {
@@ -40,6 +46,52 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order }) => {
 
     fetchPaymentDetails();
   }, [order.id]);
+
+  const handleCancelOrder = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}api/orders/${order.id}/cancel`
+      );
+      onOrderUpdate(response.data.data);
+      toast({
+        title: "Order Canceled",
+        description: "The order has been successfully canceled.",
+      });
+    } catch (error) {
+      console.error("Error canceling order:", error);
+      toast({
+        title: "Error",
+        description: "Failed to cancel the order. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMarkAsDelivered = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}api/orders/${order.id}/deliver`
+      );
+      onOrderUpdate(response.data.data);
+      toast({
+        title: "Order Delivered",
+        description: "The order has been marked as delivered.",
+      });
+    } catch (error) {
+      console.error("Error marking order as delivered:", error);
+      toast({
+        title: "Error",
+        description: "Failed to mark the order as delivered. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -202,6 +254,28 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order }) => {
                 </div>
               </div>
             </div>
+
+            <div className="flex justify-end space-x-4">
+              {canBeCancelled && (
+                <Button
+                  onClick={handleCancelOrder}
+                  disabled={isLoading}
+                  variant="destructive"
+                >
+                  Cancel Order
+                </Button>
+              )}
+              {order.status === "shipped" && (
+                <Button
+                  onClick={handleMarkAsDelivered}
+                  disabled={isLoading}
+                  variant="default"
+                >
+                  Mark as Delivered
+                </Button>
+              )}
+            </div>
+
           </div>
         </ScrollArea>
       </DialogContent>
@@ -210,3 +284,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order }) => {
 };
 
 export default OrderDetailDialog;
+function onOrderUpdate(data: any) {
+  throw new Error("Function not implemented.");
+}
+

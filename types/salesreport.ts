@@ -1,18 +1,11 @@
-// src/types/salesReport.ts
+export type SalesReport = {
+  startDate: string;
+  endDate: string;
+  totalOrders: number;
+  totalRevenue: number;
+  averageOrderValue: number;
+  totalProductsSold: number;
+};
 
-export interface SalesReportDTO {
-    date: string | null;
-    totalOrders: number;
-    totalRevenue: number;
-    totalProductsSold: number;
-    averageOrderValue: number;
-  }
-  
-  export interface DailySalesReportResponse {
-    content: SalesReportDTO[];
-    // Add pagination info if your backend provides it
-    // totalPages: number;
-    // totalElements: number;
-    // size: number;
-    // number: number;
-  }
+export type ReportType = "daily" | "monthly";
+export type SaleStatus = "shipped" | "delivered";

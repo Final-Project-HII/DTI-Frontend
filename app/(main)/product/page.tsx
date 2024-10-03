@@ -78,10 +78,7 @@ export default function ProductSearchPage() {
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
     const [categories, setCategories] = useState<Category[]>([]);
-<<<<<<< HEAD
-=======
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
->>>>>>> f779b6a1233b737ba021de74263ff4de7003e6aa
 
     const getParamValue = useCallback((key: string, defaultValue: string) => {
         return searchParams.get(key) || defaultValue;
@@ -120,62 +117,9 @@ export default function ProductSearchPage() {
         setPageSize(parseInt(getParamValue("size", "10")));
     }, [searchParams]); // Menambahkan searchParams sebagai dependensi
 
-<<<<<<< HEAD
-  const { data, isLoading, error } = useQuery<ApiResponse, Error, ApiResponse, readonly [string, string, string, string, string, string, string]>({
-    queryKey: ['products', currentPage.toString(), pageSize.toString(), category, sortBy, sortDirection, searchTerm] as const,
-    queryFn: fetchProducts,
-    staleTime: 60000, // 1 minute
-  });
-
-  useEffect(() => {
-    // Fetch categories
-    axios.get<Category[]>(`${BASE_URL}/category`)
-      .then(response => {
-        setCategories(response.data);
-      })
-      .catch(error => console.error("Failed to fetch categories:", error));
-  }, []);
-
-  const updateSearchParams = useDebouncedCallback((updates: Record<string, string | undefined>) => {
-    const params = new URLSearchParams(searchParams.toString());
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value === undefined || value === ALL_CATEGORIES || value === 'related') {
-        params.delete(key);
-      } else {
-        params.set(key, value);
-      }
-    });
-    if (updates.page === undefined) params.set('page', '0');
-    router.push(`?${params.toString()}`, { scroll: false });
-  }, 1000);
-
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        updateSearchParams({ search: value });
-    };
-
-  const handleCategoryChange = (newCategory: string) => updateSearchParams({ category: newCategory });
-  const handleSortChange = (newSortBy: string) => {
-    if (newSortBy === "related") {
-      updateSearchParams({ sortBy: newSortBy, sortDirection: undefined });
-    } else {
-      updateSearchParams({ sortBy: newSortBy });
-    }
-  };
-
-  const handleSortDirectionChange = (newDirection: string) => updateSearchParams({ sortDirection: newDirection });
-  const handlePageChange = (newPage: number) => updateSearchParams({ page: newPage.toString() });
-
-  useEffect(() => {
-    // Prefetch next page
-    if (data && currentPage + 1 < data.totalPages) {
-      queryClient.prefetchQuery({
-        queryKey: ['products', (currentPage + 1).toString(), pageSize.toString(), category, sortBy, sortDirection, searchTerm] as const,
-=======
     // Fetch produk menggunakan React Query
     const { data: products, isLoading, error } = useQuery<ApiResponse, Error, ApiResponse, readonly [string, string, string, string[], string, string, string]>({
         queryKey: ['products', currentPage.toString(), pageSize.toString(), selectedCategories, sortBy, sortDirection, searchTerm] as const,
->>>>>>> f779b6a1233b737ba021de74263ff4de7003e6aa
         queryFn: fetchProducts,
         staleTime: 5000,
     });

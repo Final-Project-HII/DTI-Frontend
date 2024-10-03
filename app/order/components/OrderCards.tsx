@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -6,18 +6,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Order } from "@/types/order";
-
 import OrderDetailDialog from "./OrderDetailDialog";
 import { ProductDataResponse } from "@/hooks/useProduct";
 
 interface OrderCardProps {
   order: Order;
   productDetails: ProductDataResponse | undefined;
+  onOrderUpdate: (updatedOrder: Order) => void;
 }
 
-const OrderCard: React.FC<OrderCardProps> = ({ order, productDetails }) => {
+const OrderCard: React.FC<OrderCardProps> = ({ order: initialOrder, productDetails, onOrderUpdate }) => {
+  const [order, setOrder] = useState(initialOrder);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString("id-ID", {
@@ -27,8 +28,31 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, productDetails }) => {
     });
   };
 
-  const firstItem =
-    order.items && order.items.length > 0 ? order.items[0] : null;
+  const handleOrderUpdate = (updatedOrder: Order) => {
+    setOrder(updatedOrder);
+    onOrderUpdate(updatedOrder);
+  };
+
+  const firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "pending_payment":
+        return { bg: "rgba(255, 165, 0, 0.1)", text: "orange" };
+      case "delivered":
+        return { bg: "rgba(0, 255, 0, 0.1)", text: "green" };
+      case "cancelled":
+        return { bg: "rgba(255, 0, 0, 0.1)", text: "red" };
+      case "shipped":
+        return { bg: "rgba(0, 0, 255, 0.1)", text: "blue" };
+      default:
+        return { bg: "rgba(128, 128, 128, 0.1)", text: "gray" };
+    }
+  };
+
+  const statusColor = getStatusColor(order.status);
+
+  const canBeCancelled = !["shipped", "delivered", "cancelled"].includes(order.status);
 
   return (
     <Card>
@@ -43,21 +67,11 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, productDetails }) => {
           <div
             className="px-2 py-1 rounded-full text-sm"
             style={{
-              backgroundColor:
-                order.status === "pending_payment"
-                  ? "rgba(255, 0, 0, 0.1)"
-                  : order.status === "delivered"
-                  ? "rgba(0, 255, 0, 0.1)"
-                  : "rgba(255, 165, 0, 0.1)",
-              color:
-                order.status === "pending_payment"
-                  ? "orange"
-                  : order.status === "delivered"
-                  ? "green"
-                  : "red",
+              backgroundColor: statusColor.bg,
+              color: statusColor.text,
             }}
           >
-            {order.status || "Unknown"}
+            {order.status.replace('_', ' ').charAt(0).toUpperCase() + order.status.replace('_', ' ').slice(1) || "Unknown"}
           </div>
         </div>
       </CardHeader>
@@ -90,7 +104,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, productDetails }) => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <OrderDetailDialog order={order} />
+        <OrderDetailDialog order={order} onOrderUpdate={handleOrderUpdate} canBeCancelled={canBeCancelled} />
       </CardFooter>
     </Card>
   );
