@@ -1,6 +1,5 @@
 "use client";
 import useProfileData from "@/contexts/ProfileContext";
-import { useCart } from "@/hooks/useCart";
 import {
   ChevronDown,
   LogOutIcon,
@@ -20,7 +19,9 @@ import CategoryDropdown from "./_components/CategoryDropdown";
 import CategorySwiper from "./_components/CategorySwiper";
 import SearchInput from "./_components/SearchInput";
 import SearchSheet from "./_components/SearchSheet";
-import "swiper/css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 const NavBar = () => {
   const { data: session } = useSession();
@@ -28,7 +29,6 @@ const NavBar = () => {
   const [openHamburgerMenu, setOpenHamburgerMenu] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [openDropdownMenu, setOpenDropdownMenu] = useState(false);
-  // const { getCartItemCount } = useCart();
   const [itemCount, setItemCount] = useState(0);
   const { data } = useSession();
   const { profileData } = useProfileData()
@@ -41,15 +41,6 @@ const NavBar = () => {
   const handleSignOut = () => {
     signOut()
   }
-
-  // useEffect(() => {
-  //   if (session) {
-  //     setItemCount(getCartItemCount());
-  //   } else {
-  //     setItemCount(0);
-  //   }
-  // }, [session, getCartItemCount]);
-
 
   const toggleMenu = () => {
     setOpenHamburgerMenu((prev) => !prev);
@@ -105,10 +96,6 @@ const NavBar = () => {
                     }`}
                 ></span>
               </button>
-              {/* add logo */}
-              {/* <div className="block lg:hidden text-2xl font-bold text-blue-600 italic">
-                <Link href="/">Click</Link>
-              </div> */}
               <Link href="/">
                 <img
                   src="/hiimart v0.png"
@@ -128,7 +115,9 @@ const NavBar = () => {
                 />
               </Link>
               <div className="hidden lg:block">
-                <CategoryDropdown />
+                <QueryClientProvider client={queryClient}>
+                  <CategoryDropdown />
+                </QueryClientProvider>
               </div>
             </div>
             <div className="flex-grow mx-1 lg:mx-4 max-w-xl hidden lg:block">
@@ -222,7 +211,9 @@ const NavBar = () => {
                          ${isDesktop ? "-translate-y-full" : "-translate-y-0"}
                          ${isDesktop ? "z-10" : "z-30"}`}
         >
-          <CategorySwiper />
+          <QueryClientProvider client={queryClient}>
+            <CategorySwiper />
+          </QueryClientProvider>
         </div>
         <div
           className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${openHamburgerMenu

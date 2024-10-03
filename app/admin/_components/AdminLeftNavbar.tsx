@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import { Button } from "@/components/ui/button";
 import {
     Collapsible,
@@ -20,6 +20,7 @@ import {
     Users,
     Warehouse
 } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -55,15 +56,15 @@ const menuItems = [
             { name: 'Confirm Payment', href: '/admin/transaction/confirm-payment' },
         ],
     },
-    { name: 'Admin', icon: Users, href: '/admin' },
-    { name: 'Warehouse', icon: Warehouse, href: '/admin/warehouse' },
+    { name: 'Admin', icon: Users, href: '/admin/admin-management', role: 'SUPER' },
+    { name: 'Warehouse', icon: Warehouse, href: '/admin/warehouse', role: 'SUPER' },
 ];
 
 const AdminLeftNavbar: React.FC = () => {
     const pathname = usePathname();
     const [isExpanded, setIsExpanded] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
-
+    const { data: session } = useSession();
 
     useEffect(() => {
         const checkMobile = () => {
@@ -89,6 +90,14 @@ const AdminLeftNavbar: React.FC = () => {
             setIsExpanded(!isExpanded);
         }
     };
+
+    const filteredMenuItems = menuItems.filter(item => {
+        if (item.role) {
+            return session?.user?.role === item.role;
+        }
+        return true;
+    });
+
     return (
         <div className={`${isExpanded ? "min-w-64" : "min-w-20"
             } min-h-screen flex flex-col bg-white relative text-blue-900 transition-all duration-300 overflow-hidden`}>
@@ -101,7 +110,7 @@ const AdminLeftNavbar: React.FC = () => {
             </div>
             <div className={`${isExpanded ? "block" : "hidden"} text-sm font-bold text-blue-900 mb-2 px-4 relative z-10`}>MAIN</div>
             <nav className="flex-1 px-2 py-2 relative z-10">
-                {menuItems.map((item, index) => (
+                {filteredMenuItems.map((item, index) => (
                     <React.Fragment key={index}>
                         {item.subitems ? (
                             <>
@@ -132,7 +141,6 @@ const AdminLeftNavbar: React.FC = () => {
                                     </Collapsible>
                                 </div>
 
-                                {/* DropdownMenu for small screens */}
                                 <div className={`${isExpanded ? "hidden" : "block"}`}>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger className="flex flex-col items-center p-2 my-1 w-full hover:bg-blue-600 hover:text-white rounded-md transition-colors duration-150">
@@ -174,15 +182,13 @@ const AdminLeftNavbar: React.FC = () => {
                 ))}
             </nav>
             <div className="px-4 pb-4 z-10">
-                <Button variant="default" className={`${isExpanded ? "flex-row" : "flex-col"} mt-4 bg-blue-600 hover:bg-blue-700 text-white w-full gap-2 flex flex-col lg:flex-row items-center justify-center transition-colors duration-150`}>
+                <Button variant="default" className={`${isExpanded ? "flex-row" : "flex-col"} mt-4 bg-blue-600 hover:bg-blue-700 text-white w-full gap-2 flex flex-col lg:flex-row items-center justify-center transition-colors duration-150`} onClick={() => signOut()}>
                     <LogOut className="h-5 w-5 lg:w-4 lg:h-4" />
                     <span className={`${isExpanded ? "flex text-base" : "hidden text-xs"}`}>Logout</span>
                 </Button>
             </div>
         </div >
-
     );
 };
-
 
 export default AdminLeftNavbar;

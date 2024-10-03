@@ -9,6 +9,7 @@ import { auth } from "@/auth";
 import Footer from "@/components/Footer";
 import NavBar from "../components/NavBar";
 import { ProfileProvider } from "@/contexts/ProfileContext";
+import ModalWrapper from "@/components/ModalWrapper";
 
 const JakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
@@ -27,9 +28,11 @@ export default async function RootLayout({
       <SessionProvider session={session} refetchInterval={120}>
         <ProfileProvider>
           <body className={JakartaSans.className}>
+            {/* <ModalWrapper> */}
             {/* <NavBar /> */}
             <Providers>{children}</Providers>
             {/* <Footer /> */}
+            {/* </ModalWrapper> */}
           </body>
         </ProfileProvider>
       </SessionProvider>

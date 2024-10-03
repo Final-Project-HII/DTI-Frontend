@@ -6,7 +6,7 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import CategoryItemSkeleton from './CategoryitemSkeleton';
+import CategoryItemSkeleton from './CategoryItemSkeleton';
 import CategoryItem from './CategoryItem'
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
@@ -28,8 +28,8 @@ const CategoryListSkeleton = () => {
     <div className="px-5 sm:px-4 lg:px-16 mb-4">
       <div className="bg-[#bbddff] p-2 sm:p-3 lg:p-5 rounded-xl">
         <h1 className="font-semibold text-sm sm:text-base lg:text-lg mb-2">Product Categories</h1>
-        <div className="flex overflow-x-auto lg:gap-7 gap-2 flex-nowrap">
-          {Array(12).fill(null).map((_, index) => (
+        <div className="flex overflow-x-auto lg:gap-10 gap-2 flex-nowrap custom-scrollbar px-4">
+          {Array(16).fill(null).map((_, index) => (
             <CategoryItemSkeleton key={index} />
           ))}
         </div>
