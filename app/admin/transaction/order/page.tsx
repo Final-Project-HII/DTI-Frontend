@@ -2,6 +2,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Order } from "@/types/order";
+import { PaymentStatus } from "@/types/payment";
 import OrderFilter from "./component/AdminOrderFilters";
 import OrderTable from "./component/AdminOrdertable";
 import OrderStatusModal from "./component/AdminOrderStatusModal";
@@ -19,6 +20,7 @@ const AdminOrderManagement = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [payments, setPayments] = useState<PaymentStatus[]>([]);
 
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -29,8 +31,6 @@ const AdminOrderManagement = () => {
     startDate,
     endDate
   );
-
-  const [localOrdersData, setLocalOrdersData] = useState(ordersData);
 
   useEffect(() => {
     if (sessionStatus === "unauthenticated") {
@@ -44,8 +44,30 @@ const AdminOrderManagement = () => {
   }, [sessionStatus, session, router]);
 
   useEffect(() => {
-    setLocalOrdersData(ordersData);
-  }, [ordersData]);
+    const fetchPayments = async () => {
+      if (ordersData && ordersData.data && ordersData.data.content) {
+        const orderIds = ordersData.data.content.map((order) => order.id);
+        try {
+          const response = await fetch(
+            `${
+              process.env.NEXT_PUBLIC_API_URL
+            }api/payments/status?orderIds=${orderIds.join(",")}`,
+            {
+              headers: { Authorization: `Bearer ${session?.user.accessToken}` },
+            }
+          );
+          if (response.ok) {
+            const paymentData = await response.json();
+            setPayments(paymentData);
+          }
+        } catch (error) {
+          console.error("Error fetching payment data:", error);
+        }
+      }
+    };
+
+    fetchPayments();
+  }, [ordersData, session]);
 
   const refreshOrders = useCallback(() => {
     setRefreshTrigger((prev) => prev + 1);
@@ -77,9 +99,6 @@ const AdminOrderManagement = () => {
   const handleStatusUpdate = useCallback(
     async (orderId: number, newStatus: string) => {
       try {
-        console.log("Updating status for order:", orderId);
-        console.log("New status:", newStatus);
-
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}api/orders/${orderId}/status?status=${newStatus}`,
           {
@@ -90,28 +109,16 @@ const AdminOrderManagement = () => {
           }
         );
 
-        console.log("Response status:", response.status);
-
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error("Error response:", errorText);
-          throw new Error(`Failed to update order status: ${errorText}`);
+          throw new Error("Failed to update order status");
         }
 
-        const updatedOrder = await response.json();
-        console.log("Updated order:", updatedOrder);
-
-        console.log("Status updated successfully");
         refreshOrders();
-
-        if (selectedOrder && selectedOrder.id === orderId) {
-          setSelectedOrder({ ...selectedOrder, status: newStatus });
-        }
       } catch (error) {
         console.error("Error updating order status:", error);
       }
     },
-    [session, selectedOrder, refreshOrders]
+    [session, refreshOrders]
   );
 
   const handlePaymentApproval = useCallback(
@@ -134,18 +141,12 @@ const AdminOrderManagement = () => {
           );
         }
 
-        console.log("Payment approval/rejection successful");
         refreshOrders();
-
-        if (selectedOrder && selectedOrder.id === orderId) {
-          const newStatus = isApproved ? "confirmation" : "pending_payment";
-          setSelectedOrder({ ...selectedOrder, status: newStatus });
-        }
       } catch (error) {
         console.error("Error handling payment proof:", error);
       }
     },
-    [session, selectedOrder, refreshOrders]
+    [session, refreshOrders]
   );
 
   if (sessionStatus === "loading") {
@@ -171,8 +172,8 @@ const AdminOrderManagement = () => {
             <>
               <OrderTable
                 orders={ordersData.data.content}
+                payments={payments}
                 onOrderSelect={handleOrderSelect}
-                onStatusChange={handleStatusUpdate}
               />
               <AdminOrderPagination
                 currentPage={page + 1}

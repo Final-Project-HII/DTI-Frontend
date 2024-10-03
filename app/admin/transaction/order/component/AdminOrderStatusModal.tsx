@@ -133,14 +133,14 @@ const AdminOrderStatusModal: React.FC<OrderStatusModalProps> = ({
                 </span>
               </div>
               {paymentDetails.paymentMethod === "PAYMENT_PROOF" &&
-                paymentDetails.proofImageUrl && (
+                paymentDetails.paymentProofUrl && (
                   <div className="grid grid-cols-3 items-center gap-4">
                     <span className="font-medium text-right">
                       Payment Proof:
                     </span>
                     <div className="col-span-2">
                       <img
-                        src={paymentDetails.proofImageUrl}
+                        src={paymentDetails.paymentProofUrl}
                         alt="Payment Proof"
                         className="max-w-full h-auto"
                       />

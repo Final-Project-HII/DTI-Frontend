@@ -1,4 +1,5 @@
 export interface PaymentDetails {
+    paymentProofUrl: string | undefined;
     createdAt: string;
     amount: number;
     orderId: number;
