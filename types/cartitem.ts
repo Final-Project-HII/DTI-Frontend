@@ -12,5 +12,12 @@ export interface CartItem {
   productName: string;
   quantity: number;
   price: number;
-  imageUrl?: string;
+  totalPrice: number;
+  weight: number;
+  totalWeight: number;
+}
+
+export interface CartDetails {
+  totalPrice: number;
+  totalItems: number;
 }

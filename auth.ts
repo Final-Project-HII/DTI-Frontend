@@ -26,18 +26,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       authorize: async (credentialsPromise) => {
         try {
-          const credentials = ( await await credentialsPromise) as {
+          const credentials = (await await credentialsPromise) as {
             email: string
             password: string
           }
-          const response = await fetch(`http://localhost:8080/api/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: credentials.email,
-              password: credentials.password,
-            }),
-          })
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}api/auth/login`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: credentials.email,
+                password: credentials.password,
+              }),
+            }
+          )
           const data = await response.json()
           if (!response.ok) {
             return {
@@ -64,12 +67,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async signIn({ profile, account, user }) {
+      const cookieStore = cookies()
+      const callbackUrl = cookieStore.get('callbackUrl')?.value
       if (account?.provider == 'google') {
-        const cookieStore = cookies()
         const action = cookieStore.get('auth_action')?.value
         if (action == 'register') {
           const response = await fetch(
-            `http://localhost:8080/api/users/register-google`,
+            `${process.env.NEXT_PUBLIC_API_URL}api/users/register-google`,
             {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -88,7 +92,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const responseLogin = await fetch(
-          `http://localhost:8080/api/auth/login-social`,
+          `${process.env.NEXT_PUBLIC_API_URL}api/auth/login-social`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -108,17 +112,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       if (user.error === 'Email Not Found') {
-        return '/login?error=email_not_found'
+        return `/login?callbackUrl=${callbackUrl}&error=email_not_found`
       }
       if (user.error === 'Email Not Verified') {
-        return `/login?error=email_not_verified&email=${user.email}`
+        return `/login?callbackUrl=${callbackUrl}&error=email_not_verified&email=${user.email}`
       }
       if (user.error === 'Invalid Credentials') {
-        return '/login?error=password_not_correct'
+        return `/login?callbackUrl=${callbackUrl}&error=password_not_correct`
       }
       const useCookies = cookies()
       useCookies.set('Sid', user.accessToken)
-
       return true
     },
     async jwt({ token, user }) {
@@ -144,6 +147,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: 'jwt', maxAge: 60 * 60 * 1 },
   pages: {
     signIn: '/login',
+    error: '/login',
   },
   jwt: {
     maxAge: 60 * 60 * 1,

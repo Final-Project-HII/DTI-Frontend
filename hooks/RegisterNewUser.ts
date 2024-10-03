@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import axios from 'axios'
 
 const RegisterNewUser = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -7,22 +8,26 @@ const RegisterNewUser = () => {
   const AddNewUser = async (formData: any) => {
     setIsLoading(true)
     setError(null)
+
     try {
-      const response = await fetch(`http://localhost:8080/api/users/register`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-        body: JSON.stringify(formData),
-      })
-      if (!response.ok) {
-        throw new Error('Failed to register user')
-      }
-      const data = await response.json()
+      const response = await axios.post<any>(
+        `${process.env.NEXT_PUBLIC_API_URL}api/users/register`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
       setIsLoading(false)
-      return data
+      return response.data
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Failed to register user')
+      } else {
+        setError('An unexpected error occurred')
+      }
       setIsLoading(false)
     }
   }

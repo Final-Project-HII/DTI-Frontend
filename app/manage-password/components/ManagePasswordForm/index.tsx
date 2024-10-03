@@ -132,6 +132,7 @@ const ManagePasswordForm = () => {
               <button
                 type="submit"
                 className="mt-2 py-2 px-4 text-sm font-semibold w-full text-white bg-blue-500 rounded-md hover:bg-blue-600 transition duration-300"
+                disabled={isLoading}
               >
                 {isLoading ? "Loading ... " : "SAVE PASSWORD"}
               </button>

@@ -89,9 +89,57 @@ body {
 .sticky-header {
   position: sticky;
   top: 0;
-  z-index: 1; /* optional, to maintain the background color */
+  z-index: 1;
 }
 
 .select-trigger .icon {
   display: none !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.custom-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes gradient {
+  0% {
+      background-position: -200%;
+  }
+  100% {
+      background-position: 200%;
+  }
+}
+
+.animate-gradient {
+  background: linear-gradient(270deg, #F7F7F7, #E0E0E0, #F7F7F7);
+  background-size: 200% 100%;
+  animation: gradient 1.5s linear infinite;
+}
+
+.gradient-background {
+  position: relative;
+  overflow: hidden; 
+}
+
+.gradient-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(270deg, #F7F7F7, #E0E0E0, #F7F7F7);
+  background-size: 200% 100%;
+  animation: gradient 1.5s linear infinite;
+  z-index: 1; 
+}
+
+.image {
+  position: relative;
+  z-index: 2; 
+  opacity: 0.7; 
 }

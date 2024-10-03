@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import axios from 'axios'
 
 const SetNewPassword = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -8,20 +9,19 @@ const SetNewPassword = () => {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/users/set-password`,
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}api/users/set-password`,
+        formData,
         {
           headers: {
             'Content-Type': 'application/json',
           },
-          method: 'POST',
-          body: JSON.stringify(formData),
         }
       )
-      if (!response.ok) {
+      if (!response.data) {
         throw new Error('Failed to set password')
       }
-      const data = await response.json()
+      const data = response.data
       setIsLoading(false)
       return data
     } catch (err) {
