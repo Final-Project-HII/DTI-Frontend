@@ -1,5 +1,4 @@
 "use client";
-"use client";
 import {
   Accordion,
   AccordionContent,
@@ -14,7 +13,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useCart } from "@/hooks/useCart";
 import { ProductDataResponse, useProductDetails } from "@/hooks/useProduct";
 import { Address } from "@/types/product";
@@ -30,12 +36,12 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import AddressCard from "../AddressList";
 import { Skeleton } from "@/components/ui/skeleton";
 
-
 interface Shipping {
-  id: string,
-  name: string,
-  cost: number
+  id: number;
+  name: string;
+  cost: number;
 }
+
 const CheckoutData = () => {
   const { data: session } = useSession();
   const { cartItems } = useCart();
@@ -44,15 +50,16 @@ const CheckoutData = () => {
   const router = useRouter();
   const productIds = cartItems.map((item) => item.productId);
   const productQueries = useProductDetails(productIds);
-  const [selectedCourier, setSelectedCourier] = useState<number>(1); // Default to JNE
+  const [selectedCourier, setSelectedCourier] = useState<Shipping | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [shippingData, setShippingData] = useState<Shipping[]>([])
-  const [firstShippingData, setFirstShippingData] = useState<Shipping>();
+  const [shippingData, setShippingData] = useState<Shipping[]>([]);
 
   const handleCourierChange = (value: string) => {
-    const courierId = parseInt(value);
-    setSelectedCourier(courierId);
+    const selected = shippingData.find(
+      (courier) => courier.id.toString() === value
+    );
+    setSelectedCourier(selected || null);
   };
 
   const cartItemsWithDetails = cartItems.map((item, index) => ({
@@ -79,18 +86,18 @@ const CheckoutData = () => {
     }
   };
 
-
   const fetchShippingData = async () => {
     try {
-      setIsLoading(true)
+      setIsLoading(true);
       const response = await getShippingData(session!.user.accessToken);
       setShippingData(response);
       if (response.length > 0) {
-        setFirstShippingData(response[0]);
+        setSelectedCourier(response[0]);
       }
-      setIsLoading(false)
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
+      setIsLoading(false);
     }
   };
 
@@ -116,6 +123,11 @@ const CheckoutData = () => {
       return;
     }
 
+    if (!selectedCourier) {
+      setError("Please select a courier.");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -126,7 +138,7 @@ const CheckoutData = () => {
         {
           params: {
             addressId: activeAddresses.id,
-            courierId: selectedCourier,
+            courierId: selectedCourier.id,
           },
           headers: {
             Authorization: `Bearer ${session?.user?.accessToken}`,
@@ -134,7 +146,7 @@ const CheckoutData = () => {
         }
       );
 
-      if (response.status === 200) {
+      if (response.data.success) {
         Swal.fire({
           title: "Order Created Successfully!",
           text: "Redirecting to payment page...",
@@ -146,26 +158,36 @@ const CheckoutData = () => {
           router.push("/payment");
         });
       } else {
-        setError("Failed to create order. Please try again.");
+        throw new Error(response.data.message);
       }
     } catch (error) {
       console.error("Error creating order:", error);
+
       if (axios.isAxiosError(error) && error.response) {
-        console.error("Response data:", error.response.data);
-        console.error("Response status:", error.response.status);
-        setError(
-          `An error occurred while creating the order: ${error.response.data.message || error.message
-          }`
-        );
+        const responseData = error.response.data;
+
+        if (responseData.message.includes("pending order")) {
+          Swal.fire({
+            title: "Pending Order",
+            text: responseData.message,
+            icon: "warning",
+            confirmButtonText: "OK",
+          });
+        } else {
+          setError(responseData.message || "An unexpected error occurred. Please try again.");
+        }
+      } else if (error instanceof Error) {
+        setError(error.message);
       } else {
-        setError(
-          "An unexpected error occurred while creating the order. Please try again."
-        );
+        setError("An unexpected error occurred. Please try again.");
       }
     } finally {
       setIsLoading(false);
     }
   };
+
+  const shippingCost = selectedCourier ? selectedCourier.cost : 0;
+  const totalWithShipping = totalPrice + shippingCost;
 
   return (
     <div className="mt-24">
@@ -184,19 +206,38 @@ const CheckoutData = () => {
               </CardHeader>
               <CardContent>
                 <h3 className="font-bold mb-2">Shipping Method</h3>
-                {isLoading ? <Skeleton className="h-[50px] w-full  bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" /> : (
-                  <Select defaultValue={firstShippingData?.id}>
+                {isLoading ? (
+                  <Skeleton className="h-[50px] w-full  bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
+                ) : (
+                  <Select
+                    onValueChange={handleCourierChange}
+                    defaultValue={selectedCourier?.id.toString()}
+                  >
                     <SelectTrigger className="w-full p-8 relative">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        {shippingData.map((data, index) => (
-                          <SelectItem key={index} value={data.id} className="w-full relative">
+                        {shippingData.map((data) => (
+                          <SelectItem
+                            key={data.id}
+                            value={data.id.toString()}
+                            className="w-full relative"
+                          >
                             <div className="flex w-full gap-2 items-center">
-                              <FaShippingFast size={25} className="text-blue-800" />
-                              <h4 className="font-bold">{data.name.toUpperCase()}</h4>
-                              <span className="absolute right-14 font-bold">Rp {(data.cost / 1000).toFixed(3).replace('.', ',')}</span>
+                              <FaShippingFast
+                                size={25}
+                                className="text-blue-800"
+                              />
+                              <h4 className="font-bold">
+                                {data.name.toUpperCase()}
+                              </h4>
+                              <span className="absolute right-14 font-bold">
+                                Rp{" "}
+                                {(data.cost / 1000)
+                                  .toFixed(3)
+                                  .replace(".", ",")}
+                              </span>
                             </div>
                           </SelectItem>
                         ))}
@@ -204,7 +245,6 @@ const CheckoutData = () => {
                     </SelectContent>
                   </Select>
                 )}
-
 
                 <h3 className="font-bold mt-4 mb-2">Pesanan</h3>
                 {cartItemsWithDetails.length > 0 && (
@@ -279,18 +319,20 @@ const CheckoutData = () => {
                 </div>
                 <div className="flex justify-between mb-2">
                   <span>Ongkos Kirim</span>
-                  <span className="text-green-500">GRATIS</span>
+                  <span>Rp {shippingCost.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between font-bold">
                   <span>Total Pembayaran</span>
-                  <span>Rp {totalPrice.toLocaleString()}</span>
+                  <span>Rp {totalWithShipping.toLocaleString()}</span>
                 </div>
               </CardContent>
               <CardFooter>
                 <Button
                   className="w-full bg-blue-500 hover:bg-blue-600"
                   onClick={handleCreateOrder}
-                  disabled={isLoading || cartItems.length === 0}
+                  disabled={
+                    isLoading || cartItems.length === 0 || !selectedCourier
+                  }
                 >
                   {isLoading ? "Processing..." : "Pilih Pembayaran"}
                 </Button>
@@ -299,6 +341,7 @@ const CheckoutData = () => {
           </div>
         </div>
       </div>
+      {error && <div className="text-red-500 mt-4 text-center">{error}</div>}
     </div>
   );
 };

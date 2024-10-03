@@ -8,16 +8,22 @@ import OrderFilters from "./components/OrderFilters";
 import OrderPagination from "./components/OrderPagination";
 import { Order } from "@/types/order";
 import OrderCard from "./components/OrderCards";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const OrderSkeleton: React.FC = () => (
+  <div className="space-y-2">
+    <Skeleton className="h-10 w-full" />
+    <Skeleton className="h-20 w-full" />
+    <Skeleton className="h-4 w-1/4" />
+  </div>
+);
 
 const OrderList: React.FC = () => {
   const { data: session } = useSession();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("Semua");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [totalItems, setTotalItems] = useState(0);
-
-  console.log("Session data:", session);
 
   const [dateRange, setDateRange] = useState<{
     startDate: Date | null;
@@ -27,47 +33,16 @@ const OrderList: React.FC = () => {
   const { ordersData, loading, error } = useOrders(
     currentPage - 1,
     pageSize,
-    statusFilter,
+    statusFilter === "all" ? "" : statusFilter,
     dateRange.startDate,
     dateRange.endDate
   );
 
-  console.log("Orders data:", ordersData);
-  console.log("Loading state:", loading);
-  console.log("Error state:", error);
-
-  const filteredOrders = React.useMemo(() => {
-    console.log(
-      "Filtering orders. Global filter:",
-      globalFilter,
-      "Status filter:",
-      statusFilter
-    );
-
-    if (!ordersData || !ordersData.content) {
-      console.log("No orders data available for filtering");
-      return [];
-    }
-
-    let filtered = ordersData.content;
-
-    if (globalFilter) {
-      filtered = filtered.filter((order) =>
-        order.id.toString().includes(globalFilter)
-      );
-    }
-
-    if (statusFilter !== "Semua") {
-      filtered = filtered.filter((order) => order.status === statusFilter);
-    }
-
-    console.log("Filtered orders:", filtered);
-    return filtered;
-  }, [ordersData, globalFilter, statusFilter]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    if (ordersData) {
-      console.log("Setting total items:", ordersData.totalElements);
+    if (ordersData && ordersData.content) {
+      setFilteredOrders(ordersData.content);
       setTotalItems(ordersData.totalElements);
     }
   }, [ordersData]);
@@ -76,11 +51,7 @@ const OrderList: React.FC = () => {
     order.items.map((item) => item.productId)
   );
 
-  console.log("All product IDs:", allProductIds);
-
   const productQueryResults = useProductDetails(allProductIds);
-
-  console.log("Product query results:", productQueryResults);
 
   const productDetailsMap = React.useMemo(() => {
     const map = new Map();
@@ -89,20 +60,24 @@ const OrderList: React.FC = () => {
         map.set(result.data.id, result.data);
       }
     });
-    console.log("Product details map:", map);
     return map;
   }, [productQueryResults]);
 
+  const handleOrderUpdate = (updatedOrder: Order) => {
+    setFilteredOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order.id === updatedOrder.id ? updatedOrder : order
+      )
+    );
+  };
+
   if (!session) return <div>Please log in to view your orders.</div>;
-  if (loading) return <div>Loading orders...</div>;
   if (error) return <div>Error loading orders: {error.message}</div>;
 
   return (
     <div className="space-y-4 mt-28 mx-28">
       <OrderHeader />
       <OrderFilters
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
         setDateRange={(startDate, endDate) =>
@@ -110,7 +85,11 @@ const OrderList: React.FC = () => {
         }
       />
       <div className="space-y-4">
-        {filteredOrders.length === 0 ? (
+        {loading ? (
+          Array.from({ length: 5 }).map((_, index) => (
+            <OrderSkeleton key={index} />
+          ))
+        ) : filteredOrders.length === 0 ? (
           <div>No orders found.</div>
         ) : (
           filteredOrders.map((order: Order) => (
@@ -118,6 +97,7 @@ const OrderList: React.FC = () => {
               key={order.id}
               order={order}
               productDetails={productDetailsMap.get(order.items[0]?.productId)}
+              onOrderUpdate={handleOrderUpdate}
             />
           ))
         )}

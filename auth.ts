@@ -73,7 +73,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const action = cookieStore.get('auth_action')?.value
         if (action == 'register') {
           const response = await fetch(
-            `http://localhost:8080/api/users/register-google`,
+            `${process.env.NEXT_PUBLIC_API_URL}api/users/register-google`,
             {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -92,7 +92,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const responseLogin = await fetch(
-          `http://localhost:8080/api/auth/login-social`,
+          `${process.env.NEXT_PUBLIC_API_URL}api/auth/login-social`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

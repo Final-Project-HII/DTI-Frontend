@@ -1,11 +1,13 @@
-import React from 'react'
+import React from 'react';
+import SalesReportDashboard from './salesReportDashborad';
 
-const page = () => {
+
+const SalesReportPage: React.FC = () => {
   return (
     <div>
-      sales report
+      <SalesReportDashboard />
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default SalesReportPage;
