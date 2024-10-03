@@ -122,7 +122,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       const useCookies = cookies()
       useCookies.set('Sid', user.accessToken)
-
       return true
     },
     async jwt({ token, user }) {

@@ -152,9 +152,7 @@ const WarehouseTable = () => {
       </AlertDialog>
       <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
         <DialogTitle></DialogTitle>
-        <DialogContent className="max-w-md lg:max-w-4xl" onInteractOutside={(e) => {
-          e.preventDefault();
-        }} >
+        <DialogContent className="max-w-md lg:max-w-4xl">
           <UpdateWarehouseForm data={warehouseDetail} onClose={handleCloseDetailsModal} onWarehouseUpdated={fetchWarehouses} />
         </DialogContent>
       </Dialog>

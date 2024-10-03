@@ -26,6 +26,8 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateWarehouse } from '@/utils/api';
 import { Warehouse } from '@/types/warehouse';
+import Swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 const MapComponent = dynamic(() => import('../MapComponent'), {
   ssr: false,
@@ -138,6 +140,14 @@ const UpdateWarehouseForm: React.FC<AddWarehouseFormProps> = ({ data, onClose, o
   const onSubmit = async (formData: WarehouseFormData) => {
     try {
       await updateWarehouse(data!.id, formData);
+      Swal.fire({
+        title: 'Warehouse Has Been Updated Succesfully!',
+        text: 'This will close in 3 seconds.',
+        icon: 'success',
+        timer: 3000,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
       onClose();
       onWarehouseUpdated()
     } catch (error) {

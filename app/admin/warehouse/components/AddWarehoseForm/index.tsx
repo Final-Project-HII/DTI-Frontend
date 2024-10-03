@@ -25,6 +25,8 @@ import dynamic from 'next/dynamic';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import Swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 const MapComponent = dynamic(() => import('../MapComponent'), {
   ssr: false,
@@ -136,6 +138,14 @@ const AddWarehouseForm: React.FC<AddWarehouseFormProps> = ({ onClose, onWarehous
   const onSubmit = async (data: WarehouseFormData) => {
     try {
       await createWarehouse(data);
+      Swal.fire({
+        title: 'Warehouse Has Been Added Succesfully!',
+        text: 'This will close in 3 seconds.',
+        icon: 'success',
+        timer: 3000,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
       onClose();
       onWarehouseAdded()
     } catch (error) {
