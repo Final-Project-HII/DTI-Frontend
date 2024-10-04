@@ -8,8 +8,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { PaymentDetails, PaymentStatus } from "@/types/payment";
 
-
-
 interface OrderDetails {
   id: string;
   invoiceId: string;
@@ -155,7 +153,7 @@ const PaymentProcessPage: React.FC = () => {
             </div>
           )}
           <Button onClick={handleBackToHome} className="w-full mt-4">
-            Back to Home
+            Back to Home.
           </Button>
         </CardContent>
       </Card>
