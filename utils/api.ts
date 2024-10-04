@@ -3,7 +3,7 @@ import {
   Address,
   ApiResponse,
   ApiResponseAddress,
-  Product,
+  Products,
 } from '@/types/product'
 import { Category } from '@/types/category'
 import { Warehouse } from '@/types/warehouse'
@@ -38,9 +38,9 @@ export const fetchProducts = async () => {
 
 export const fetchProductDetails = async (
   productId: number
-): Promise<Product> => {
+): Promise<Products> => {
   try {
-    const response = await axiosInstance.get<Product>(`/product/${productId}`);
+    const response = await axiosInstance.get<Products>(`/product/${productId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching product details:", error);
@@ -117,7 +117,7 @@ export const fetchFilteredProducts = async (
   return response.data;
 };
 
-export const createProduct = async (formData: FormData): Promise<Product> => {
+export const createProduct = async (formData: FormData): Promise<Products> => {
   const response = await axiosInstance.post("/product/create", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -129,7 +129,7 @@ export const createProduct = async (formData: FormData): Promise<Product> => {
 export const updateProduct = async (
   id: number,
   formData: FormData
-): Promise<Product> => {
+): Promise<Products> => {
   const response = await axiosInstance.put(`/product/update/${id}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",

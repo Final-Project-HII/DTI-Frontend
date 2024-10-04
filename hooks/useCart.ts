@@ -9,13 +9,14 @@ import {
   removeCartItemApi,
 } from "../utils/api";
 import { CartDetails, CartItem } from "@/types/cartitem";
-import { Product } from "@/types/product";
+import { Products } from "@/types/product";
+
 
 export const useCart = () => {
   const { data: session, status } = useSession();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartItemsWithDetails, setCartItemsWithDetails] = useState<
-    (CartItem & { productDetails: Product })[]
+    (CartItem & { productDetails: Products })[]
   >([]);
   const [cartDetails, setCartDetails] = useState<CartDetails>({
     totalPrice: 0,
