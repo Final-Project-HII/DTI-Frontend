@@ -15,9 +15,6 @@ const OrderTable: React.FC<OrderTableProps> = ({
   payments,
   onOrderSelect,
 }) => {
-  console.log("Orders:", orders);
-  console.log("Payments:", payments);
-
   return (
     <ScrollArea className="w-full">
       <div className="min-w-max">
@@ -30,6 +27,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
               <th className="px-4 py-2">Status</th>
               <th className="px-4 py-2">Total Amount</th>
               <th className="px-4 py-2">Payment Method</th>
+              <th className="px-4 py-2">Warehouse</th>
               <th className="px-4 py-2">Action</th>
             </tr>
           </thead>
@@ -38,7 +36,6 @@ const OrderTable: React.FC<OrderTableProps> = ({
               const payment = payments.find(
                 (p) => p.orderId === order.id.toString()
               );
-              console.log(`Order ${order.id} payment:`, payment);
               return (
                 <tr key={order.id}>
                   <td className="border px-4 py-2">{order.id}</td>
@@ -50,6 +47,9 @@ const OrderTable: React.FC<OrderTableProps> = ({
                   </td>
                   <td className="border px-4 py-2">
                     {payment ? payment.paymentMethod : "N/A"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {order.warehouseName || "N/A"}
                   </td>
                   <td className="border px-4 py-2">
                     <Button

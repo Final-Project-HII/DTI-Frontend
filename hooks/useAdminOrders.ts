@@ -15,9 +15,10 @@ interface OrdersResponse {
 export const useAdminOrders = (
   page: number,
   size: number,
-  status?: string,
-  startDate?: Date | null,
-  endDate?: Date | null
+  status: string,
+  warehouseId: string,
+  startDate: string,
+  endDate: string
 ) => {
   const [ordersData, setOrdersData] = useState<OrdersResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,15 +35,18 @@ export const useAdminOrders = (
 
       try {
         setLoading(true);
-        let url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/admin/all?page=${page}&size=${size}`;
+        const queryParams = new URLSearchParams({
+          page: page.toString(),
+          size: size.toString(),
+          ...(status && status !== "all" && { status }),
+          ...(warehouseId && { warehouse: warehouseId }),
+          ...(startDate && { startDate }),
+          ...(endDate && { endDate }),
+        });
 
-        if (status && status !== "all") {
-          url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/admin/filtered?page=${page}&size=${size}&status=${status}`;
-        }
+        const url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/admin/filtered?${queryParams}`;
 
-        if (startDate && endDate) {
-          url += `&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
-        }
+        console.log("Fetching orders from URL:", url); // Log the URL
 
         const response = await fetch(url, {
           headers: {
@@ -51,11 +55,16 @@ export const useAdminOrders = (
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to fetch admin orders");
+          const errorText = await response.text();
+          console.error("Error response:", response.status, errorText);
+          throw new Error(
+            `Failed to fetch orders: ${response.status} ${response.statusText}`
+          );
         }
-        const content: OrdersResponse = await response.json();
-        setOrdersData(content);
+
+        const data = await response.json();
+        console.log("Received data:", data); // Log the received data
+        setOrdersData(data);
         setError(null);
       } catch (err) {
         console.error("Error fetching admin orders:", err);
@@ -68,7 +77,7 @@ export const useAdminOrders = (
     };
 
     fetchAdminOrders();
-  }, [session, page, size, status, startDate, endDate]);
+  }, [session, page, size, status, warehouseId, startDate, endDate]);
 
   return { ordersData, loading, error };
 };

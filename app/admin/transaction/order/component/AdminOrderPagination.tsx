@@ -52,10 +52,7 @@ const AdminOrderPagination: React.FC<AdminOrderPaginationProps> = ({
       </span>
       <Select
         value={pageSize.toString()}
-        onValueChange={(value) => {
-          setPageSize(Number(value));
-          setCurrentPage(1);
-        }}
+        onValueChange={(value) => setPageSize(Number(value))}
       >
         <SelectTrigger className="w-[100px]">
           <SelectValue placeholder="Page size" />

@@ -17,8 +17,10 @@ const AdminOrderManagement = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [orderStatus, setOrderStatus] = useState("all");
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [warehouseId, setWarehouseId] = useState("");
+  const [status, setStatus] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [payments, setPayments] = useState<PaymentStatus[]>([]);
 
@@ -27,7 +29,8 @@ const AdminOrderManagement = () => {
   const { ordersData, loading, error } = useAdminOrders(
     page,
     size,
-    orderStatus,
+    status,
+    warehouseId,
     startDate,
     endDate
   );
@@ -75,17 +78,24 @@ const AdminOrderManagement = () => {
 
   const handleFilterChange = (
     newStatus: string,
-    newStartDate: Date | null,
-    newEndDate: Date | null
+    newWarehouseId: string,
+    newStartDate: string,
+    newEndDate: string
   ) => {
-    setOrderStatus(newStatus);
+    setStatus(newStatus);
+    setWarehouseId(newWarehouseId);
     setStartDate(newStartDate);
     setEndDate(newEndDate);
     setPage(0);
   };
 
   const handlePageChange = (newPage: number) => {
-    setPage(newPage);
+    setPage(newPage - 1); // Adjust for 0-based index
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setSize(newSize);
+    setPage(0); // Reset to first page when changing page size
   };
 
   const handleOrderSelect = (order: Order) => {
@@ -177,9 +187,9 @@ const AdminOrderManagement = () => {
               />
               <AdminOrderPagination
                 currentPage={page + 1}
-                setCurrentPage={(newPage) => setPage(newPage - 1)}
+                setCurrentPage={handlePageChange}
                 pageSize={size}
-                setPageSize={setSize}
+                setPageSize={handlePageSizeChange}
                 totalItems={ordersData.data.totalElements}
               />
             </>
