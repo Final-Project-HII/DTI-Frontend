@@ -44,9 +44,9 @@ export const useAdminOrders = (
           ...(endDate && { endDate }),
         });
 
-        const url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/admin/filtered?${queryParams}`;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/admin?${queryParams}`;
 
-        console.log("Fetching orders from URL:", url); // Log the URL
+        console.log("Fetching orders from URL:", url);
 
         const response = await fetch(url, {
           headers: {
@@ -63,7 +63,7 @@ export const useAdminOrders = (
         }
 
         const data = await response.json();
-        console.log("Received data:", data); // Log the received data
+        console.log("Received data:", data);
         setOrdersData(data);
         setError(null);
       } catch (err) {

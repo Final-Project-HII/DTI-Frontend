@@ -28,14 +28,17 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
       if (!session?.user.accessToken) return;
 
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/warehouses`, {
-          headers: {
-            Authorization: `Bearer ${session.user.accessToken}`,
-          },
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}api/warehouses`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.user.accessToken}`,
+            },
+          }
+        );
         if (response.ok) {
           const data = await response.json();
-          console.log('Warehouse data:', data);
+          console.log("Warehouse data:", data);
           // Extract warehouses from the nested structure
           const warehouseArray = data.data?.content || [];
           setWarehouses(warehouseArray);
@@ -53,6 +56,13 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onFilterChange(status, warehouseId, startDate, endDate);
+  };
+  const handleReset = () => {
+    setStatus("all");
+    setWarehouseId("");
+    setStartDate("");
+    setEndDate("");
+    onFilterChange("all", "", "", "");
   };
 
   return (
@@ -100,6 +110,13 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded"
         >
           Apply Filters
+        </button>
+        <button
+          type="button"
+          onClick={handleReset}
+          className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-4 rounded"
+        >
+          Reset Filters
         </button>
       </div>
     </form>
