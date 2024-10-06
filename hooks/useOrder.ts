@@ -3,12 +3,13 @@ import { useSession } from "next-auth/react";
 import { Order } from "@/types/order";
 
 interface OrdersResponse {
-  data: any;
-  content: Order[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number;
+  data: {
+    content: Order[];
+    totalPages: number;
+    totalElements: number;
+    size: number;
+    number: number;
+  };
 }
 
 export const useOrders = (
@@ -32,15 +33,17 @@ export const useOrders = (
 
       try {
         setLoading(true);
-        let url = `${process.env.NEXT_PUBLIC_API_URL}api/orders?page=${page}&size=${size}`;
+        const queryParams = new URLSearchParams({
+          page: page.toString(),
+          size: size.toString(),
+          ...(status && status !== "all" && { status }),
+          ...(startDate && { startDate: startDate.toISOString() }),
+          ...(endDate && { endDate: endDate.toISOString() }),
+        });
 
-        if (status && status !== "all") {
-          url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/filtered?page=${page}&size=${size}`;
-        }
+        const url = `${process.env.NEXT_PUBLIC_API_URL}api/orders?${queryParams}`;
 
-        if (startDate && endDate) {
-          url += `&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
-        }
+        console.log("Fetching orders from URL:", url); // For debugging
 
         const response = await fetch(url, {
           headers: {
@@ -49,11 +52,16 @@ export const useOrders = (
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to fetch orders");
+          const errorText = await response.text();
+          console.error("Error response:", response.status, errorText);
+          throw new Error(
+            `Failed to fetch orders: ${response.status} ${response.statusText}`
+          );
         }
-        const content: OrdersResponse = await response.json();
-        setOrdersData(content);
+
+        const data: OrdersResponse = await response.json();
+        console.log("Received data:", data); // For debugging
+        setOrdersData(data);
         setError(null);
       } catch (err) {
         console.error("Error fetching orders:", err);

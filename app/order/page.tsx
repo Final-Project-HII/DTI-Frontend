@@ -41,9 +41,12 @@ const OrderList: React.FC = () => {
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    if (ordersData && ordersData.content) {
-      setFilteredOrders(ordersData.content);
-      setTotalItems(ordersData.totalElements);
+    console.log("Received ordersData:", ordersData); // For debugging
+    if (ordersData && ordersData.data && ordersData.data.content) {
+      setFilteredOrders(ordersData.data.content);
+      setTotalItems(ordersData.data.totalElements);
+    } else {
+      console.error("Unexpected ordersData structure:", ordersData);
     }
   }, [ordersData]);
 
