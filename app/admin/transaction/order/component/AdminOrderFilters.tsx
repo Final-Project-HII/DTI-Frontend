@@ -16,7 +16,7 @@ interface OrderFilterProps {
 }
 
 const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
-  const [status, setStatus] = useState("all");
+  const [status, setStatus] = useState("ALL");
   const [warehouseId, setWarehouseId] = useState("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
@@ -57,12 +57,13 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
     e.preventDefault();
     onFilterChange(status, warehouseId, startDate, endDate);
   };
+
   const handleReset = () => {
-    setStatus("all");
+    setStatus("ALL");
     setWarehouseId("");
     setStartDate("");
     setEndDate("");
-    onFilterChange("all", "", "", "");
+    onFilterChange("ALL", "", "", "");
   };
 
   return (
@@ -73,13 +74,13 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
           onChange={(e) => setStatus(e.target.value)}
           className="border rounded px-2 py-1"
         >
-          <option value="all">All Status</option>
-          <option value="pending_payment">Pending Payment</option>
-          <option value="confirmation">Confirmation</option>
-          <option value="process">Process</option>
-          <option value="shipped">Shipped</option>
-          <option value="delivered">Delivered</option>
-          <option value="cancelled">Cancelled</option>
+          <option value="ALL">All Status</option>
+          <option value="PENDING_PAYMENT">Pending Payment</option>
+          <option value="CONFIRMATION">Confirmation</option>
+          <option value="PROCESS">Process</option>
+          <option value="SHIPPED">Shipped</option>
+          <option value="DELIVERED">Delivered</option>
+          <option value="CANCELLED">Cancelled</option>
         </select>
         <select
           value={warehouseId}

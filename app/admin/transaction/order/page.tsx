@@ -9,6 +9,7 @@ import OrderStatusModal from "./component/AdminOrderStatusModal";
 import AdminOrderPagination from "./component/AdminOrderPagination";
 import { useRouter } from "next/navigation";
 import { useAdminOrders } from "@/hooks/useAdminOrders";
+import OrderTableSkeleton from "./component/AdminOrderTableSkeleton";
 
 const AdminOrderManagement = () => {
   const router = useRouter();
@@ -29,7 +30,7 @@ const AdminOrderManagement = () => {
   const { ordersData, loading, error } = useAdminOrders(
     page,
     size,
-    status,
+    orderStatus,
     warehouseId,
     startDate,
     endDate
@@ -82,7 +83,7 @@ const AdminOrderManagement = () => {
     newStartDate: string,
     newEndDate: string
   ) => {
-    setStatus(newStatus);
+    setOrderStatus(newStatus);
     setWarehouseId(newWarehouseId);
     setStartDate(newStartDate);
     setEndDate(newEndDate);
@@ -175,7 +176,7 @@ const AdminOrderManagement = () => {
       <h1 className="text-2xl font-bold mb-4">Admin Order Management</h1>
       <OrderFilter onFilterChange={handleFilterChange} />
       {loading ? (
-        <div>Loading...</div>
+        <OrderTableSkeleton rowCount={size} /> // Use skeleton while loading orders
       ) : (
         <>
           {ordersData && ordersData.data && ordersData.data.content ? (
