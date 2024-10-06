@@ -55,11 +55,7 @@ export const useAdminOrders = (
         });
 
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error("Error response:", response.status, errorText);
-          throw new Error(
-            `Failed to fetch orders: ${response.status} ${response.statusText}`
-          );
+          throw new Error(`Failed to fetch orders: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
@@ -68,9 +64,7 @@ export const useAdminOrders = (
         setError(null);
       } catch (err) {
         console.error("Error fetching admin orders:", err);
-        setError(
-          err instanceof Error ? err : new Error("An unknown error occurred")
-        );
+        setError(err instanceof Error ? err : new Error("An unknown error occurred"));
       } finally {
         setLoading(false);
       }

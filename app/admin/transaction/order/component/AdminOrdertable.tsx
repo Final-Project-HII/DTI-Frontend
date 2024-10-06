@@ -6,15 +6,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface OrderTableProps {
   orders: Order[];
-  payments: PaymentStatus[];
   onOrderSelect: (order: Order) => void;
 }
 
-const OrderTable: React.FC<OrderTableProps> = ({
-  orders,
-  payments,
-  onOrderSelect,
-}) => {
+const OrderTable: React.FC<OrderTableProps> = ({ orders, onOrderSelect }) => {
   return (
     <ScrollArea className="w-full">
       <div className="min-w-max">
@@ -32,37 +27,32 @@ const OrderTable: React.FC<OrderTableProps> = ({
             </tr>
           </thead>
           <tbody className="text-center">
-            {orders.map((order) => {
-              const payment = payments.find(
-                (p) => p.orderId === order.id.toString()
-              );
-              return (
-                <tr key={order.id}>
-                  <td className="border px-4 py-2">{order.id}</td>
-                  <td className="border px-4 py-2">{order.invoiceId}</td>
-                  <td className="border px-4 py-2">{order.userId}</td>
-                  <td className="border px-4 py-2">{order.status}</td>
-                  <td className="border px-4 py-2">
-                    Rp {order.finalAmount.toLocaleString()}
-                  </td>
-                  <td className="border px-4 py-2">
-                    {payment ? payment.paymentMethod : "N/A"}
-                  </td>
-                  <td className="border px-4 py-2">
-                    {order.warehouseName || "N/A"}
-                  </td>
-                  <td className="border px-4 py-2">
-                    <Button
-                      onClick={() => onOrderSelect(order)}
-                      variant="default"
-                      size="sm"
-                    >
-                      Manage
-                    </Button>
-                  </td>
-                </tr>
-              );
-            })}
+            {orders.map((order) => (
+              <tr key={order.id}>
+                <td className="border px-4 py-2">{order.id}</td>
+                <td className="border px-4 py-2">{order.invoiceId}</td>
+                <td className="border px-4 py-2">{order.userId}</td>
+                <td className="border px-4 py-2">{order.status}</td>
+                <td className="border px-4 py-2">
+                  Rp {order.finalAmount.toLocaleString()}
+                </td>
+                <td className="border px-4 py-2">
+                  {order.paymentMethod || "N/A"}
+                </td>
+                <td className="border px-4 py-2">
+                  {order.warehouseName || "N/A"}
+                </td>
+                <td className="border px-4 py-2">
+                  <Button
+                    onClick={() => onOrderSelect(order)}
+                    variant="default"
+                    size="sm"
+                  >
+                    Manage
+                  </Button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

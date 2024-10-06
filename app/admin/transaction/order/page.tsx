@@ -182,7 +182,6 @@ const AdminOrderManagement = () => {
             <>
               <OrderTable
                 orders={ordersData.data.content}
-                payments={payments}
                 onOrderSelect={handleOrderSelect}
               />
               <AdminOrderPagination
