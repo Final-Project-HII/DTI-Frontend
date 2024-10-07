@@ -211,7 +211,7 @@ const UpdateWarehouseForm: React.FC<AddWarehouseFormProps> = ({ data, onClose, o
 
 
             <Label htmlFor="city">City</Label>
-            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen} modal={true}>
               <PopoverTrigger asChild>
                 <Button variant="outline" role="combobox" className="justify-between">
                   {cities.find(city => city.id === selectedCityId)?.name || "Select a city"}

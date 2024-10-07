@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { ProductCard } from "@/app/(main)/product/_components/ProductCard";
+import { ProductCard } from "@/app/(user)/(main)/product/_components/ProductCard";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import Link from "next/link";

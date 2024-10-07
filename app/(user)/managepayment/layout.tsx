@@ -1,7 +1,7 @@
 // import LeftNavbar from './_components/Navbar';
 
 import NavBar from "@/components/NavBar";
-import AdminLeftNavbar from "../admin/_components/AdminLeftNavbar";
+import AdminLeftNavbar from "../../admin/_components/AdminLeftNavbar";
 
 export interface ProductLayoutProps {
   children: React.ReactNode;

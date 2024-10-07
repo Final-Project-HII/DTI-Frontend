@@ -10,9 +10,10 @@ import { Warehouse } from '@/types/warehouse'
 import { WarehouseFormData } from '@/app/admin/warehouse/components/AddWarehoseForm'
 import { Order, OrderItem } from '@/types/order'
 import { useSession } from 'next-auth/react'
-import { AddressFormData } from '@/app/checkout/_components/UpdateAddressForm'
+import { AddressFormData } from '@/app/(user)/checkout/_components/UpdateAddressForm'
 import { AdminFormData } from '@/app/admin/admin-management/_components/AdminTable/components/DataTable/components/AddAdminForm'
-import { InfoForm } from '@/app/profile/components/ProfilePage'
+import { InfoForm } from '@/app/(user)/profile/components/ProfilePage'
+import { cookies } from 'next/headers'
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`
 

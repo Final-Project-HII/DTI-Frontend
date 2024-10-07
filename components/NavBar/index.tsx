@@ -20,6 +20,7 @@ import CategorySwiper from "./_components/CategorySwiper";
 import SearchInput from "./_components/SearchInput";
 import SearchSheet from "./_components/SearchSheet";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { logout } from "@/hooks/useLogout";
 
 const queryClient = new QueryClient();
 
@@ -38,8 +39,14 @@ const NavBar = () => {
 
 
 
-  const handleSignOut = () => {
-    signOut()
+  const handleSignOut = async () => {
+    try {
+      await logout(session!.user.accessToken)
+      signOut()
+
+    } catch (error) {
+      console.log("Error to logout")
+    }
   }
 
   const toggleMenu = () => {
