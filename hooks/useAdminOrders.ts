@@ -17,8 +17,7 @@ export const useAdminOrders = (
   size: number,
   status: string,
   warehouseId: string,
-  startDate: string,
-  endDate: string
+  date: string
 ) => {
   const [ordersData, setOrdersData] = useState<OrdersResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,8 +39,7 @@ export const useAdminOrders = (
           size: size.toString(),
           ...(status && status !== "all" && { status }),
           ...(warehouseId && { warehouse: warehouseId }),
-          ...(startDate && { startDate }),
-          ...(endDate && { endDate }),
+          ...(date && { date }),
         });
 
         const url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/admin?${queryParams}`;
@@ -71,7 +69,7 @@ export const useAdminOrders = (
     };
 
     fetchAdminOrders();
-  }, [session, page, size, status, warehouseId, startDate, endDate]);
+  }, [session, page, size, status, warehouseId, date]);
 
   return { ordersData, loading, error };
 };

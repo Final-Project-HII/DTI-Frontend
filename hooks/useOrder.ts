@@ -15,9 +15,8 @@ interface OrdersResponse {
 export const useOrders = (
   page: number,
   size: number,
-  status?: string,
-  startDate?: Date | null,
-  endDate?: Date | null
+  status: string,
+  date: Date | null
 ) => {
   const [ordersData, setOrdersData] = useState<OrdersResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,8 +25,9 @@ export const useOrders = (
 
   useEffect(() => {
     const fetchOrders = async () => {
-      if (!session) {
+      if (!session?.user?.accessToken) {
         setLoading(false);
+        setError(new Error("User not authenticated"));
         return;
       }
 
@@ -36,14 +36,13 @@ export const useOrders = (
         const queryParams = new URLSearchParams({
           page: page.toString(),
           size: size.toString(),
-          ...(status && status !== "all" && { status }),
-          ...(startDate && { startDate: startDate.toISOString() }),
-          ...(endDate && { endDate: endDate.toISOString() }),
+          ...(status && { status }),
+          ...(date && { date: date.toISOString().split('T')[0] }),
         });
 
         const url = `${process.env.NEXT_PUBLIC_API_URL}api/orders?${queryParams}`;
 
-        console.log("Fetching orders from URL:", url); // For debugging
+        console.log("Fetching orders from URL:", url);
 
         const response = await fetch(url, {
           headers: {
@@ -52,29 +51,23 @@ export const useOrders = (
         });
 
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error("Error response:", response.status, errorText);
-          throw new Error(
-            `Failed to fetch orders: ${response.status} ${response.statusText}`
-          );
+          throw new Error(`Failed to fetch orders: ${response.status} ${response.statusText}`);
         }
 
-        const data: OrdersResponse = await response.json();
-        console.log("Received data:", data); // For debugging
+        const data = await response.json();
+        console.log("Received data:", data);
         setOrdersData(data);
         setError(null);
       } catch (err) {
         console.error("Error fetching orders:", err);
-        setError(
-          err instanceof Error ? err : new Error("An unknown error occurred")
-        );
+        setError(err instanceof Error ? err : new Error("An unknown error occurred"));
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrders();
-  }, [session, page, size, status, startDate, endDate]);
+  }, [session, page, size, status, date]);
 
   return { ordersData, loading, error };
 };

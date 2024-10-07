@@ -12,13 +12,13 @@ import {
 interface OrderFiltersProps {
   statusFilter: string;
   setStatusFilter: (value: string) => void;
-  setDateRange: (startDate: Date | null, endDate: Date | null) => void;
+  setDate: (date: Date | null) => void;
 }
 
 const OrderFilters: React.FC<OrderFiltersProps> = ({
   statusFilter,
   setStatusFilter,
-  setDateRange,
+  setDate,
 }) => {
   const orderStatuses = [
     "all",
@@ -27,10 +27,10 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
     "process",
     "shipped",
     "delivered",
-    "cancelled"
+    "cancelled",
   ];
 
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   return (
     <>
@@ -42,29 +42,26 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
             size="sm"
             onClick={() => setStatusFilter(status === "all" ? "" : status)}
           >
-            {status === "all" ? "All" : status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
+            {status === "all"
+              ? "All"
+              : status.charAt(0).toUpperCase() +
+                status.slice(1).replace("_", " ")}
           </Button>
         ))}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" className="ml-auto">
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP") : "Pick a date"}
+              {selectedDate ? format(selectedDate, "PPP") : "Pick a date"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="end">
             <Calendar
               mode="single"
-              selected={date}
+              selected={selectedDate}
               onSelect={(newDate) => {
-                setDate(newDate);
-                if (newDate) {
-                  const endOfDay = new Date(newDate);
-                  endOfDay.setHours(23, 59, 59, 999);
-                  setDateRange(newDate, endOfDay);
-                } else {
-                  setDateRange(null, null);
-                }
+                setSelectedDate(newDate);
+                setDate(newDate ?? null); // Convert undefined to null for parent component
               }}
               initialFocus
             />
@@ -75,8 +72,8 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
           className="text-green-600"
           onClick={() => {
             setStatusFilter("");
-            setDateRange(null, null);
-            setDate(undefined);
+            setDate(null);
+            setSelectedDate(undefined);
           }}
         >
           Reset Filter

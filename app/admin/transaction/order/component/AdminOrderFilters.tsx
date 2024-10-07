@@ -1,5 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { debounce } from "lodash";
 
 interface Warehouse {
   id: number;
@@ -10,18 +20,27 @@ interface OrderFilterProps {
   onFilterChange: (
     status: string,
     warehouseId: string,
-    startDate: string,
-    endDate: string
+    date: string
   ) => void;
 }
 
 const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
   const [status, setStatus] = useState("ALL");
-  const [warehouseId, setWarehouseId] = useState("");
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
+  const [warehouseId, setWarehouseId] = useState("ALL");
+  const [date, setDate] = useState<string>("");
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const { data: session } = useSession();
+
+  const debouncedFilterChange = useCallback(
+    debounce((status, warehouseId, date) => {
+      onFilterChange(
+        status,
+        warehouseId === "ALL" ? "" : warehouseId,
+        date
+      );
+    }, 300),
+    [onFilterChange]
+  );
 
   useEffect(() => {
     const fetchWarehouses = async () => {
@@ -38,8 +57,6 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
         );
         if (response.ok) {
           const data = await response.json();
-          console.log("Warehouse data:", data);
-          // Extract warehouses from the nested structure
           const warehouseArray = data.data?.content || [];
           setWarehouses(warehouseArray);
         } else {
@@ -53,74 +70,68 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
     fetchWarehouses();
   }, [session]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onFilterChange(status, warehouseId, startDate, endDate);
-  };
+  useEffect(() => {
+    debouncedFilterChange(status, warehouseId, date);
+  }, [status, warehouseId, date, debouncedFilterChange]);
 
   const handleReset = () => {
     setStatus("ALL");
-    setWarehouseId("");
-    setStartDate("");
-    setEndDate("");
-    onFilterChange("ALL", "", "", "");
+    setWarehouseId("ALL");
+    setDate("");
+    onFilterChange("ALL", "", "");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4">
-      <div className="flex items-center space-x-4">
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="border rounded px-2 py-1"
-        >
-          <option value="ALL">All Status</option>
-          <option value="PENDING_PAYMENT">Pending Payment</option>
-          <option value="CONFIRMATION">Confirmation</option>
-          <option value="PROCESS">Process</option>
-          <option value="SHIPPED">Shipped</option>
-          <option value="DELIVERED">Delivered</option>
-          <option value="CANCELLED">Cancelled</option>
-        </select>
-        <select
-          value={warehouseId}
-          onChange={(e) => setWarehouseId(e.target.value)}
-          className="border rounded px-2 py-1"
-        >
-          <option value="">All Warehouses</option>
-          {warehouses.map((warehouse) => (
-            <option key={warehouse.id} value={warehouse.id.toString()}>
-              {warehouse.name}
-            </option>
-          ))}
-        </select>
-        <input
+    <div className="mb-6 p-4 bg-white rounded-lg shadow">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        <Select value={status} onValueChange={setStatus}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All Status</SelectItem>
+            <SelectItem value="PENDING_PAYMENT">Pending Payment</SelectItem>
+            <SelectItem value="CONFIRMATION">Confirmation</SelectItem>
+            <SelectItem value="PROCESS">Process</SelectItem>
+            <SelectItem value="SHIPPED">Shipped</SelectItem>
+            <SelectItem value="DELIVERED">Delivered</SelectItem>
+            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={warehouseId} onValueChange={setWarehouseId}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select Warehouse" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All Warehouses</SelectItem>
+            {warehouses.map((warehouse) => (
+              <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
+                {warehouse.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Input
           type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="border rounded px-2 py-1"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="w-full"
         />
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          className="border rounded px-2 py-1"
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded"
-        >
-          Apply Filters
-        </button>
-        <button
+      </div>
+
+      <div className="flex justify-end">
+        <Button
           type="button"
           onClick={handleReset}
-          className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-4 rounded"
+          variant="outline"
+          className="bg-gray-100 text-gray-700 hover:bg-gray-200"
         >
           Reset Filters
-        </button>
+        </Button>
       </div>
-    </form>
+    </div>
   );
 };
 

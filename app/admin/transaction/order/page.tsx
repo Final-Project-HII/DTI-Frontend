@@ -8,8 +8,9 @@ import OrderTable from "./component/AdminOrdertable";
 import OrderStatusModal from "./component/AdminOrderStatusModal";
 import AdminOrderPagination from "./component/AdminOrderPagination";
 import { useRouter } from "next/navigation";
-import { useAdminOrders } from "@/hooks/useAdminOrders";
+
 import OrderTableSkeleton from "./component/AdminOrderTableSkeleton";
+import { useAdminOrders } from "@/hooks/useAdminOrders";
 
 const AdminOrderManagement = () => {
   const router = useRouter();
@@ -19,9 +20,7 @@ const AdminOrderManagement = () => {
   const [size, setSize] = useState(10);
   const [orderStatus, setOrderStatus] = useState("all");
   const [warehouseId, setWarehouseId] = useState("");
-  const [status, setStatus] = useState("all");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [date, setDate] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [payments, setPayments] = useState<PaymentStatus[]>([]);
 
@@ -32,8 +31,7 @@ const AdminOrderManagement = () => {
     size,
     orderStatus,
     warehouseId,
-    startDate,
-    endDate
+    date
   );
 
   useEffect(() => {
@@ -80,13 +78,11 @@ const AdminOrderManagement = () => {
   const handleFilterChange = (
     newStatus: string,
     newWarehouseId: string,
-    newStartDate: string,
-    newEndDate: string
+    newDate: string
   ) => {
     setOrderStatus(newStatus);
     setWarehouseId(newWarehouseId);
-    setStartDate(newStartDate);
-    setEndDate(newEndDate);
+    setDate(newDate);
     setPage(0);
   };
 
@@ -176,7 +172,7 @@ const AdminOrderManagement = () => {
       <h1 className="text-2xl font-bold mb-4">Admin Order Management</h1>
       <OrderFilter onFilterChange={handleFilterChange} />
       {loading ? (
-        <OrderTableSkeleton rowCount={size} /> // Use skeleton while loading orders
+        <OrderTableSkeleton rowCount={size} />
       ) : (
         <>
           {ordersData && ordersData.data && ordersData.data.content ? (

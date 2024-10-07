@@ -24,18 +24,13 @@ const OrderList: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const [statusFilter, setStatusFilter] = useState("all");
   const [totalItems, setTotalItems] = useState(0);
-
-  const [dateRange, setDateRange] = useState<{
-    startDate: Date | null;
-    endDate: Date | null;
-  }>({ startDate: null, endDate: null });
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const { ordersData, loading, error } = useOrders(
     currentPage - 1,
     pageSize,
     statusFilter === "all" ? "" : statusFilter,
-    dateRange.startDate,
-    dateRange.endDate
+    selectedDate
   );
 
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
@@ -83,9 +78,7 @@ const OrderList: React.FC = () => {
       <OrderFilters
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
-        setDateRange={(startDate, endDate) =>
-          setDateRange({ startDate, endDate })
-        }
+        setDate={setSelectedDate}
       />
       <div className="space-y-4">
         {loading ? (
