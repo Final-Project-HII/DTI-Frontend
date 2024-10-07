@@ -26,7 +26,7 @@ export const useAdminOrders = (
 
   useEffect(() => {
     const fetchAdminOrders = async () => {
-      if (!session || session.user.role !== "ADMIN") {
+      if (!session || session.user.role !== "SUPER") {
         setLoading(false);
         setError(new Error("Unauthorized access"));
         return;
@@ -53,7 +53,9 @@ export const useAdminOrders = (
         });
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch orders: ${response.status} ${response.statusText}`);
+          throw new Error(
+            `Failed to fetch orders: ${response.status} ${response.statusText}`
+          );
         }
 
         const data = await response.json();
@@ -62,7 +64,9 @@ export const useAdminOrders = (
         setError(null);
       } catch (err) {
         console.error("Error fetching admin orders:", err);
-        setError(err instanceof Error ? err : new Error("An unknown error occurred"));
+        setError(
+          err instanceof Error ? err : new Error("An unknown error occurred")
+        );
       } finally {
         setLoading(false);
       }

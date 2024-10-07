@@ -39,7 +39,7 @@ const AdminOrderManagement = () => {
       router.push("/login");
     } else if (
       sessionStatus === "authenticated" &&
-      session?.user?.role !== "ADMIN"
+      session?.user?.role !== "SUPER"
     ) {
       router.push("/unauthorized");
     }
@@ -162,7 +162,7 @@ const AdminOrderManagement = () => {
 
   if (
     sessionStatus === "unauthenticated" ||
-    (sessionStatus === "authenticated" && session?.user?.role !== "ADMIN")
+    (sessionStatus === "authenticated" && session?.user?.role !== "SUPER")
   ) {
     return null;
   }
