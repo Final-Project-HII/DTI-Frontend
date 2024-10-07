@@ -17,7 +17,7 @@ export const config = {
     '/admin/stock/management',
     '/admin/stock/request',
     '/admin/stock/approval',
-    '/admin/transaction/order',
+    '/admin/order',
     '/reset-password',
     '/reset-password-confirmation',
     '/manage-password',
@@ -37,7 +37,7 @@ const adminRoutes = [
   '/admin/stock/management',
   '/admin/stock/request',
   '/admin/stock/approval',
-  '/admin/transaction/order',
+  '/admin/order',
 ]
 
 const userRoutes = [
@@ -56,7 +56,7 @@ const superAdminRoutes = [
   '/admin/stock/management',
   '/admin/stock/request',
   '/admin/stock/approval',
-  '/admin/transaction/order',
+  '/admin/order',
   '/admin/warehouse',
   '/admin/admin-management',
 ]

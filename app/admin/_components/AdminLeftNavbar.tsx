@@ -49,14 +49,7 @@ const menuItems = [
             { name: 'Sales Report', href: '/admin/report/sales' },
         ],
     },
-    {
-        name: 'Transaction',
-        icon: ShoppingCart,
-        subitems: [
-            { name: 'Order', href: '/admin/transaction/order' },
-            { name: 'Confirm Payment', href: '/admin/transaction/confirm-payment' },
-        ],
-    },
+    { name: 'Order', icon: ShoppingCart, href: '/admin/order' },
     { name: 'Admin', icon: Users, href: '/admin/admin-management', role: 'SUPER' },
     { name: 'Warehouse', icon: Warehouse, href: '/admin/warehouse', role: 'SUPER' },
 ];
