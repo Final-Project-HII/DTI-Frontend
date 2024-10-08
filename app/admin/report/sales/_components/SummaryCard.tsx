@@ -1,6 +1,10 @@
 import React from 'react';
 import { ArrowUpIcon, ArrowDownIcon } from '@radix-ui/react-icons';
+<<<<<<< HEAD
 import { SummaryCardProps } from '@/types/salesreport';
+=======
+import { SummaryCardProps } from '@/types/salesReport';
+>>>>>>> af68a5582160cbebb4e389d8b046bee8bf2e4160
 
 export const SummaryCard: React.FC<SummaryCardProps> = ({
     title,
@@ -27,4 +31,10 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
             </div>
         </div>
     );
+<<<<<<< HEAD
 };
+=======
+};
+
+///
+>>>>>>> af68a5582160cbebb4e389d8b046bee8bf2e4160

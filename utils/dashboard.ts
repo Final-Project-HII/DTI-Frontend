@@ -1,7 +1,11 @@
 import axios from 'axios';
 import { ApiResponse, CategorySales, ProductSales, DailySales, SalesSummary, ProductSummary, Warehouse } from '../types/dashboard';
 
+<<<<<<< HEAD
 const BASE_URL = 'http://localhost:8080/api';
+=======
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+>>>>>>> af68a5582160cbebb4e389d8b046bee8bf2e4160
 
 export const fetchCategorySales = async (token: string, warehouseId: string, month: string): Promise<ApiResponse<CategorySales>> => {
     const response = await axios.get(`${BASE_URL}/sales/report/category`, {

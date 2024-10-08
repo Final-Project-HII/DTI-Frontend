@@ -19,6 +19,7 @@ export interface ProductDataResponse {
   updatedAt: string;
 }
 const BASE_URL = 'http://localhost:8080/api';
+// const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 async function getProductData(id: number): Promise<ProductDataResponse> {
   const response = await fetch(`${BASE_URL}api/product/${id}`);

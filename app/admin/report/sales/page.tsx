@@ -10,9 +10,18 @@ import { ColumnDef } from '@tanstack/react-table';
 import { MonthYearPicker } from '@/components/ui/date-picker';
 import { ArrowUpIcon, ArrowDownIcon } from '@radix-ui/react-icons';
 import { SummaryCard } from './_components/SummaryCard';
+<<<<<<< HEAD
 import { useSalesReport } from '@/hooks/useSalesReport';
 import { SalesSummary, CategorySales, ProductSales, SalesDetail, SummaryCardProps, ApiResponse, Warehouse } from '@/types/salesreport';
 
+=======
+// import { useSalesReport } from '@/hooks/useSalesReport';
+
+import { SalesSummary, CategorySales, ProductSales, SalesDetail, SummaryCardProps, ApiResponse, Warehouse } from '@/types/salesReport';
+
+import { useSalesReport } from '@/hooks/useSalesReport';
+
+>>>>>>> af68a5582160cbebb4e389d8b046bee8bf2e4160
 export default function SalesReportPage() {
   const {
     selectedWarehouse,
