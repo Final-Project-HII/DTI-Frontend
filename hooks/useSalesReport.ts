@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { Warehouse, ApiResponse, SalesSummary, CategorySales, ProductSales, SalesDetail } from '@/types/salesReport';
+import { Warehouse, ApiResponse, SalesSummary, CategorySales, ProductSales, SalesDetail } from '@/types/salesReporting';
 //new
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
