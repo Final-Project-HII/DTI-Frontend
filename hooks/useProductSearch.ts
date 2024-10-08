@@ -6,7 +6,6 @@ import { fetchProducts, fetchCategories } from '../utils/product';
 import { Category } from '@/types/product';
 
 const ALL_CATEGORIES = 'all';
-
 export const useProductSearch = () => {
     const router = useRouter();
     const searchParams = useSearchParams();

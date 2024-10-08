@@ -1,56 +1,58 @@
 import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 
 interface FormData {
-  email: string | null
-  token: string | null
+  email: string | null;
+  token: string | null;
 }
 
 interface VerificationResponse {
-  data: string
+  data: string;
 }
 
 const CheckVerificationLinkValid = (formData: FormData) => {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [verificationStatus, setVerificationStatus] =
-    useState<String>('Expired')
+    useState<string>('Expired')
 
   useEffect(() => {
     const fetchVerificationLinkStatus = async () => {
       if (!formData.email || !formData.token) {
-        setLoading(false)
-        return
+        setLoading(false);
+        return;
       }
 
       try {
-        const response = await fetch(
+        const response = await axios.post<VerificationResponse>(
           `${process.env.NEXT_PUBLIC_API_URL}api/users/check-verification`,
+          formData,
           {
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
-            method: 'POST',
-            body: JSON.stringify(formData),
           }
-        )
+        );
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch verification link status')
-        }
-
-        const data: VerificationResponse = await response.json()
-        setVerificationStatus(data.data)
+        setVerificationStatus(response.data.data)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
+        if (axios.isAxiosError(err)) {
+          setError(
+            err.response?.data?.message ||
+              'Failed to fetch verification link status'
+          )
+        } else {
+          setError('An unexpected error occurred')
+        }
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchVerificationLinkStatus()
-  }, [formData])
+    fetchVerificationLinkStatus();
+  }, [formData]);
 
-  return { verificationStatus, loading, error }
-}
+  return { verificationStatus, loading, error };
+};
 
-export default CheckVerificationLinkValid
+export default CheckVerificationLinkValid;

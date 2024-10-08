@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import axios from 'axios'
+import { BASE_URL_DEV } from '@/utils/api'
 
 const SendNewResetPasswordLink = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -8,19 +10,15 @@ const SendNewResetPasswordLink = () => {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}api/users/new-reset-password-link?email=${email}`,
+      const response = await axios.post(
+        `${BASE_URL_DEV}/users/new-reset-password-link?email=${email}`,
         {
           headers: {
             'Content-Type': 'application/json',
           },
-          method: 'POST',
         }
       )
-      if (!response.ok) {
-        throw new Error('Failed to create new reset password link')
-      }
-      const data = await response.json()
+      const data = response.data
       setIsLoading(false)
       return data
     } catch (err) {

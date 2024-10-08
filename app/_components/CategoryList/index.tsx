@@ -65,7 +65,6 @@ const CategoryList = () => {
             1024: { slidesPerView: 12, spaceBetween: 16 },
           }}
         >
-
           {categories?.map((category) => (
             <SwiperSlide key={category.id} className='mr-0'>
               <CategoryItem category={category} />

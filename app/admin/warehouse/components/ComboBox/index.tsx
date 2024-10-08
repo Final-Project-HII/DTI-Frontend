@@ -6,6 +6,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command"
 import {
   Popover,
@@ -52,30 +53,32 @@ const ComboBox: React.FC<ComboBoxProps<Data>> = ({ column, data }) => {
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="p-0 w-[25vw] z-40 border">
         <Command>
           <CommandInput placeholder="Search city..." />
           <CommandEmpty>No city found.</CommandEmpty>
-          <CommandGroup>
-            {uniqueCities.map((city) => (
-              <CommandItem
-                key={city}
-                value={city}
-                onSelect={(currentValue) => {
-                  setValue(currentValue === value ? "" : currentValue);
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === city ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {city}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <CommandList>
+            <CommandGroup>
+              {uniqueCities.map((city) => (
+                <CommandItem
+                  key={city}
+                  value={city}
+                  onSelect={(currentValue) => {
+                    setValue(currentValue === value ? "" : currentValue);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === city ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {city}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>

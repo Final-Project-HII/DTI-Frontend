@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-
-import Header from "@/components/Header";
-import Providers from "./providers";
-import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
+import ModalWrapper from "@/components/ModalWrapper";
+import { ProfileProvider } from "@/contexts/ProfileContext";
+import { SessionProvider } from "next-auth/react";
+import Providers from "./providers";
 import Footer from "@/components/Footer";
-import NavBar from "../components/NavBar";
 
 const JakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"], fallback: ["sans-serif"] });
 
@@ -25,11 +24,13 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <SessionProvider session={session} refetchInterval={120}>
-        <body className={JakartaSans.className}>
-          {/* <NavBar /> */}
-          <Providers>{children}</Providers>
-          <Footer />
-        </body>
+        <ProfileProvider>
+          <body className={JakartaSans.className}>
+            <ModalWrapper>
+              <Providers>{children}</Providers>
+            </ModalWrapper>
+          </body>
+        </ProfileProvider>
       </SessionProvider>
     </html>
   );

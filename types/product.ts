@@ -6,7 +6,7 @@ export interface ProductImage {
   updatedAt: string;
 }
 
-export interface Product {
+export interface Products {
   id: number;
   name: string;
   description: string;
@@ -18,7 +18,7 @@ export interface Product {
   productImages: ProductImage[];
   createdAt: string;
   updatedAt: string;
-  onEdit: (product: Product) => void;
+  onEdit: (product: Products) => void;
   onDelete: (id: number) => void;
 }
 
@@ -40,7 +40,7 @@ export interface Address {
 }
 
 export interface ApiResponse {
-  content: Product[];
+  content: Products[];
   totalPages: number;
   totalElements: number;
   size: number;
@@ -187,4 +187,20 @@ export interface ProductDataResponse {
 
 export interface ProductDetailProps {
   product: ProductDataResponse;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  weight: number;
+  categoryId: number;
+  categoryName: string;
+  totalStock: number;
+  productImages: ProductImage[];
+  createdAt: string;
+  updatedAt: string;
+  onEdit: (product: Products) => void;
+  onDelete: (id: number) => void;
 }

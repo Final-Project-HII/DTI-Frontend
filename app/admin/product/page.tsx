@@ -12,7 +12,7 @@ import { AlertCircle, MoreVertical, Trash2, Edit } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import AddProductModal from './_components/AddProductModal';
 import EditProductModal from './_components/EditProductModal';
-import { Pagination } from '@/app/(main)/product/_components/Pagination';
+import { Pagination } from '@/app/(user)/(main)/product/_components/Pagination';
 import { FaSearch } from 'react-icons/fa';
 import { ProductTable } from './_components/ProductTable';
 import NewPagination from '@/app/admin/warehouse/components/WarehouseTable/DataTable/components/Pagination';
@@ -22,9 +22,14 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { Category, Product, ApiResponse } from '@/types/product';
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+
+
+// const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+
+const BASE_URL = 'http://localhost:8080/api';
 const ALL_CATEGORIES = 'all';
 const DEFAULT_PAGE_SIZE = 10;
+
 
 export default function ProductSearchPage() {
 

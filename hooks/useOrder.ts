@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { Order } from "@/types/order";
 
 interface OrdersResponse {
+  data: any;
   content: Order[];
   totalPages: number;
   totalElements: number;
@@ -33,12 +34,10 @@ export const useOrders = (
         setLoading(true);
         let url = `${process.env.NEXT_PUBLIC_API_URL}api/orders?page=${page}&size=${size}`;
 
-        // If status is provided and not 'all', use the filtered endpoint
         if (status && status !== "all") {
           url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/filtered?page=${page}&size=${size}`;
         }
 
-        // Add date range parameters if provided
         if (startDate && endDate) {
           url += `&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
         }
@@ -53,8 +52,8 @@ export const useOrders = (
           const errorData = await response.json();
           throw new Error(errorData.message || "Failed to fetch orders");
         }
-        const data: OrdersResponse = await response.json();
-        setOrdersData(data);
+        const content: OrdersResponse = await response.json();
+        setOrdersData(content);
         setError(null);
       } catch (err) {
         console.error("Error fetching orders:", err);
@@ -69,6 +68,5 @@ export const useOrders = (
     fetchOrders();
   }, [session, page, size, status, startDate, endDate]);
 
-  return { ordersData, loading, error };
   return { ordersData, loading, error };
 };

@@ -109,7 +109,7 @@ const AddAdminForm: React.FC<AddAdminFormProps> = ({ onClose, onAdminAdded }) =>
             />
             {errors.email?.message && <div className="text-red-500">{errors.email.message}</div>}
             <Label htmlFor="city">Warehouse</Label>
-            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen} modal={true}>
               <PopoverTrigger asChild>
                 <Button variant="outline" role="combobox" className="justify-between">
                   {warehouse.find(warehouses => warehouses.id === selectedWarehouseId)?.name || "Select a warehouse"}
