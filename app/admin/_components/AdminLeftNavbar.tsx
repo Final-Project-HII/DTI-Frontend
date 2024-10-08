@@ -6,6 +6,7 @@ import {
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { logout } from "@/hooks/useLogout";
 import { cn } from "@/lib/utils";
 import logo from '@/public/LogoV3.png';
 import {
@@ -23,7 +24,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { IoMdMenu } from 'react-icons/io';
 
@@ -48,36 +49,27 @@ const menuItems = [
             { name: 'Sales Report', href: '/admin/report/sales' },
         ],
     },
-    {
-        name: 'Transaction',
-        icon: ShoppingCart,
-        subitems: [
-            { name: 'Order', href: '/admin/transaction/order' },
-            { name: 'Confirm Payment', href: '/admin/transaction/confirm-payment' },
-        ],
-    },
+    { name: 'Order', icon: ShoppingCart, href: '/admin/order' },
     { name: 'Admin', icon: Users, href: '/admin/admin-management', role: 'SUPER' },
     { name: 'Warehouse', icon: Warehouse, href: '/admin/warehouse', role: 'SUPER' },
 ];
 
 const AdminLeftNavbar: React.FC = () => {
+
     const pathname = usePathname();
     const [isExpanded, setIsExpanded] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const { data: session } = useSession();
-
+    const router = useRouter();
     useEffect(() => {
         const checkMobile = () => {
             setIsMobile(document.documentElement.clientWidth < 768);
         };
 
-        // Initial check
         checkMobile();
 
-        // Add event listener
         window.addEventListener('resize', checkMobile);
 
-        // Cleanup
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
@@ -97,6 +89,17 @@ const AdminLeftNavbar: React.FC = () => {
         }
         return true;
     });
+
+    const handleSignOut = async () => {
+        try {
+            await logout(session!.user.accessToken)
+            signOut()
+        } catch (error) {
+            console.log("Error to logout")
+        }
+    }
+
+
 
     return (
         <div className={`${isExpanded ? "min-w-64" : "min-w-20"
@@ -182,7 +185,7 @@ const AdminLeftNavbar: React.FC = () => {
                 ))}
             </nav>
             <div className="px-4 pb-4 z-10">
-                <Button variant="default" className={`${isExpanded ? "flex-row" : "flex-col"} mt-4 bg-blue-600 hover:bg-blue-700 text-white w-full gap-2 flex flex-col lg:flex-row items-center justify-center transition-colors duration-150`} onClick={() => signOut()}>
+                <Button variant="default" className={`${isExpanded ? "flex-row" : "flex-col"} mt-4 bg-blue-600 hover:bg-blue-700 text-white w-full gap-2 flex flex-col lg:flex-row items-center justify-center transition-colors duration-150`} onClick={handleSignOut}>
                     <LogOut className="h-5 w-5 lg:w-4 lg:h-4" />
                     <span className={`${isExpanded ? "flex text-base" : "hidden text-xs"}`}>Logout</span>
                 </Button>

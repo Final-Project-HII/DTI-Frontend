@@ -1,27 +1,16 @@
 'use client'
-import { ColumnDef } from "@tanstack/react-table"
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Warehouse } from '@/types/warehouse'
-import { deleteWarehouse, getAllUser, getAllWarehouse, toogleUserActiveStatus } from '@/utils/api'
-import DeleteModal from "@/components/DeleteModal"
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { CheckCircle, EditIcon, MoreHorizontal, XCircle } from "lucide-react"
-import { AlertDialog } from "@/components/ui/alert-dialog"
-import blankImage from '@/public/empty-profile-image.png'
-import { Switch } from "@/components/ui/switch"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { Switch } from "@/components/ui/switch"
+import { getAllUser, toogleUserActiveStatus } from '@/utils/api'
+import { ColumnDef } from "@tanstack/react-table"
+import { CheckCircle, EditIcon, XCircle } from "lucide-react"
+import { useEffect, useState } from "react"
 import { DataTableAdmin } from "./components/DataTable"
 import DataTablePagination from "./components/DataTable/components/Pagination"
 import UpdateAdminForm from "./components/DataTable/components/UpdateAdminForm"
+import { AlertDialog } from "@/components/ui/alert-dialog"
+import DeleteModal from "@/components/DeleteModal"
 
 interface User {
   id: number;
@@ -45,6 +34,8 @@ const AdminTable = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [isUpdateAdminDialogOpen, setIsUpdateAdminDialogOpen] = useState<boolean>(false);
+  const [isToogleDialogOpen, setIsToogleDialogOpen] = useState<boolean>(false);
+  const [userToToggle, setUserToToggle] = useState<User | null>(null);
 
   const fetchAdminData = async () => {
     setLoading(true);
@@ -67,6 +58,28 @@ const AdminTable = () => {
 
   const handleCloseUpdateModal = () => {
     setIsUpdateAdminDialogOpen(false)
+  }
+
+  const handleCloseToogleModal = () => {
+    setIsToogleDialogOpen(false)
+  }
+
+  const handleToggleUserStatus = async () => {
+    if (userToToggle) {
+      try {
+        await toogleUserActiveStatus(userToToggle.id);
+        setAdminData(prevData =>
+          prevData.map(admin =>
+            admin.id === userToToggle.id ? { ...admin, isActive: !admin.isActive } : admin
+          )
+        );
+      } catch (error) {
+        console.error("Failed to update user status", error);
+      } finally {
+        setIsToogleDialogOpen(false);
+        setUserToToggle(null);
+      }
+    }
   }
 
   const columns: ColumnDef<User, keyof User>[] = [
@@ -130,17 +143,9 @@ const AdminTable = () => {
           <Switch
             checked={user.isActive}
             className="data-[state=checked]:bg-blue-600"
-            onCheckedChange={async () => {
-              try {
-                await toogleUserActiveStatus(user.id);
-                setAdminData(prevData =>
-                  prevData.map(admin =>
-                    admin.id === user.id ? { ...admin, isActive: !admin.isActive } : admin
-                  )
-                );
-              } catch (error) {
-                console.error("Failed to update user status", error);
-              }
+            onCheckedChange={() => {
+              setUserToToggle(user);
+              setIsToogleDialogOpen(true);
             }}
           />
         );
@@ -184,6 +189,9 @@ const AdminTable = () => {
         onPageChange={setCurrentPage}
         onPageSizeChange={setPageSize}
       />
+      <AlertDialog open={isToogleDialogOpen} onOpenChange={setIsToogleDialogOpen}>
+        <DeleteModal onConfirm={handleToggleUserStatus} onClose={handleCloseToogleModal} description={`Are you sure you want to ${userToToggle?.isActive ? 'deactivate' : 'activate'} this account?`} />
+      </AlertDialog>
       <Dialog open={isUpdateAdminDialogOpen} onOpenChange={setIsUpdateAdminDialogOpen}>
         <DialogTitle></DialogTitle>
         <DialogContent className="max-w-sm lg:max-w-md" onInteractOutside={(e) => {

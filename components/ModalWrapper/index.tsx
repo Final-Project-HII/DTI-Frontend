@@ -26,11 +26,10 @@ export const ModalWrapper: React.FC<{ children: React.ReactNode }> = ({ children
         setModalInfo(parsedModalInfo)
         setShowModal(true)
 
-        // Set a timeout to hide the modal and redirect after 5 seconds
         const timer = setTimeout(() => {
           setShowModal(false)
           router.push(parsedModalInfo.redirectTo)
-        }, 5000)
+        }, 4000)
 
         return () => clearTimeout(timer)
       } catch (error) {

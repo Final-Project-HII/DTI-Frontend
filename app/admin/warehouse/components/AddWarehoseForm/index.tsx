@@ -115,7 +115,7 @@ const AddWarehouseForm: React.FC<AddWarehouseFormProps> = ({ onClose, onWarehous
   const handlePostalCodeChange = async (value: string) => {
     if (value.length > 2) {
       try {
-        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&country=id&postalcode=${value}`);
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&country=id&postalcode=${value}&accept-language=id`);
         const data: Suggestion[] = await response.json();
         setSuggestions(data);
       } catch (error) {
@@ -126,6 +126,14 @@ const AddWarehouseForm: React.FC<AddWarehouseFormProps> = ({ onClose, onWarehous
     }
   };
 
+  const findCityByName = useCallback((cityName: string) => {
+    const normalizedCityName = cityName.toLowerCase().trim();
+    return cities.find(city =>
+      city.name.toLowerCase().includes(normalizedCityName) ||
+      normalizedCityName.includes(city.name.toLowerCase())
+    );
+  }, [cities]);
+
   const handleSuggestionSelect = useCallback((suggestion: Suggestion) => {
     const selectedPostalCode = suggestion.address?.postcode || postalCode;
     setValue('postalCode', selectedPostalCode);
@@ -133,13 +141,22 @@ const AddWarehouseForm: React.FC<AddWarehouseFormProps> = ({ onClose, onWarehous
     const newPosition = { lat: parseFloat(suggestion.lat), lng: parseFloat(suggestion.lon) };
     setPosition(newPosition);
     setSuggestions([]);
-  }, [postalCode, setValue]);
+
+    const addressParts = suggestion.display_name.split(', ');
+    for (let i = addressParts.length - 1; i >= 0; i--) {
+      const potentialCity = findCityByName(addressParts[i]);
+      if (potentialCity) {
+        setValue('cityId', potentialCity.id);
+        break;
+      }
+    }
+  }, [postalCode, setValue, findCityByName]);
 
   const onSubmit = async (data: WarehouseFormData) => {
     try {
       await createWarehouse(data);
       Swal.fire({
-        title: 'Warehouse Has Been Added Succesfully!',
+        title: 'Warehouse Has Been Added Successfully!',
         text: 'This will close in 3 seconds.',
         icon: 'success',
         timer: 3000,
@@ -207,10 +224,8 @@ const AddWarehouseForm: React.FC<AddWarehouseFormProps> = ({ onClose, onWarehous
             />
             {errors.addressLine?.message && <div className="text-red-500">{errors.addressLine.message}</div>}
 
-
-
             <Label htmlFor="city">City</Label>
-            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen} modal={true}>
               <PopoverTrigger asChild>
                 <Button variant="outline" role="combobox" className="justify-between">
                   {cities.find(city => city.id === selectedCityId)?.name || "Select a city"}

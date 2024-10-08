@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { ProductDetailSkeleton } from "./ProductDetailSkeleton";
 import { ImageWithLoading } from "./ImageWithLoading";
-import YouMayLike from "@/app/(main)/product/[productDetail]/_components/YouMayLike";
+import YouMayLike from "@/app/(user)/(main)/product/[productDetail]/_components/YouMayLike";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
 import { addToCartApi } from "@/utils/api";

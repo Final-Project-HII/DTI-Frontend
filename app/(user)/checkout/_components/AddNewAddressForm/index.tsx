@@ -159,7 +159,7 @@ const AddAddressForm: React.FC<AddAddressFormProps> = ({ onClose, onConfirm, onD
   const handlePostalCodeChange = async (value: string) => {
     if (value.length > 2) {
       try {
-        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&country=id&postalcode=${value}`);
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&country=id&postalcode=${value}&accept-language=id`);
         const data: Suggestion[] = await response.json();
         setSuggestions(data);
       } catch (error) {
@@ -170,6 +170,15 @@ const AddAddressForm: React.FC<AddAddressFormProps> = ({ onClose, onConfirm, onD
     }
   };
 
+
+  const findCityByName = useCallback((cityName: string) => {
+    const normalizedCityName = cityName.toLowerCase().trim();
+    return cities.find(city =>
+      city.name.toLowerCase().includes(normalizedCityName) ||
+      normalizedCityName.includes(city.name.toLowerCase())
+    );
+  }, [cities]);
+
   const handleSuggestionSelect = useCallback((suggestion: Suggestion) => {
     const selectedPostalCode = suggestion.address?.postcode || postalCode;
     setValue('postalCode', selectedPostalCode);
@@ -177,7 +186,15 @@ const AddAddressForm: React.FC<AddAddressFormProps> = ({ onClose, onConfirm, onD
     const newPosition = { lat: parseFloat(suggestion.lat), lng: parseFloat(suggestion.lon) };
     setPosition(newPosition);
     setSuggestions([]);
-  }, [postalCode, setValue]);
+    const addressParts = suggestion.display_name.split(', ');
+    for (let i = addressParts.length - 1; i >= 0; i--) {
+      const potentialCity = findCityByName(addressParts[i]);
+      if (potentialCity) {
+        setValue('cityId', potentialCity.id);
+        break;
+      }
+    }
+  }, [postalCode, setValue, findCityByName]);
 
   const onSubmit = async (formData: AddressFormData) => {
     try {
@@ -263,7 +280,7 @@ const AddAddressForm: React.FC<AddAddressFormProps> = ({ onClose, onConfirm, onD
 
 
             <Label htmlFor="city">City</Label>
-            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen} modal={true}>
               <PopoverTrigger asChild>
                 <Button variant="outline" role="combobox" className="justify-between">
                   {cities.find(city => city.id === selectedCityId)?.name || "Select a city"}

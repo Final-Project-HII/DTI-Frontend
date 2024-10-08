@@ -12,7 +12,7 @@ import { AlertCircle, MoreVertical, Trash2, Edit } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import AddProductModal from './_components/AddProductModal';
 import EditProductModal from './_components/EditProductModal';
-import { Pagination } from '@/app/(main)/product/_components/Pagination';
+import { Pagination } from '@/app/(user)/(main)/product/_components/Pagination';
 import { FaSearch } from 'react-icons/fa';
 import { ProductTable } from './_components/ProductTable';
 import NewPagination from '@/app/admin/warehouse/components/WarehouseTable/DataTable/components/Pagination';
