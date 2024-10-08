@@ -49,7 +49,7 @@ const fetchOrders = async (
   params.append("size", String(size));
 
   const response = await axios.get<OrderResponse>(
-    `${process.env.NEXT_PUBLIC_API_URL}api/orders/admin?${params.toString()}`,
+    `http://localhost:8080/api/orders/admin?${params.toString()}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -61,7 +61,7 @@ const fetchOrders = async (
 
 const fetchProfile = async (token?: string): Promise<ProfileResponseDTO> => {
   const response = await axios.get<{ data: ProfileResponseDTO }>(
-    `${process.env.NEXT_PUBLIC_API_URL}api/users/profile`,
+    `http://localhost:8080/api/users/profile`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
