@@ -16,4 +16,5 @@ export interface PaymentDetails {
     paymentMethod: string;
     status: string;
     paymentProofUrl?: string;
+    expirationTime?: string;
   }

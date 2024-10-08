@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { OrderItem } from "@/types/order";
 
-
-
 interface OrderSummaryProps {
   orderItems: OrderItem[];
   totalAmount: number;
@@ -26,7 +24,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   return (
     <Card className="mt-4">
       <CardContent>
-        <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+        <h2 className="text-xl font-semibold mb-4 pt-4">Order Summary</h2>
         {orderItems.map((item) => (
           <div key={item.id} className="flex justify-between items-center mb-2">
             <span>{item.productName}</span>

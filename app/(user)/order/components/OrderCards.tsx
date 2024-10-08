@@ -16,7 +16,11 @@ interface OrderCardProps {
   onOrderUpdate: (updatedOrder: Order) => void;
 }
 
-const OrderCard: React.FC<OrderCardProps> = ({ order: initialOrder, productDetails, onOrderUpdate }) => {
+const OrderCard: React.FC<OrderCardProps> = ({
+  order: initialOrder,
+  productDetails,
+  onOrderUpdate,
+}) => {
   const [order, setOrder] = useState(initialOrder);
 
   const formatDate = (dateString: string) => {
@@ -33,7 +37,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order: initialOrder, productDetai
     onOrderUpdate(updatedOrder);
   };
 
-  const firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
+  const firstItem =
+    order.items && order.items.length > 0 ? order.items[0] : null;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -52,7 +57,9 @@ const OrderCard: React.FC<OrderCardProps> = ({ order: initialOrder, productDetai
 
   const statusColor = getStatusColor(order.status);
 
-  const canBeCancelled = !["shipped", "delivered", "cancelled"].includes(order.status);
+  const canBeCancelled = !["shipped", "delivered", "cancelled"].includes(
+    order.status
+  );
 
   return (
     <Card>
@@ -71,7 +78,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order: initialOrder, productDetai
               color: statusColor.text,
             }}
           >
-            {order.status.replace('_', ' ').charAt(0).toUpperCase() + order.status.replace('_', ' ').slice(1) || "Unknown"}
+            {order.status.replace("_", " ").charAt(0).toUpperCase() +
+              order.status.replace("_", " ").slice(1) || "Unknown"}
           </div>
         </div>
       </CardHeader>
@@ -104,7 +112,11 @@ const OrderCard: React.FC<OrderCardProps> = ({ order: initialOrder, productDetai
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <OrderDetailDialog order={order} onOrderUpdate={handleOrderUpdate} canBeCancelled={canBeCancelled} />
+        <OrderDetailDialog
+          order={order}
+          onOrderUpdate={handleOrderUpdate}
+          canBeCancelled={canBeCancelled}
+        />
       </CardFooter>
     </Card>
   );

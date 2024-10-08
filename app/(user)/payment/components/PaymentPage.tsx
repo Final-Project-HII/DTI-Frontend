@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { Order } from "@/types/order";
 import { useOrders } from "@/hooks/useOrder";
+import PaymentPageSkeleton from "./PaymentPageSkeleton";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const CLOUDINARY_UPLOAD_PRESET = "finproHII";
@@ -33,24 +34,23 @@ const PaymentPage: React.FC = () => {
     ordersData,
     loading: orderLoading,
     error: orderError,
-  } = useOrders(0, 1);
+  } = useOrders(0, 1, "PENDING", null);
 
   const [latestOrder, setLatestOrder] = useState<Order | null>(null);
 
   useEffect(() => {
-    console.log("ordersData:", ordersData);
     if (
       ordersData &&
       ordersData.data &&
       ordersData.data.content &&
       ordersData.data.content.length > 0
     ) {
-      console.log("Setting latest order:", ordersData.data.content[0]);
       setLatestOrder(ordersData.data.content[0]);
-    } else {
-      console.log("No orders found in ordersData");
+    } else if (!orderLoading && !orderError) {
+      router.push('/404');
     }
-  }, [ordersData]);
+  }, [ordersData, orderLoading, orderError, router]);
+
 
   const handlePayment = async () => {
     if (status !== "authenticated") {
@@ -148,7 +148,7 @@ const PaymentPage: React.FC = () => {
     }
   };
 
-  if (orderLoading) return <div>Loading order details...</div>;
+  if (orderLoading) return <PaymentPageSkeleton />;
   if (orderError) return <div>Error loading order: {orderError.message}</div>;
   if (!latestOrder)
     return <div>No order found. Please create an order first.</div>;
