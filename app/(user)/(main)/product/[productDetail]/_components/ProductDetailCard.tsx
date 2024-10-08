@@ -9,27 +9,9 @@ import YouMayLike from "@/app/(user)/(main)/product/[productDetail]/_components/
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
 import { addToCartApi } from "@/utils/api";
-import Swal from "sweetalert2";
-
-interface ProductImage {
-  id: number;
-  imageUrl: string;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  categoryName: string;
-  totalStock: number;
-  weight: number;
-  productImages: ProductImage[];
-}
-
-interface ProductDetailProps {
-  product: Product;
-}
+import {
+  Product, ProductImage, ProductDetailProps
+} from '@/types/product';
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
@@ -92,9 +74,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
             {product.productImages.map((image, index) => (
               <Card
                 key={image.id}
-                className={`bg-white p-1 cursor-pointer hover:shadow-md duration-300 overflow-hidden ${
-                  mainImage.id === image.id ? "ring-2 ring-blue-500" : ""
-                }`}
+                className={`bg-white p-1 cursor-pointer hover:shadow-md duration-300 overflow-hidden ${mainImage.id === image.id ? "ring-2 ring-blue-500" : ""
+                  }`}
               >
                 <CardContent className="p-0">
                   <div className="relative aspect-square">
@@ -219,12 +200,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
             </CardContent>
           </Card>
         </div>
-      </div>
-      <div className="mt-6">
+      </div >
+      <div className='mt-6'>
         <YouMayLike category={product.categoryName} />
         <YouMayLike />
       </div>
-    </div>
+    </div >
   );
 };
 export default ProductDetail;

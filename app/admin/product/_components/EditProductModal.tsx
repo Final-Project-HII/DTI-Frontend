@@ -8,6 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, X } from 'lucide-react';
 import CategorySelect from './CategorySelect';
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+import { z } from 'zod';
 
 interface Category {
     id: number;
@@ -50,7 +53,7 @@ export default function EditProductModal({ isOpen, onClose, product, categories,
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [editProductImages, setEditProductImages] = useState<File[]>([]);
     const [deleteImages, setDeleteImages] = useState<number[]>([]);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    // const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const queryClient = useQueryClient();
 
@@ -74,13 +77,31 @@ export default function EditProductModal({ isOpen, onClose, product, categories,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
             onClose();
+            Swal.fire({
+                icon: 'success',
+                title: 'Updated!',
+                text: 'The product has been successfully updated.',
+                confirmButtonColor: '#3085d6',
+            });
         },
         onError: (error: any) => {
-            if (error.response) {
-                setErrorMessage(error.response.data.message);
-            } else {
-                setErrorMessage('An unexpected error occurred.');
+            let errorMessage = 'An error occurred while updating the product.';
+            if (error.response && error.response.data && error.response.data.message) {
+                errorMessage = error.response.data.message;
+            } else if (error.message) {
+                errorMessage = error.message;
             }
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: errorMessage,
+                confirmButtonColor: '#3085d6',
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                // position: 'top-end',
+                showConfirmButton: false
+            });
         }
     });
 
@@ -234,14 +255,14 @@ export default function EditProductModal({ isOpen, onClose, product, categories,
                         {updateProductMutation.status === 'pending' ? 'Updating...' : 'Update Product'}
                     </Button>
                 </form>
-                {updateProductMutation.isError && (
+                {/* {updateProductMutation.isError && (
                     <Alert variant="destructive" className="mt-4">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Error</AlertTitle>
                         <AlertDescription>{errorMessage}</AlertDescription>
                         <AlertDescription>{(updateProductMutation.error as Error).message}</AlertDescription>
                     </Alert>
-                )}
+                )} */}
             </DialogContent>
         </Dialog>
     );

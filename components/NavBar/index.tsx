@@ -248,8 +248,8 @@ const NavBar = () => {
         </div>
         <div
           className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${openHamburgerMenu
-              ? "translate-y-full h-screen"
-              : "translate-y-0 overflow-hidden"
+            ? "translate-y-full h-screen"
+            : "translate-y-0 overflow-hidden"
             }`}
         >
           {data?.user.role == "USER" ? (

@@ -15,6 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle, Loader2, Plus } from 'lucide-react';
 import ProductSelect from '../ProductSelect';
 import WarehouseSelect from '../WarehouseSelect';
+import Swal from 'sweetalert2';
 
 interface AddStockModalProps {
     warehouses: Warehouse[];
@@ -33,6 +34,7 @@ interface Warehouse {
     addressLine: string;
     city: City;
 }
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 const AddStockModal: React.FC<AddStockModalProps> = ({ warehouses, onAdd, selectedWarehouse }) => {
     const [open, setOpen] = useState(false);
@@ -54,7 +56,7 @@ const AddStockModal: React.FC<AddStockModalProps> = ({ warehouses, onAdd, select
     const mutation = useMutation({
         mutationFn: async (newStock: { productId: string; warehouseId: string; quantity: number }) => {
             const response = await axios.post(
-                `http://localhost:8080/api/stocks`,
+                `${BASE_URL}/stocks`,
                 newStock,
                 {
                     headers: {
@@ -69,11 +71,30 @@ const AddStockModal: React.FC<AddStockModalProps> = ({ warehouses, onAdd, select
             setOpen(false);
             onAdd();
             queryClient.invalidateQueries({ queryKey: ['stock'] });
-            setSuccessMessage("Stock added successfully!");
             setFormData({ productId: '', warehouseId: selectedWarehouse, quantity: '' });
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Stock added successfully!',
+                confirmButtonColor: '#3085d6',
+            });
         },
         onError: (error: any) => {
-            setErrorMessage(error.response?.data?.message || 'An unexpected error occurred.');
+            let errorMessage = 'An error occurred while adding the stock.';
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: errorMessage,
+                confirmButtonColor: '#3085d6',
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                // position: 'top-end',
+                showConfirmButton: false
+            });
         },
     });
 

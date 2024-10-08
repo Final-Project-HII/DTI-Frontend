@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Plus, ShoppingBag } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
-import Swal from "sweetalert2";
+
 
 interface ProductCardProps {
   product: Product;
@@ -35,28 +35,18 @@ interface ProductImage {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addToCart } = useCart();
+  // const { addToCart } = useCart();
 
-  const handleAddToCart = async () => {
-    try {
-      await addToCart(product.id, 1);
-      Swal.fire({
-        title: "Product added to cart!",
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false,
-        timerProgressBar: true,
-      });
-      console.log("After Swal.fire"); // Debugging line
-    } catch (error) {
-      console.error("Failed to add product to cart:", error);
-      Swal.fire({
-        title: "Error",
-        text: "Failed to add product to cart.",
-        icon: "error",
-      });
-    }
-  };
+  // const handleAddToCart = async () => {
+  //   try {
+  //     await addToCart(product.id, 1);
+  //     alert("Product added to cart!");
+  //   } catch (error) {
+  //     console.error("Failed to add product to cart:", error);
+  //     alert("Failed to add product to cart.");
+  //   }
+  // };
+
   const truncateDescription = (description: string, maxLength: number) => {
     if (description.length > maxLength) {
       return description.slice(0, maxLength) + "...";
@@ -94,7 +84,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <Button
           className="w-full border border-blue-600 text-blue-600 bg-transparent hover:bg-blue-50"
           disabled={product.totalStock === 0}
-          onClick={handleAddToCart}
+        // onClick={handleAddToCart}
         >
           {product.totalStock > 0 && <Plus className='w-4 h-4 mr-2' strokeWidth={3} />}
           {product.totalStock === 0 ? 'Out of Stock' : 'Add to Cart'}

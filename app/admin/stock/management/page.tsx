@@ -2,13 +2,16 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DataTable } from './_components/DataTable';
 import NewPagination from '../../warehouse/components/WarehouseTable/DataTable/components/Pagination';
 import Image from 'next/image';
 import StockMutationTableSkeleton from '../request/_components/StokMutationTableSkeleton';
 import UpdateStockModal from './_components/UpdateStockModal';
 import AddStockModal from './_components/AddStockModal';
+import Swal from 'sweetalert2';
+import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
 
 interface City {
     id: number;
@@ -56,7 +59,8 @@ interface RowInfo {
         original: StockItem;
     };
 }
-
+// const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+const BASE_URL = 'http://localhost:8080/api';
 const fetchStock = async (
     warehouseId?: string,
     token?: string,
@@ -70,13 +74,15 @@ const fetchStock = async (
     params.append('page', String(page));
     params.append('size', String(size));
 
-    const response = await axios.get<StockResponse>(`http://localhost:8080/api/stocks?${params.toString()}`, {
+    const response = await axios.get<StockResponse>(`${BASE_URL}/stocks?${params.toString()}`, {
         headers: {
             Authorization: `Bearer ${token}`,
         },
     });
     return response.data;
 };
+
+
 
 export default function StockPage() {
     const [selectedWarehouse, setSelectedWarehouse] = useState<string>('2');
@@ -88,7 +94,7 @@ export default function StockPage() {
     const isAdmin = session?.user?.role === 'ADMIN';
 
     useEffect(() => {
-        axios.get<{ data: { content: Warehouse[] } }>(`http://localhost:8080/api/warehouses`)
+        axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`)
             .then(response => {
                 setWarehouses(response.data.data.content);
             })
@@ -122,6 +128,51 @@ export default function StockPage() {
     const handleWarehouseChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedWarehouse(event.target.value);
         setCurrentPage(0);
+    };
+    const queryClient = useQueryClient();
+
+    const deleteStockMutation = useMutation({
+        mutationFn: async (stockId: string) => {
+            await axios.delete(`${BASE_URL}/stocks/${stockId}`, {
+                headers: {
+                    Authorization: `Bearer ${session?.user?.accessToken}`,
+                },
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['stock'] });
+            Swal.fire({
+                icon: 'success',
+                title: 'Deleted!',
+                text: 'The stock has been deleted.',
+                confirmButtonColor: '#3085d6',
+            });
+        },
+        onError: (error) => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'An error occurred while deleting the stock.',
+                confirmButtonColor: '#3085d6',
+            });
+            console.error('Delete error:', error);
+        },
+    });
+
+    const handleDelete = (stockId: string) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteStockMutation.mutate(stockId);
+            }
+        });
     };
 
 
@@ -183,11 +234,20 @@ export default function StockPage() {
             accessorKey: 'actions',
             header: 'Actions',
             cell: (info: RowInfo) => (
-                <UpdateStockModal
-                    stockItem={info.row.original}
-                    selectedWarehouse={selectedWarehouse}
-                    onUpdate={() => refetch()}
-                />
+                <div className="flex space-x-2">
+                    <UpdateStockModal
+                        stockItem={info.row.original}
+                        selectedWarehouse={selectedWarehouse}
+                        onUpdate={() => refetch()}
+                    />
+                    <button
+                        onClick={() => handleDelete(info.row.original.id)}
+                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded flex items-center"
+                    >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        {/* Delete */}
+                    </button>
+                </div>
             ),
         },
     ], [selectedWarehouse, refetch]);

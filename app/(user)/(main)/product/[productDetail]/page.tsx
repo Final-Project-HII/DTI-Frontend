@@ -1,42 +1,28 @@
-"use client";
-import { useQuery } from "@tanstack/react-query";
-import ProductDetail from "./_components/ProductDetailCard";
-import { parseSlug, ProductDataResponse } from "@/utils/parseslug";
+import { Metadata } from 'next';
+import ProductPageClient from './ProductDetailClient';
+import { getProductData } from '@/utils/product';
+import { ProductDataResponse } from '@/types/product';
 
-
-
-// Async function to fetch product data
-async function getProductData(slug: string): Promise<ProductDataResponse> {
-  const { id } = parseSlug(slug);
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/product/${id}`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch product");
-  }
-  return response.json();
-}
-
-export interface ProductDetailProps {
-  product: ProductDataResponse;
-}
-
-export default function ProductPage({
-  params,
-}: {
+interface ProductPageProps {
   params: { productDetail: string };
-}) {
-  const {
-    data: product,
-    isLoading,
-    isError,
-    error,
-  } = useQuery<ProductDataResponse, Error>({
-    queryKey: ["product", params.productDetail],
-    queryFn: () => getProductData(params.productDetail),
-  });
+}
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error: {error.message}</div>;
-  if (!product) return <div>No product found</div>;
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  try {
+    const product: ProductDataResponse = await getProductData(params.productDetail);
+    return {
+      title: `${product.name} | Hiimart Store - Your Trusted Source for Fast & Easy Online Shopping`,
+      description: product.description,
+    };
+  } catch (error) {
+    console.error('Error fetching product for metadata:', error);
+    return {
+      title: 'Product Details',
+      description: 'View our product details',
+    };
+  }
+}
 
-  return <ProductDetail product={product} />;
+export default function ProductPage({ params }: ProductPageProps) {
+  return <ProductPageClient params={{ productDetail: params.productDetail }} />;
 }
