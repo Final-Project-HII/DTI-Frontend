@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { ApiResponse, CategorySales, ProductSales, SalesDetail, SalesSummary, Warehouse } from '@/types/salesReport';
+import { Warehouse, ApiResponse, SalesSummary, CategorySales, ProductSales, SalesDetail } from '@/types/salesReport';
 
-// const BASE_URL = 'http://localhost:8080/api';
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 const fetchSalesSummary = async (token: string, warehouseId: string, month: string): Promise<ApiResponse<SalesSummary>> => {
