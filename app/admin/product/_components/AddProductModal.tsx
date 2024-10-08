@@ -8,6 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle, X } from 'lucide-react';
 import CategorySelect from './CategorySelect';
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+import { z } from 'zod';
 
 interface Category {
     id: number;
@@ -22,6 +25,18 @@ interface AddProductModalProps {
 }
 
 const BASE_URL = 'http://localhost:8080/api';
+const productSchema = z.object({
+    name: z.string().min(1, "Product name is required"),
+    description: z.string().min(1, "Description is required"),
+    price: z.string().min(1, "Price is required").regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
+    weight: z.string().min(1, "Weight is required").regex(/^\d+(\.\d{1,3})?$/, "Invalid weight format"),
+    categoryId: z.string().min(1, "Category is required"),
+});
+
+const imageSchema = z.array(z.instanceof(File))
+    .refine((files) => files.every(file => file.size <= 1000000), "Each image must be less than 1MB")
+    .refine((files) => files.every(file => ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].includes(file.type)),
+        "Only .jpg, .jpeg, .png, and .gif formats are supported");
 
 export default function AddProductModal({ isOpen, onClose, categories, openAddCategoryModal }: AddProductModalProps) {
     const [newProduct, setNewProduct] = useState({
@@ -34,6 +49,7 @@ export default function AddProductModal({ isOpen, onClose, categories, openAddCa
     const [productImages, setProductImages] = useState<File[]>([]);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null); // State untuk pesan sukses
+
 
     const queryClient = useQueryClient();
 
@@ -50,14 +66,31 @@ export default function AddProductModal({ isOpen, onClose, categories, openAddCa
             queryClient.invalidateQueries({ queryKey: ['products'] });
             resetForm();
             onClose();
-            setSuccessMessage("Product successfully created!"); // Set pesan sukses
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Product successfully created!',
+                confirmButtonColor: '#3085d6',
+            });
         },
         onError: (error: any) => {
-            if (error.response) {
-                setErrorMessage(error.response.data.message);
-            } else {
-                setErrorMessage('An unexpected error occurred.');
+            let errorMessage = 'An error occurred while add the product.';
+            if (error.response && error.response.data && error.response.data.message) {
+                errorMessage = error.response.data.message;
+            } else if (error.message) {
+                errorMessage = error.message;
             }
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: errorMessage,
+                confirmButtonColor: '#3085d6',
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                // position: 'top-end',
+                showConfirmButton: false
+            });
         }
     });
 
@@ -82,14 +115,28 @@ export default function AddProductModal({ isOpen, onClose, categories, openAddCa
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const formData = new FormData();
-        Object.entries(newProduct).forEach(([key, value]) => {
-            formData.append(key, value);
-        });
-        productImages.forEach((image) => {
-            formData.append('productImages', image);
-        });
-        createProductMutation.mutate(formData);
+        try {
+            productSchema.parse(newProduct);
+            imageSchema.parse(productImages);
+
+            const formData = new FormData();
+            Object.entries(newProduct).forEach(([key, value]) => {
+                formData.append(key, value);
+            });
+            productImages.forEach((image) => {
+                formData.append('productImages', image);
+            });
+            createProductMutation.mutate(formData);
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: error.errors[0].message,
+                    confirmButtonColor: '#3085d6',
+                });
+            }
+        }
     };
 
     const resetForm = () => {
@@ -153,7 +200,7 @@ export default function AddProductModal({ isOpen, onClose, categories, openAddCa
                         type="file"
                         onChange={handleImageChange}
                         multiple
-                        accept="image/*"
+                        accept="image/jpeg,image/jpg,image/png,image/gif"
                     />
                     <div className="mt-2 flex flex-wrap gap-2">
                         {productImages.map((image, index) => (
@@ -177,7 +224,7 @@ export default function AddProductModal({ isOpen, onClose, categories, openAddCa
                         {createProductMutation.status === 'pending' ? 'Creating...' : 'Create Product'}
                     </Button>
                 </form>
-                {errorMessage && (
+                {/* {errorMessage && (
                     <Alert variant="destructive" className="mt-4">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Error</AlertTitle>
@@ -190,7 +237,7 @@ export default function AddProductModal({ isOpen, onClose, categories, openAddCa
                         <AlertTitle>Success</AlertTitle>
                         <AlertDescription>{successMessage}</AlertDescription>
                     </Alert>
-                )}
+                )} */}
 
             </DialogContent>
         </Dialog>

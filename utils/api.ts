@@ -176,7 +176,9 @@ export const createOrder = async (): Promise<OrderItem> => {
     const response = await axios.post(BASE_URL);
     return response.data;
   } catch (error) {
-    console.error("Error creating order:", error);
+
+    console.error('Error creating order:', error);
+
     throw error;
   }
 };
@@ -186,7 +188,8 @@ export const getOrder = async (orderId: number): Promise<Order> => {
     const response = await axios.get<Order>(`${BASE_URL}/${orderId}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching order:", error);
+
+    console.error('Error fetching order:', error);
     throw error;
   }
 };
