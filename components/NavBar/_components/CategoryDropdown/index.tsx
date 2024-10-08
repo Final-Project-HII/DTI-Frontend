@@ -6,7 +6,7 @@ import Link from 'next/link';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 interface Category {
   id: number;
   name: string;
