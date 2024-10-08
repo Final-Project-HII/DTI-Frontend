@@ -15,9 +15,9 @@ interface OrdersResponse {
 export const useAdminOrders = (
   page: number,
   size: number,
-  status?: string,
-  startDate?: Date | null,
-  endDate?: Date | null
+  status: string,
+  warehouseId: string,
+  date: string
 ) => {
   const [ordersData, setOrdersData] = useState<OrdersResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,7 +26,7 @@ export const useAdminOrders = (
 
   useEffect(() => {
     const fetchAdminOrders = async () => {
-      if (!session || session.user.role !== "ADMIN") {
+      if (!session || session.user.role !== "SUPER") {
         setLoading(false);
         setError(new Error("Unauthorized access"));
         return;
@@ -34,15 +34,17 @@ export const useAdminOrders = (
 
       try {
         setLoading(true);
-        let url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/admin/all?page=${page}&size=${size}`;
+        const queryParams = new URLSearchParams({
+          page: page.toString(),
+          size: size.toString(),
+          ...(status && status !== "all" && { status }),
+          ...(warehouseId && { warehouse: warehouseId }),
+          ...(date && { date }),
+        });
 
-        if (status && status !== "all") {
-          url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/admin/filtered?page=${page}&size=${size}&status=${status}`;
-        }
+        const url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/admin?${queryParams}`;
 
-        if (startDate && endDate) {
-          url += `&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
-        }
+        console.log("Fetching orders from URL:", url);
 
         const response = await fetch(url, {
           headers: {
@@ -51,11 +53,14 @@ export const useAdminOrders = (
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to fetch admin orders");
+          throw new Error(
+            `Failed to fetch orders: ${response.status} ${response.statusText}`
+          );
         }
-        const content: OrdersResponse = await response.json();
-        setOrdersData(content);
+
+        const data = await response.json();
+        console.log("Received data:", data);
+        setOrdersData(data);
         setError(null);
       } catch (err) {
         console.error("Error fetching admin orders:", err);
@@ -68,7 +73,7 @@ export const useAdminOrders = (
     };
 
     fetchAdminOrders();
-  }, [session, page, size, status, startDate, endDate]);
+  }, [session, page, size, status, warehouseId, date]);
 
   return { ordersData, loading, error };
 };

@@ -20,6 +20,7 @@ export interface Order {
   courierName: string;
   originCity: string;
   destinationCity: string;
+  paymentMethod: string;
 }
 
 export interface OrderItem {

@@ -3,20 +3,20 @@ import { useSession } from "next-auth/react";
 import { Order } from "@/types/order";
 
 interface OrdersResponse {
-  data: any;
-  content: Order[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number;
+  data: {
+    content: Order[];
+    totalPages: number;
+    totalElements: number;
+    size: number;
+    number: number;
+  };
 }
 
 export const useOrders = (
   page: number,
   size: number,
-  status?: string,
-  startDate?: Date | null,
-  endDate?: Date | null
+  status: string,
+  date: Date | null
 ) => {
   const [ordersData, setOrdersData] = useState<OrdersResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,22 +25,24 @@ export const useOrders = (
 
   useEffect(() => {
     const fetchOrders = async () => {
-      if (!session) {
+      if (!session?.user?.accessToken) {
         setLoading(false);
+        setError(new Error("User not authenticated"));
         return;
       }
 
       try {
         setLoading(true);
-        let url = `${process.env.NEXT_PUBLIC_API_URL}api/orders?page=${page}&size=${size}`;
+        const queryParams = new URLSearchParams({
+          page: page.toString(),
+          size: size.toString(),
+          ...(status && { status }),
+          ...(date && { date: date.toISOString().split('T')[0] }),
+        });
 
-        if (status && status !== "all") {
-          url = `${process.env.NEXT_PUBLIC_API_URL}api/orders/filtered?page=${page}&size=${size}`;
-        }
+        const url = `${process.env.NEXT_PUBLIC_API_URL}api/orders?${queryParams}`;
 
-        if (startDate && endDate) {
-          url += `&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
-        }
+        console.log("Fetching orders from URL:", url);
 
         const response = await fetch(url, {
           headers: {
@@ -49,24 +51,23 @@ export const useOrders = (
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to fetch orders");
+          throw new Error(`Failed to fetch orders: ${response.status} ${response.statusText}`);
         }
-        const content: OrdersResponse = await response.json();
-        setOrdersData(content);
+
+        const data = await response.json();
+        console.log("Received data:", data);
+        setOrdersData(data);
         setError(null);
       } catch (err) {
         console.error("Error fetching orders:", err);
-        setError(
-          err instanceof Error ? err : new Error("An unknown error occurred")
-        );
+        setError(err instanceof Error ? err : new Error("An unknown error occurred"));
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrders();
-  }, [session, page, size, status, startDate, endDate]);
+  }, [session, page, size, status, date]);
 
   return { ordersData, loading, error };
 };

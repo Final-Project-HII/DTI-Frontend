@@ -26,11 +26,14 @@ interface OrderDetailDialogProps {
   canBeCancelled: boolean;
 }
 
-const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order, onOrderUpdate, canBeCancelled }) => {
+const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
+  order,
+  onOrderUpdate,
+  canBeCancelled,
+}) => {
   const [payment, setPayment] = useState<PaymentDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-
 
   useEffect(() => {
     const fetchPaymentDetails = async () => {
@@ -168,54 +171,68 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order, onOrderUpd
             <div>
               <h3 className="font-semibold text-lg mb-3">Detail Produk</h3>
               <div className="bg-white border rounded-lg p-4">
-                <div className="flex items-center">
-                  <img
-                    src="/api/placeholder/50/50"
-                    alt="Product"
-                    className="w-12 h-12 object-cover rounded mr-4"
-                  />
-                  <div className="flex-grow">
-                    <h4 className="font-medium">
-                      {order.items[0].productName}
-                    </h4>
-                    <p className="text-sm text-gray-600">
-                      {order.items[0].quantity} x{" "}
-                      {formatCurrency(order.items[0].price)}
-                    </p>
-                  </div>
-                  <p className="font-semibold">
-                    {formatCurrency(
-                      Number(order.items[0].price) * order.items[0].quantity
+                {order.items && order.items.length > 0 ? (
+                  <>
+                    <div className="flex items-center">
+                      <img
+                        src="/api/placeholder/50/50"
+                        alt="Product"
+                        className="w-12 h-12 object-cover rounded mr-4"
+                      />
+                      <div className="flex-grow">
+                        <h4 className="font-medium">
+                          {order.items[0].productName}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          {order.items[0].quantity} x{" "}
+                          {formatCurrency(order.items[0].price)}
+                        </p>
+                      </div>
+                      <p className="font-semibold">
+                        {formatCurrency(
+                          Number(order.items[0].price) * order.items[0].quantity
+                        )}
+                      </p>
+                    </div>
+                    {order.items.length > 1 && (
+                      <Accordion
+                        type="single"
+                        collapsible
+                        className="w-full mt-4"
+                      >
+                        <AccordionItem value="additional-items">
+                          <AccordionTrigger className="text-yellow-600">
+                            View {order.items.length - 1} more item(s)
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            {order.items.slice(1).map((item) => (
+                              <div
+                                key={item.id}
+                                className="flex items-center mt-4"
+                              >
+                                <div className="flex-grow">
+                                  <h4 className="font-medium">
+                                    {item.productName}
+                                  </h4>
+                                  <p className="text-sm text-gray-600">
+                                    {item.quantity} x{" "}
+                                    {formatCurrency(item.price)}
+                                  </p>
+                                </div>
+                                <p className="font-semibold">
+                                  {formatCurrency(
+                                    Number(item.price) * item.quantity
+                                  )}
+                                </p>
+                              </div>
+                            ))}
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
                     )}
-                  </p>
-                </div>
-                {order.items.length > 1 && (
-                  <Accordion type="single" collapsible className="w-full mt-4">
-                    <AccordionItem value="additional-items">
-                      <AccordionTrigger className="text-yellow-600">
-                        View {order.items.length - 1} more item(s)
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        {order.items.slice(1).map((item) => (
-                          <div key={item.id} className="flex items-center mt-4">
-                            <div className="flex-grow">
-                              <h4 className="font-medium">
-                                {item.productName}
-                              </h4>
-                              <p className="text-sm text-gray-600">
-                                {item.quantity} x {formatCurrency(item.price)}
-                              </p>
-                            </div>
-                            <p className="font-semibold">
-                              {formatCurrency(
-                                Number(item.price) * item.quantity
-                              )}
-                            </p>
-                          </div>
-                        ))}
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
+                  </>
+                ) : (
+                  <p>No items in this order.</p>
                 )}
               </div>
             </div>
@@ -275,7 +292,6 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order, onOrderUpd
                 </Button>
               )}
             </div>
-
           </div>
         </ScrollArea>
       </DialogContent>
@@ -284,7 +300,3 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order, onOrderUpd
 };
 
 export default OrderDetailDialog;
-function onOrderUpdate(data: any) {
-  throw new Error("Function not implemented.");
-}
-
