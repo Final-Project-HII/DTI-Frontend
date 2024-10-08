@@ -1,6 +1,7 @@
 "use client";
+import { Products } from "@/types/product";
 import React, { useState } from "react";
-import { Products } from "../types";
+
 
 interface ProductProps {
   product: Products;

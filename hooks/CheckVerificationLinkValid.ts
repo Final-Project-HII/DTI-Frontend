@@ -2,25 +2,25 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 
 interface FormData {
-  email: string | null
-  token: string | null
+  email: string | null;
+  token: string | null;
 }
 
 interface VerificationResponse {
-  data: string
+  data: string;
 }
 
 const CheckVerificationLinkValid = (formData: FormData) => {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [verificationStatus, setVerificationStatus] =
     useState<string>('Expired')
 
   useEffect(() => {
     const fetchVerificationLinkStatus = async () => {
       if (!formData.email || !formData.token) {
-        setLoading(false)
-        return
+        setLoading(false);
+        return;
       }
 
       try {
@@ -29,10 +29,10 @@ const CheckVerificationLinkValid = (formData: FormData) => {
           formData,
           {
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
           }
-        )
+        );
 
         setVerificationStatus(response.data.data)
       } catch (err) {
@@ -45,14 +45,14 @@ const CheckVerificationLinkValid = (formData: FormData) => {
           setError('An unexpected error occurred')
         }
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchVerificationLinkStatus()
-  }, [formData])
+    fetchVerificationLinkStatus();
+  }, [formData]);
 
-  return { verificationStatus, loading, error }
-}
+  return { verificationStatus, loading, error };
+};
 
-export default CheckVerificationLinkValid
+export default CheckVerificationLinkValid;

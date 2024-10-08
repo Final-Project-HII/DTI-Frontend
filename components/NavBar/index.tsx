@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { IoIosListBox } from "react-icons/io";
@@ -32,7 +32,7 @@ const NavBar = () => {
   const [openDropdownMenu, setOpenDropdownMenu] = useState(false);
   const [itemCount, setItemCount] = useState(0);
   const { data } = useSession();
-  const { profileData } = useProfileData()
+  const { profileData } = useProfileData();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const loginHref = `/login?callbackUrl=${encodeURIComponent(pathname)}`;
@@ -128,7 +128,9 @@ const NavBar = () => {
               </div>
             </div>
             <div className="flex-grow mx-1 lg:mx-4 max-w-xl hidden lg:block">
-              <SearchInput defaultSearchTerm={searchParams.get('search') || ''} />
+              <SearchInput
+                defaultSearchTerm={searchParams.get("search") || ""}
+              />
             </div>
 
             <div className="flex items-center lg:space-x-4 space-x-1">
@@ -154,8 +156,13 @@ const NavBar = () => {
                     onClick={handleToggleDropdown}
                   >
                     <Avatar className="w-7 h-7">
-                      <AvatarImage src={profileData?.avatar || undefined} alt="Profile" />
-                      <AvatarFallback>{profileData?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                      <AvatarImage
+                        src={profileData?.avatar || undefined}
+                        alt="Profile"
+                      />
+                      <AvatarFallback>
+                        {profileData?.displayName?.charAt(0) || "U"}
+                      </AvatarFallback>
                     </Avatar>
                     <h3 className="font-semibold text-sm text-black line-clamp-1">
                       {profileData?.displayName}
@@ -168,7 +175,10 @@ const NavBar = () => {
                   </div>
                   {openDropdownMenu && (
                     <div className="absolute bottom-0 w-60  translate-y-full -left-full bg-white rounded-xl  ">
-                      <Link href='/profile' className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 group hover:bg-blue-600">
+                      <Link
+                        href="/profile"
+                        className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 group hover:bg-blue-600"
+                      >
                         <div className="flex gap-4 items-center">
                           <h3 className="font-semibold text-xs text-black line-clamp-1 group-hover:text-white">
                             Hi, {profileData?.displayName}
@@ -180,13 +190,18 @@ const NavBar = () => {
                           className="text-blue-600 group-hover:text-white"
                         />
                       </Link>
-                      <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group" onClick={handleSignOut}>
+                      <div
+                        className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group"
+                        onClick={handleSignOut}
+                      >
                         <LogOutIcon
                           width={16}
                           height={16}
                           className="text-red-600"
                         />
-                        <h3 className='text-xs font-semibold text-black group-hover:text-white'>Logout</h3>
+                        <h3 className="text-xs font-semibold text-black group-hover:text-white">
+                          Logout
+                        </h3>
                       </div>
                     </div>
                   )}
@@ -224,17 +239,25 @@ const NavBar = () => {
         </div>
         <div
           className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${openHamburgerMenu
-            ? "translate-y-full h-screen"
-            : "translate-y-0 overflow-hidden"
+              ? "translate-y-full h-screen"
+              : "translate-y-0 overflow-hidden"
             }`}
         >
           {data?.user.role == "USER" ? (
             <>
-              <Link href='/profile' className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 hover:bg-blue-600 group">
+              <Link
+                href="/profile"
+                className="flex justify-between items-center px-5 py-2 border-b-2 border-gray-100 hover:bg-blue-600 group"
+              >
                 <div className="flex gap-4 items-center">
                   <Avatar className="w-7 h-7">
-                    <AvatarImage src={profileData?.avatar || undefined} alt="Profile" />
-                    <AvatarFallback>{profileData?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                    <AvatarImage
+                      src={profileData?.avatar || undefined}
+                      alt="Profile"
+                    />
+                    <AvatarFallback>
+                      {profileData?.displayName?.charAt(0) || "U"}
+                    </AvatarFallback>
                   </Avatar>
                   <h3 className="font-semibold text-sm text-black group-hover:text-white">
                     Hi, {profileData?.displayName}
@@ -246,9 +269,14 @@ const NavBar = () => {
                   className="text-black group-hover:text-white"
                 />
               </Link>
-              <div className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group" onClick={handleSignOut}>
-                <LogOutIcon width={25} height={25} className='text-red-600' />
-                <h3 className='text-sm text-black group-hover:text-white'>Logout</h3>
+              <div
+                className="flex items-center px-5 py-2 gap-4 border-b-2 border-gray-100 hover:bg-blue-600 group"
+                onClick={handleSignOut}
+              >
+                <LogOutIcon width={25} height={25} className="text-red-600" />
+                <h3 className="text-sm text-black group-hover:text-white">
+                  Logout
+                </h3>
               </div>
             </>
           ) : (

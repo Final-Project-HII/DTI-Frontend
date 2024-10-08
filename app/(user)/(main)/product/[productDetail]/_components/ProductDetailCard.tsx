@@ -9,6 +9,7 @@ import YouMayLike from "@/app/(user)/(main)/product/[productDetail]/_components/
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
 import { addToCartApi } from "@/utils/api";
+import Swal from "sweetalert2";
 
 interface ProductImage {
   id: number;

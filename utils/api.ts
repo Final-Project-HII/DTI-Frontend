@@ -3,7 +3,7 @@ import {
   Address,
   ApiResponse,
   ApiResponseAddress,
-  Product,
+  Products,
 } from '@/types/product'
 import { Category } from '@/types/category'
 import { Warehouse } from '@/types/warehouse'
@@ -12,8 +12,8 @@ import { Order, OrderItem } from '@/types/order'
 import { useSession } from 'next-auth/react'
 import { AddressFormData } from '@/app/(user)/checkout/_components/UpdateAddressForm'
 import { AdminFormData } from '@/app/admin/admin-management/_components/AdminTable/components/DataTable/components/AddAdminForm'
+import { CartItem } from '@/types/cartitem'
 import { InfoForm } from '@/app/(user)/profile/components/ProfilePage'
-import { cookies } from 'next/headers'
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`
 
@@ -38,9 +38,9 @@ export const fetchProducts = async () => {
 
 export const fetchProductDetails = async (
   productId: number
-): Promise<Product> => {
+): Promise<Products> => {
   try {
-    const response = await axiosInstance.get<Product>(`/product/${productId}`)
+    const response = await axiosInstance.get<Products>(`/product/${productId}`)
     return response.data
   } catch (error) {
     console.error('Error fetching product details:', error)
@@ -52,7 +52,23 @@ export const fetchCartItems = async (token: string) => {
   const response = await axiosInstance.get('/carts', {
     headers: { Authorization: `Bearer ${token}` },
   })
-  return response.data.items
+
+  const items = response.data.items
+
+  const totalPrice = items.reduce(
+    (sum: number, item: CartItem) => sum + item.totalPrice,
+    0
+  )
+  const totalItems = items.reduce(
+    (sum: number, item: CartItem) => sum + item.quantity,
+    0
+  )
+
+  return {
+    items,
+    totalPrice,
+    totalItems,
+  }
 }
 
 export const addToCartApi = async (
@@ -101,7 +117,7 @@ export const fetchFilteredProducts = async (
   return response.data
 }
 
-export const createProduct = async (formData: FormData): Promise<Product> => {
+export const createProduct = async (formData: FormData): Promise<Products> => {
   const response = await axiosInstance.post('/product/create', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -113,7 +129,7 @@ export const createProduct = async (formData: FormData): Promise<Product> => {
 export const updateProduct = async (
   id: number,
   formData: FormData
-): Promise<Product> => {
+): Promise<Products> => {
   const response = await axiosInstance.put(`/product/update/${id}`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -183,9 +199,7 @@ export const getAllWarehouse = async (
 ): Promise<any> => {
   const params = new URLSearchParams()
   params.set('page', page)
-  if (size != '') {
-    params.set('size', size)
-  }
+  params.set('size', size)
   if (name) {
     params.set('name', name)
   }
@@ -327,7 +341,7 @@ export const getAllUser = async (
 
   try {
     const response = await axios.get<any>(
-      `${BASE_URL_DEV}/users?${params.toString()}`
+      `${BASE_URL}/users?${params.toString()}`
     )
     return response.data.data
   } catch (error) {
@@ -338,7 +352,7 @@ export const getAllUser = async (
 
 export const toogleUserActiveStatus = async (id: number): Promise<any> => {
   const response = await axios.put(
-    `${BASE_URL_DEV}/users/toggle-active-user/${id}`,
+    `${BASE_URL}/users/toggle-active-user/${id}`,
     {}
   )
   return response.data
@@ -346,23 +360,20 @@ export const toogleUserActiveStatus = async (id: number): Promise<any> => {
 
 export const createNewAdmin = async (formData: AdminFormData): Promise<any> => {
   const response = await axios.post(
-    `${BASE_URL_DEV}/users/register-admin`,
+    `${BASE_URL}/users/register-admin`,
     formData
   )
   return response.data
 }
 
 export const updateAdmin = async (formData: AdminFormData): Promise<any> => {
-  const response = await axios.put(
-    `${BASE_URL_DEV}/users/update-admin`,
-    formData
-  )
+  const response = await axios.put(`${BASE_URL}/users/update-admin`, formData)
   return response.data
 }
 
 export const getProfileData = async (token: string): Promise<any> => {
   try {
-    const response = await axios.get<any>(`${BASE_URL_DEV}/users/profile`, {
+    const response = await axios.get<any>(`${BASE_URL}/users/profile`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     return response.data.data
@@ -376,7 +387,7 @@ export const updateProfile = async (
   formData: InfoForm,
   token: string
 ): Promise<any> => {
-  const response = await axios.put(`${BASE_URL_DEV}/users/profile`, formData, {
+  const response = await axios.put(`${BASE_URL}/users/profile`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`,
@@ -400,7 +411,7 @@ export const updateAvatar = async (
 
 export const getShippingData = async (token: string): Promise<any> => {
   try {
-    const response = await axios.get<any>(`${BASE_URL_DEV}/couriers`, {
+    const response = await axios.get<any>(`${BASE_URL}/couriers`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     return response.data.data

@@ -6,11 +6,11 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import CategoryItemSkeleton from './CategoryItemSkeleton';
-import CategoryItem from './CategoryItem'
+
+import CategoryItem from "./CategoryItem";
+import CategoryItemSkeleton from "./CategoryitemSkeleton";
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
-
 
 interface Category {
   id: number;
@@ -27,11 +27,15 @@ const CategoryListSkeleton = () => {
   return (
     <div className="px-5 sm:px-4 lg:px-16 mb-4">
       <div className="bg-[#bbddff] p-2 sm:p-3 lg:p-5 rounded-xl">
-        <h1 className="font-semibold text-sm sm:text-base lg:text-lg mb-2">Product Categories</h1>
+        <h1 className="font-semibold text-sm sm:text-base lg:text-lg mb-2">
+          Product Categories
+        </h1>
         <div className="flex overflow-x-auto lg:gap-10 gap-2 flex-nowrap custom-scrollbar px-4">
-          {Array(16).fill(null).map((_, index) => (
-            <CategoryItemSkeleton key={index} />
-          ))}
+          {Array(16)
+            .fill(null)
+            .map((_, index) => (
+              <CategoryItemSkeleton key={index} />
+            ))}
         </div>
       </div>
     </div>
@@ -39,18 +43,29 @@ const CategoryListSkeleton = () => {
 };
 
 const CategoryList = () => {
-  const { data: categories, isLoading, error } = useQuery<Category[], Error>({
+  const {
+    data: categories,
+    isLoading,
+    error,
+  } = useQuery<Category[], Error>({
     queryKey: ["categories"],
     queryFn: fetchCategories,
   });
 
-  if (isLoading) return <div><CategoryListSkeleton /></div>;
+  if (isLoading)
+    return (
+      <div>
+        <CategoryListSkeleton />
+      </div>
+    );
   if (error) return <div>Error loading categories: {error.message}</div>;
 
   return (
     <div className="px-5 sm:px-4 lg:px-16 mb-4">
       <div className="bg-[#bbddff] p-2 sm:p-3 lg:p-5 rounded-xl">
-        <h1 className="font-semibold text-sm sm:text-base lg:text-lg mb-2">Product Categories</h1>
+        <h1 className="font-semibold text-sm sm:text-base lg:text-lg mb-2">
+          Product Categories
+        </h1>
 
         <Swiper
           slidesPerView={5}
@@ -65,9 +80,8 @@ const CategoryList = () => {
             1024: { slidesPerView: 12, spaceBetween: 16 },
           }}
         >
-
           {categories?.map((category) => (
-            <SwiperSlide key={category.id} className='mr-0'>
+            <SwiperSlide key={category.id} className="mr-0">
               <CategoryItem category={category} />
             </SwiperSlide>
           ))}

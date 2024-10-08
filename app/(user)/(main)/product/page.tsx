@@ -14,11 +14,11 @@ import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbS
 import NewPagination from '@/app/admin/warehouse/components/WarehouseTable/DataTable/components/Pagination'
 
 interface ProductImage {
-  id: number;
-  productId: number;
-  imageUrl: string;
-  createdAt: string;
-  updatedAt: string;
+    id: number;
+    productId: number;
+    imageUrl: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 interface Product {
@@ -36,37 +36,37 @@ interface Product {
 }
 
 interface ApiResponse {
-  content: Product[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number;
-  sort: {
-    empty: boolean;
-    sorted: boolean;
-    unsorted: boolean;
-  };
-  first: boolean;
-  last: boolean;
-  numberOfElements: number;
-  pageable: {
-    pageNumber: number;
-    pageSize: number;
+    content: Product[];
+    totalPages: number;
+    totalElements: number;
+    size: number;
+    number: number;
     sort: {
-      empty: boolean;
-      sorted: boolean;
-      unsorted: boolean;
+        empty: boolean;
+        sorted: boolean;
+        unsorted: boolean;
     };
-    offset: number;
-    paged: boolean;
-    unpaged: boolean;
-  };
-  empty: boolean;
+    first: boolean;
+    last: boolean;
+    numberOfElements: number;
+    pageable: {
+        pageNumber: number;
+        pageSize: number;
+        sort: {
+            empty: boolean;
+            sorted: boolean;
+            unsorted: boolean;
+        };
+        offset: number;
+        paged: boolean;
+        unpaged: boolean;
+    };
+    empty: boolean;
 }
 
 interface Category {
-  id: number;
-  name: string;
+    id: number;
+    name: string;
 }
 
 

@@ -6,7 +6,7 @@ export interface ProductImage {
   updatedAt: string;
 }
 
-export interface Product {
+export interface Products {
   id: number;
   name: string;
   description: string;
@@ -38,7 +38,7 @@ export interface Address {
 }
 
 export interface ApiResponse {
-  content: Product[];
+  content: Products[];
   totalPages: number;
   totalElements: number;
   size: number;
