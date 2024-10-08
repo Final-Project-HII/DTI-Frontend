@@ -2,7 +2,8 @@ import axios from 'axios';
 import { Category, ApiResponse } from '@/types/category';
 
 // const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+const BASE_URL = 'http://localhost:8080/api';
+// const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 export const fetchCategories = async (): Promise<Category[]> => {
     const response = await axios.get<Category[]>(`${BASE_URL}/category`);
     return response.data;
