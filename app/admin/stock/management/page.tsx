@@ -94,7 +94,7 @@ export default function StockPage() {
     const isAdmin = session?.user?.role === 'ADMIN';
 
     useEffect(() => {
-        axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`)
+        axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouse`)
             .then(response => {
                 setWarehouses(response.data.data.content);
             })
