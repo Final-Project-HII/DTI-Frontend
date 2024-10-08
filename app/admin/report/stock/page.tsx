@@ -1,6 +1,5 @@
 'use client';
 import React, { useEffect, useState, useMemo } from 'react';
-import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useQuery } from '@tanstack/react-query';
 import { DataTable } from '@/app/admin/stock/request/_components/StockMutationTable';
@@ -8,109 +7,29 @@ import NewPagination from '../../warehouse/components/WarehouseTable/DataTable/c
 import StockMutationTableSkeleton from '@/app/admin/stock/request/_components/StokMutationTableSkeleton';
 import { ColumnDef } from '@tanstack/react-table';
 import { DateMutationTypeFilter } from './_component/DateFilter';
-import { DateRange } from "react-day-picker"
-
-interface Warehouse {
-    id: number;
-    name: string;
-}
-
-interface StockMutationJournal {
-    id: number;
-    stockMutationId: number;
-    productName: string;
-    warehouseName: string;
-    anotherWarehouse: string;
-    beginningStock: number;
-    endingStock: number;
-    mutationType: 'IN' | 'OUT';
-    quantity: number;
-    createdAt: string;
-    uuid: number;
-    loginWarehouseId: number;
-}
-
-interface StockMutationJournalResponse {
-    statusCode: number;
-    message: string;
-    success: boolean;
-    data: {
-        content: StockMutationJournal[];
-        totalPages: number;
-        totalElements: number;
-        size: number;
-        number: number;
-        sort: {
-            empty: boolean;
-            sorted: boolean;
-            unsorted: boolean;
-        };
-        first: boolean;
-        last: boolean;
-        numberOfElements: number;
-        pageable: {
-            pageNumber: number;
-            pageSize: number;
-            sort: {
-                empty: boolean;
-                sorted: boolean;
-                unsorted: boolean;
-            };
-            offset: number;
-            paged: boolean;
-            unpaged: boolean;
-        };
-        empty: boolean;
-    };
-}
-
-const fetchStockMutationJournals = async (
-    token?: string,
-    warehouseId?: string,
-    productName?: string,
-    mutationType?: 'IN' | 'OUT',
-    startDate?: string,
-    endDate?: string,
-    page: number = 0,
-    size: number = 20
-): Promise<StockMutationJournalResponse> => {
-    const params = new URLSearchParams();
-    if (warehouseId) params.append('warehouseId', warehouseId);
-    if (productName) params.append('productName', productName);
-    if (mutationType) params.append('mutationType', mutationType);
-    if (startDate) params.append('startDate', startDate);
-    if (endDate) params.append('endDate', endDate);
-    params.append('page', String(page));
-    params.append('size', String(size));
-
-    const response = await axios.get<StockMutationJournalResponse>(
-        `http://localhost:8080/api/stock-mutations/journal?${params.toString()}`,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }
-    );
-    return response.data;
-};
+import { DateRange } from "react-day-picker";
+import { MonthYearPicker } from '@/components/ui/date-picker';
+import { SummaryCard } from './_component/SummaryCard';
+import { fetchStockMutationJournals, fetchStockReport, fetchWarehouses } from '@/hooks/useStockMutation';
+import { Warehouse, StockMutationJournal, StockMutationJournalResponse, ProductSummary, StockReportResponse } from '@/types/stockMutation';
 
 export default function StockMutationJournalPage() {
     const [selectedWarehouse, setSelectedWarehouse] = useState<string>('2');
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(0);
+    const [productSummaryPage, setProductSummaryPage] = useState(0);
+    const [productSummaryPageSize, setProductSummaryPageSize] = useState(50);
     const [pageSize, setPageSize] = useState<number>(5);
     const [dateRange, setDateRange] = useState<DateRange | undefined>();
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date(2024, 8));
     const [mutationType, setMutationType] = useState<string>('');
     const { data: session, status } = useSession();
     const isSuperAdmin = session?.user?.role === 'SUPER';
     const isAdmin = session?.user?.role === 'ADMIN';
 
-
     useEffect(() => {
-        axios.get<{ data: { content: Warehouse[] } }>(`http://localhost:8080/api/warehouses`)
-            .then(response => {
-                setWarehouses(response.data.data.content);
-            })
+        fetchWarehouses()
+            .then(setWarehouses)
             .catch(error => console.error("Failed to fetch warehouses:", error));
     }, []);
 
@@ -128,6 +47,19 @@ export default function StockMutationJournalPage() {
         ),
         enabled: !!session?.user?.accessToken,
     });
+
+    const { data: reportData, isLoading: reportLoading, error: reportError } = useQuery<StockReportResponse>({
+        queryKey: ['stock-report', selectedWarehouse, selectedDate, productSummaryPage, productSummaryPageSize],
+        queryFn: () => fetchStockReport(
+            session?.user?.accessToken!,
+            selectedWarehouse,
+            selectedDate ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}` : '',
+            productSummaryPage,
+            productSummaryPageSize
+        ),
+        enabled: !!session?.user?.accessToken && !!selectedDate,
+    });
+
     useEffect(() => {
         if (isAdmin && data?.data?.content && data.data.content.length > 0) {
             const loginWarehouseId = data.data.content[0].loginWarehouseId;
@@ -136,6 +68,10 @@ export default function StockMutationJournalPage() {
             }
         }
     }, [isAdmin, data]);
+
+    const handleProductSummaryPageChange = (newPage: number) => {
+        setProductSummaryPage(newPage);
+    };
 
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);
@@ -158,13 +94,21 @@ export default function StockMutationJournalPage() {
 
     const stockMutationJournals = data?.data.content ?? [];
     const hasData = stockMutationJournals.length > 0;
-    // { accessorKey: 'beginningStock', header: 'Beginning Stock' },
-    // { accessorKey: 'endingStock', header: 'Ending Stock' },
+
+    const productSummaryColumns: ColumnDef<ProductSummary>[] = useMemo(
+        () => [
+            { accessorKey: 'productId', header: 'Product ID' },
+            { accessorKey: 'productName', header: 'Product Name' },
+            { accessorKey: 'totalAddition', header: 'Total Addition' },
+            { accessorKey: 'totalReduction', header: 'Total Reduction' },
+            { accessorKey: 'endingStock', header: 'Ending Stock' },
+        ],
+        []
+    );
+
     const columns: ColumnDef<StockMutationJournal>[] = useMemo(
         () => [
-            // { accessorKey: 'id', header: 'ID' },
             { accessorKey: 'uuid', header: 'UUID' },
-            // { accessorKey: 'stockMutationId', header: 'Stock Mutation ID' },
             { accessorKey: 'productName', header: 'Product Name' },
             { accessorKey: 'warehouseName', header: 'Warehouse In' },
             { accessorKey: 'anotherWarehouse', header: 'Warehouse Out' },
@@ -181,39 +125,101 @@ export default function StockMutationJournalPage() {
 
     if (error) return <div>Error loading stock mutation journal data: {(error as Error).message}</div>;
 
+    const stockInTotal = reportData?.summary.totalAddition || 0;
+    const stockOutTotal = reportData?.summary.totalReduction || 0;
+    const totalStock = reportData?.summary.endingStock || 0;
+    const stockInPercentage = totalStock > 0 ? (stockInTotal / totalStock) * 100 : 0;
+    const stockOutPercentage = totalStock > 0 ? (stockOutTotal / totalStock) * 100 : 0;
+
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Stock Mutation Journal</h1>
-            <div className='flex justify-between'>
+            <h1 className="text-2xl font-bold mb-4">Stock Report</h1>
+            <div className='flex justify-end gap-4'>
+                {isSuperAdmin && (
+                    <div className='mb-4 flex justify-between'>
+                        <select
+                            id="warehouse-select"
+                            value={selectedWarehouse}
+                            onChange={handleWarehouseChange}
+                            className="mb-4 p-2 border border-gray-300 rounded-md w-full max-w-xs"
+                        >
+                            <option value="">All Warehouses</option>
+                            {warehouses.map((warehouse) => (
+                                <option key={warehouse.id} value={warehouse.id.toString()}>
+                                    {warehouse.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+
+                {isAdmin && selectedWarehouse && (
+                    <div className='mb-4'>
+                        <p>Selected Warehouse: {warehouses.find(w => w.id.toString() === selectedWarehouse)?.name}</p>
+                    </div>
+                )}
                 <div className='mb-4'>
-                    {/* <label htmlFor="warehouse-select" className="block mb-2 font-medium">
-                    Select Warehouse:
-                </label> */}
-                    {isSuperAdmin && (
-                        <div className='mb-4 flex justify-between'>
-                            <select
-                                id="warehouse-select"
-                                value={selectedWarehouse}
-                                onChange={handleWarehouseChange}
-                                className="mb-4 p-2 border border-gray-300 rounded-md w-full max-w-xs"
-                            >
-                                <option value="">All Warehouses</option>
-                                {warehouses.map((warehouse) => (
-                                    <option key={warehouse.id} value={warehouse.id.toString()}>
-                                        {warehouse.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-
-                    {isAdmin && selectedWarehouse && (
-                        <div className='mb-4'>
-                            {/* <p>Selected Warehouse: {warehouses.find(w => w.id.toString() === selectedWarehouse)?.name}</p> */}
-                        </div>
-                    )}
+                    <MonthYearPicker
+                        selected={selectedDate}
+                        onChange={(date) => setSelectedDate(date as Date | undefined)}
+                        dateFormat="yyyy-MM"
+                    />
                 </div>
+            </div>
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <SummaryCard
+                    title="Stock In"
+                    value={stockInTotal}
+                    percentage={stockInPercentage}
+                    isPositive={true}
+                />
+                <SummaryCard
+                    title="Stock Out"
+                    value={stockOutTotal}
+                    percentage={stockOutPercentage}
+                    isPositive={false}
+                />
+                <SummaryCard
+                    title="Total Stock"
+                    value={totalStock}
+                    showPercentage={false}
+                />
+            </div>
+            <div className="my-4">
 
+                <h2 className="text-xl font-semibold my-4">Product Summary</h2>
+                {reportLoading ? (
+                    <div className="my-4"><StockMutationTableSkeleton rowCount={5} /></div>
+                ) : reportData && reportData.summary && reportData.summary.productSummaries ? (
+                    <>
+                        <DataTable
+                            columns={productSummaryColumns}
+                            data={reportData.summary.productSummaries.content || []}
+                            loading={reportLoading}
+                            nameFilter=""
+                            setNameFilter={() => { }}
+                            selectedCity={undefined}
+                            setSelectedCity={() => { }}
+                            onDataChanged={() => { }}
+                            onPageChanged={handlePageChange}
+                        />
+                        <NewPagination
+                            currentPage={productSummaryPage}
+                            totalPages={reportData.summary.productSummaries.totalPages}
+                            pageSize={productSummaryPageSize}
+                            totalElements={reportData.summary.productSummaries.totalElements}
+                            onPageChange={handleProductSummaryPageChange}
+                            onPageSizeChange={setProductSummaryPageSize}
+                        />
+                    </>
+                ) : (
+                    <div>No product summary data available</div>
+                )}
+            </div>
+            {/* rnd report */}
+            <div className="my-4 flex justify-between mt-10">
+                <h2 className="text-xl font-semibold my-4">Stock Mutation Journal</h2>
                 <DateMutationTypeFilter
                     dateRange={dateRange}
                     setDateRange={setDateRange}
@@ -222,7 +228,6 @@ export default function StockMutationJournalPage() {
                     onApplyFilter={handleApplyFilter}
                 />
             </div>
-
             {isLoading ? (
                 <StockMutationTableSkeleton rowCount={5} />
             ) : (
@@ -240,7 +245,6 @@ export default function StockMutationJournalPage() {
                     />
                 </div>
             )}
-
             {hasData && (
                 <div className="flex justify-end items-center mt-4">
                     <NewPagination

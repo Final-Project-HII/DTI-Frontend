@@ -18,70 +18,13 @@ import { ProductTable } from './_components/ProductTable';
 import NewPagination from '@/app/admin/warehouse/components/WarehouseTable/DataTable/components/Pagination';
 import StockMutationTableSkeleton from '@/app/admin/stock/request/_components/StokMutationTableSkeleton';
 import { useSession } from "next-auth/react";
-
-interface ProductImage {
-    id: number;
-    productId: number;
-    imageUrl: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
-interface Category {
-    id: number;
-    name: string;
-}
-
-interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    weight: number;
-    categoryId: number;
-    categoryName: string;
-    totalStock: number;
-    productImages: ProductImage[];
-    createdAt: string;
-    updatedAt: string;
-    onEdit: (product: Product) => void;
-    onDelete: (id: number) => void;
-}
-
-interface ApiResponse {
-    content: Product[];
-    totalPages: number;
-    totalElements: number;
-    size: number;
-    number: number;
-    sort: {
-        empty: boolean;
-        sorted: boolean;
-        unsorted: boolean;
-    };
-    first: boolean;
-    last: boolean;
-    numberOfElements: number;
-    pageable: {
-        pageNumber: number;
-        pageSize: number;
-        sort: {
-            empty: boolean;
-            sorted: boolean;
-            unsorted: boolean;
-        };
-        offset: number;
-        paged: boolean;
-        unpaged: boolean;
-    };
-    empty: boolean;
-}
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+import { Category, Product, ApiResponse } from '@/types/product';
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 const ALL_CATEGORIES = 'all';
 const DEFAULT_PAGE_SIZE = 10;
-
-
 
 export default function ProductSearchPage() {
 
@@ -191,13 +134,38 @@ export default function ProductSearchPage() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
+            Swal.fire({
+                icon: 'success',
+                title: 'Deleted!',
+                text: 'The product has been successfully deleted.',
+                confirmButtonColor: '#3085d6',
+            });
+        },
+        onError: (error) => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'An error occurred while deleting the product.',
+                footer: error instanceof Error ? error.message : 'Unknown error',
+                confirmButtonColor: '#3085d6',
+            });
         },
     });
 
     const handleDelete = (id: number) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            deleteProductMutation.mutate(id);
-        }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteProductMutation.mutate(id);
+            }
+        });
     };
 
     const openEditModal = (product: Product) => {

@@ -21,7 +21,9 @@ import SearchSheet from "./_components/SearchSheet";
 // import { useCart } from "@/hooks/useCart";
 import { useSearchParams } from 'next/navigation';
 import "swiper/css";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+const queryClient = new QueryClient();
 
 const NavBar = () => {
   const { data: session } = useSession();
@@ -136,7 +138,9 @@ const NavBar = () => {
                 />
               </Link>
               <div className="hidden lg:block">
-                <CategoryDropdown />
+                <QueryClientProvider client={queryClient}>
+                  <CategoryDropdown />
+                </QueryClientProvider>
               </div>
             </div>
             <div className="flex-grow mx-1 lg:mx-4 max-w-xl hidden lg:block">
@@ -233,7 +237,9 @@ const NavBar = () => {
                          ${isDesktop ? "-translate-y-full" : "-translate-y-0"}
                          ${isDesktop ? "z-10" : "z-30"}`}
         >
-          <CategorySwiper />
+          <QueryClientProvider client={queryClient}>
+            <CategorySwiper />
+          </QueryClientProvider>
         </div>
         <div
           className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${openHamburgerMenu

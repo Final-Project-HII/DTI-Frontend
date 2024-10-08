@@ -84,6 +84,7 @@ interface RowInfo {
     };
 }
 
+const BASE_URL = 'http://localhost:8080/api';
 const fetchStockMutations = async (
     originWarehouseId?: string,
     // destinationWarehouseId?: string,
@@ -101,7 +102,7 @@ const fetchStockMutations = async (
     params.append('page', String(page));
     params.append('size', String(size));
 
-    const response = await axios.get<StockMutationResponse>(`http://localhost:8080/api/stock-mutations?${params.toString()}`, {
+    const response = await axios.get<StockMutationResponse>(`${BASE_URL}/stock-mutations?${params.toString()}`, {
         headers: {
             Authorization: `Bearer ${token}`,
         },
@@ -119,7 +120,7 @@ export default function StockMutationPage() {
     const isAdmin = session?.user?.role === 'ADMIN';
 
     useEffect(() => {
-        axios.get<{ data: { content: Warehouse[] } }>(`http://localhost:8080/api/warehouses`)
+        axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`)
             .then(response => {
                 setWarehouses(response.data.data.content);
             })

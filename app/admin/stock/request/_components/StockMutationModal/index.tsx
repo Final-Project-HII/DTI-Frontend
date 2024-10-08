@@ -15,8 +15,9 @@ import { AlertCircle, CheckCircle, Plus } from 'lucide-react';
 import WarehouseSelect from '../../../management/_components/WarehouseSelect';
 import ProductSelect from '../ProductSelect';
 import { useSession } from "next-auth/react";
+import Swal from 'sweetalert2';
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'http://localhost:8080/api';
 
 interface Stock {
     id: number;
@@ -140,8 +141,8 @@ const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ war
     const { data: stockResponse, refetch: refetchStocks, isLoading } = useQuery<StockResponse>({
         queryKey: ['allStocks'],
         queryFn: async ({ pageParam = 0 }) => {
-            const response = await api.get('/api/stocks', {
-                params: { page: pageParam, size: 40 }
+            const response = await api.get('/stocks', {
+                params: { page: pageParam, size: 1000 }
             });
             return response.data;
         },
@@ -161,23 +162,37 @@ const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ war
 
     const mutation = useMutation<any, Error, FormData>({
         mutationFn: (newMutation) => {
-            return api.post('/api/stock-mutations/manual', newMutation);
+            return api.post('/stock-mutations/manual', newMutation);
         },
         onSuccess: () => {
             setOpen(false);
             refetchMutations();
             resetForm();
-            setSuccessMessage("Stock mutation successfully created!");
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Stock mutation successfully created!',
+                confirmButtonColor: '#3085d6',
+            });
         },
         onError: (error: any) => {
-            if (error.response) {
-                setErrorMessage(error.response.data.message);
-            } else {
-                setErrorMessage('An unexpected error occurred.');
+            let errorMessage = 'An unexpected error occurred.';
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
             }
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: errorMessage,
+                confirmButtonColor: '#3085d6',
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                // position: 'top-end',
+                showConfirmButton: false
+            });
         },
     });
-
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         mutation.mutate(formData);
@@ -220,6 +235,11 @@ const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ war
                         value={formData.productId}
                         onChange={(value) => setFormData(prev => ({ ...prev, productId: value }))}
                         placeholder="Select product"
+                    // renderOption={(props, product) => (
+                    //     <Components.Option {...props} value={product.id}>
+                    //         {product.name.length > 50 ? `${product.name.substring(0, 47)}...` : product.name}
+                    //     </Components.Option>
+                    // )}
                     />
 
                     {isLoading ? (

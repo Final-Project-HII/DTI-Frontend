@@ -9,26 +9,9 @@ import YouMayLike from "@/app/(main)/product/[productDetail]/_components/YouMayL
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
 import { addToCartApi } from "@/utils/api";
-
-interface ProductImage {
-    id: number;
-    imageUrl: string;
-}
-
-interface Product {
-    id: number;
-    name: string;
-    price: number;
-    description: string;
-    categoryName: string;
-    totalStock: number;
-    weight: number;
-    productImages: ProductImage[];
-}
-
-interface ProductDetailProps {
-    product: Product;
-}
+import {
+    Product, ProductImage, ProductDetailProps
+} from '@/types/product';
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     const [quantity, setQuantity] = useState(1);
@@ -154,7 +137,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                                         <span className='text-xs md:text-sm'>from <strong className='text-blue-800'> {product.totalStock} </strong> items in stock</span>
                                     </div>
                                     <Button
-                                        // onClick={handleAddToCart}
+                                        onClick={handleAddToCart}
                                         className="h-12 px-6 text-white text-sm md:text-base lg:text-lg bg-blue-600 hover:bg-blue-700 transition-colors duration-300"
                                         disabled={product.totalStock === 0}
                                     >

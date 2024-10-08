@@ -18,6 +18,8 @@ export interface Product {
   productImages: ProductImage[];
   createdAt: string;
   updatedAt: string;
+  onEdit: (product: Product) => void;
+  onDelete: (id: number) => void;
 }
 
 export interface City {
@@ -128,4 +130,61 @@ export interface StockMutation {
   handledBy: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+}
+
+
+export interface ParsedSlug {
+  id: string;
+  name: string;
+}
+
+export function parseSlug(slug: string): ParsedSlug {
+  const [id, ...nameParts] = slug.split("_");
+  return {
+    id,
+    name: nameParts.join("_").replace(/-/g, " "),
+  };
+}
+
+export interface ProductDataResponse {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  weight: number;
+  categoryId: number;
+  categoryName: string;
+  totalStock: number;
+  productImages: {
+    id: number;
+    productId: number;
+    imageUrl: string;
+    name: string;
+    description: string;
+    price: number;
+    weight: number;
+    categoryId: number;
+    categoryName: string;
+    totalStock: number;
+    productImages: {
+      id: number;
+      productId: number;
+      imageUrl: string;
+      createdAt: string;
+      updatedAt: string;
+    }[];
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductDetailProps {
+  product: ProductDataResponse;
 }
