@@ -106,7 +106,7 @@ const OrderStatusModal: React.FC<OrderStatusModalProps> = ({
     }
 
     // Show Next Step button for all cases when there's a next status
-    if (nextStatus && order.status !== "delivered") {
+    if (nextStatus && order.status.toLowerCase() !== "cancelled" && order.status.toLowerCase() !== "delivered") {
       return <Button onClick={handleNextStep}>Next Step ({nextStatus})</Button>;
     }
 
