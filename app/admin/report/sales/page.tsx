@@ -11,7 +11,7 @@ import { MonthYearPicker } from '@/components/ui/date-picker';
 import { ArrowUpIcon, ArrowDownIcon } from '@radix-ui/react-icons';
 import { SummaryCard } from './_components/SummaryCard';
 import { useSalesReport } from '@/hooks/useSalesReport';
-import { SalesSummary, CategorySales, ProductSales, SalesDetail, SummaryCardProps, ApiResponse, Warehouse } from '@/types/salesreport';
+import { SalesSummary, CategorySales, ProductSales, SalesDetail, SummaryCardProps, ApiResponse, Warehouse } from '@/types/salesReport';
 
 export default function SalesReportPage() {
   const {
