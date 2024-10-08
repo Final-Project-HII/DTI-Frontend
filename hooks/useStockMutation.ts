@@ -52,6 +52,6 @@ export const fetchStockMutationJournals = async (
 };
 
 export const fetchWarehouses = async () => {
-    const response = await axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`);
+    const response = await axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouse`);
     return response.data.data.content;
 };
