@@ -35,14 +35,14 @@ interface ProductSelectProps {
     disabled?: boolean;
     selectedWarehouse?: string | undefined;
 }
-
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 const fetchProducts = async (): Promise<Product[]> => {
     let allProducts: Product[] = [];
     let currentPage = 0;
     let totalPages = 1;
 
     while (currentPage < totalPages) {
-        const response = await axios.get('http://localhost:8080/api/product', {
+        const response = await axios.get(`${BASE_URL}/product`, {
             params: {
                 page: currentPage,
                 size: 100,
