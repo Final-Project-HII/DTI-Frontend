@@ -10,13 +10,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
 interface OrderStatusModalProps {
@@ -24,6 +17,7 @@ interface OrderStatusModalProps {
   onClose: () => void;
   onStatusUpdate: (orderId: number, newStatus: string) => Promise<void>;
   onPaymentApproval: (orderId: number, isApproved: boolean) => Promise<void>;
+  onCancelOrder: (orderId: number) => Promise<void>;
 }
 
 const OrderStatusModal: React.FC<OrderStatusModalProps> = ({
@@ -31,54 +25,92 @@ const OrderStatusModal: React.FC<OrderStatusModalProps> = ({
   onClose,
   onStatusUpdate,
   onPaymentApproval,
+  onCancelOrder,
 }) => {
-  const [newStatus, setNewStatus] = useState(order.status);
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(
     null
   );
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { data: session } = useSession();
 
+  const statusSequence = [
+    "pending_payment",
+    "confirmation",
+    "process",
+    "shipped",
+    "delivered",
+  ];
+
+  const currentStatusIndex = statusSequence.indexOf(order.status);
+  const nextStatus = statusSequence[currentStatusIndex + 1];
+
   useEffect(() => {
-    const fetchPaymentDetails = async () => {
-      if (!session) {
-        setError("No session available");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const response = await axios.get<PaymentDetails>(
-          `${process.env.NEXT_PUBLIC_API_URL}api/payments/${order.id}/status`,
-          {
-            headers: { Authorization: `Bearer ${session.user.accessToken}` },
-          }
-        );
-        console.log("API Response:", response.data);
-        setPaymentDetails(response.data);
-      } catch (err) {
-        console.error("Error fetching payment details:", err);
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPaymentDetails();
   }, [order.id, session]);
 
-  const handleStatusUpdate = async () => {
-    await onStatusUpdate(order.id, newStatus);
+  const fetchPaymentDetails = async () => {
+    if (!session) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await axios.get<PaymentDetails>(
+        `${process.env.NEXT_PUBLIC_API_URL}api/payments/${order.id}/status`,
+        {
+          headers: { Authorization: `Bearer ${session.user.accessToken}` },
+        }
+      );
+      setPaymentDetails(response.data);
+    } catch (err) {
+      console.error("Error fetching payment details:", err);
+      setPaymentDetails(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNextStep = async () => {
+    if (nextStatus) {
+      await onStatusUpdate(order.id, nextStatus);
+      onClose();
+    }
+  };
+
+  const handleCancel = async () => {
+    await onCancelOrder(order.id);
     onClose();
   };
 
   const handlePaymentApproval = async (isApproved: boolean) => {
     await onPaymentApproval(order.id, isApproved);
-    onClose();
+    await fetchPaymentDetails();
+  };
+
+  const renderActionButtons = () => {
+    if (loading) return null;
+
+    if (!paymentDetails || !paymentDetails.paymentMethod) {
+      return <p>Waiting for user payment method selection</p>;
+    }
+
+    if (paymentDetails.paymentMethod === "PAYMENT_PROOF") {
+      if (paymentDetails.status === "PENDING") {
+        return (
+          <Button onClick={() => handlePaymentApproval(true)} variant="default">
+            Approve Payment
+          </Button>
+        );
+      }
+    }
+
+    // Show Next Step button for all cases when there's a next status
+    if (nextStatus && order.status.toLowerCase() !== "cancelled" && order.status.toLowerCase() !== "delivered") {
+      return <Button onClick={handleNextStep}>Next Step ({nextStatus})</Button>;
+    }
+
+    return null;
   };
 
   return (
@@ -108,8 +140,6 @@ const OrderStatusModal: React.FC<OrderStatusModalProps> = ({
           </div>
           {loading ? (
             <div>Loading payment details...</div>
-          ) : error ? (
-            <div className="text-red-500">Error: {error}</div>
           ) : paymentDetails ? (
             <>
               <div className="grid grid-cols-3 items-center gap-4">
@@ -149,56 +179,24 @@ const OrderStatusModal: React.FC<OrderStatusModalProps> = ({
                 )}
             </>
           ) : (
-            <div>No payment details available</div>
+            <div>Waiting for user payment method selection</div>
           )}
           <div className="grid grid-cols-3 items-center gap-4">
-            <label htmlFor="status" className="font-medium text-right">
-              Update Status:
-            </label>
-            <div className="col-span-2">
-              <Select onValueChange={setNewStatus} value={newStatus}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select new status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending_payment">
-                    pending_payment
-                  </SelectItem>
-                  <SelectItem value="confirmation">confirmation</SelectItem>
-                  <SelectItem value="process">process</SelectItem>
-                  <SelectItem value="shipped">shipped</SelectItem>
-                  <SelectItem value="delivered">delivered</SelectItem>
-                  <SelectItem value="cancelled">cancelled</SelectItem>
-                </SelectContent>
-              </Select>
+            <span className="font-medium text-right">Update Status:</span>
+            <div className="col-span-2 flex space-x-2">
+              {renderActionButtons()}
+              {order.status !== "shipped" && order.status !== "delivered" && (
+                <Button onClick={handleCancel} variant="destructive">
+                  Cancel Order
+                </Button>
+              )}
             </div>
           </div>
         </div>
-        <DialogFooter className="sm:justify-between">
+        <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            Close
           </Button>
-          <div className="flex gap-2">
-            <Button onClick={handleStatusUpdate}>Update Status</Button>
-            {paymentDetails &&
-              paymentDetails.status === "PENDING" &&
-              paymentDetails.paymentMethod === "PAYMENT_PROOF" && (
-                <>
-                  <Button
-                    onClick={() => handlePaymentApproval(true)}
-                    variant="default"
-                  >
-                    Approve Payment
-                  </Button>
-                  <Button
-                    onClick={() => handlePaymentApproval(false)}
-                    variant="destructive"
-                  >
-                    Reject Payment
-                  </Button>
-                </>
-              )}
-          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

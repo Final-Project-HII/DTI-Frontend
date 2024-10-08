@@ -96,18 +96,6 @@ const AdminOrderManagement = () => {
 
   const userWarehouseId = profileData?.warehouseId?.toString() || null;
 
-  console.log("Session:", session);
-  console.log("Session Status:", sessionStatus);
-  console.log("Profile Data:", profileData);
-  console.log("User Role:", userRole);
-  console.log("User Warehouse ID:", userWarehouseId);
-
-  console.log("Session:", session);
-  console.log("Session Status:", sessionStatus);
-  console.log("Profile Data:", profileData);
-  console.log("User Role:", userRole);
-  console.log("User Warehouse ID:", userWarehouseId);
-
   useEffect(() => {
     if (userRole === "ADMIN" && userWarehouseId) {
       setSelectedWarehouse(userWarehouseId);
@@ -188,7 +176,6 @@ const AdminOrderManagement = () => {
 
         if (response.status === 200) {
           console.log("Order status updated successfully");
-          // Refresh the orders data
           refetch();
         } else {
           console.error("Failed to update order status");
@@ -231,6 +218,37 @@ const AdminOrderManagement = () => {
         }
       } catch (error) {
         console.error("Error handling payment approval:", error);
+      }
+    },
+    [session, refetch]
+  );
+
+  const handleCancelOrder = useCallback(
+    async (orderId: number) => {
+      if (!session?.user?.accessToken) {
+        console.error("No access token available");
+        return;
+      }
+
+      try {
+        const response = await axios.put(
+          `${process.env.NEXT_PUBLIC_API_URL}api/orders/${orderId}/status?status=cancelled`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${session.user.accessToken}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          console.log("Order cancelled successfully");
+          refetch();
+        } else {
+          console.error("Failed to cancel order");
+        }
+      } catch (error) {
+        console.error("Error cancelling order:", error);
       }
     },
     [session, refetch]
@@ -297,6 +315,7 @@ const AdminOrderManagement = () => {
           onClose={handleCloseModal}
           onStatusUpdate={handleStatusUpdate}
           onPaymentApproval={handlePaymentApproval}
+          onCancelOrder={handleCancelOrder}
         />
       )}
     </div>
