@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { StockMutationJournalResponse, StockReportResponse, Warehouse } from '../types/stockMutation';
 
+// const BASE_URL = 'http://localhost:8080/api';
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 export const fetchStockReport = async (

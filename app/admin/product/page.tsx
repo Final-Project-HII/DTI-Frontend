@@ -24,9 +24,9 @@ import { Category, Product, ApiResponse } from '@/types/product';
 
 
 
-// const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
-const BASE_URL = 'http://localhost:8080/api';
+// const BASE_URL = 'http://localhost:8080/api';
 const ALL_CATEGORIES = 'all';
 const DEFAULT_PAGE_SIZE = 10;
 
