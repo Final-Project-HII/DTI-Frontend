@@ -1,5 +1,6 @@
-import { auth } from '@/auth'
 import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/auth'
+import { cookies } from 'next/headers'
 
 export const config = {
   matcher: [
@@ -12,10 +13,11 @@ export const config = {
     '/admin/product',
     '/admin/category',
     '/admin/admin-management',
+    '/admin/warehouse',
     '/admin/stock/management',
     '/admin/stock/request',
     '/admin/stock/approval',
-    '/admin/transaction/order',
+    '/admin/order',
     '/reset-password',
     '/reset-password-confirmation',
     '/manage-password',
@@ -35,7 +37,7 @@ const adminRoutes = [
   '/admin/stock/management',
   '/admin/stock/request',
   '/admin/stock/approval',
-  '/admin/transaction/order',
+  '/admin/order',
 ]
 
 const userRoutes = [
@@ -44,7 +46,6 @@ const userRoutes = [
   '/profile',
   '/managepayment',
   '/order',
-  '/',
   '/product',
 ]
 
@@ -55,7 +56,7 @@ const superAdminRoutes = [
   '/admin/stock/management',
   '/admin/stock/request',
   '/admin/stock/approval',
-  '/admin/transaction/order',
+  '/admin/order',
   '/admin/warehouse',
   '/admin/admin-management',
 ]
@@ -64,49 +65,110 @@ export default auth((req: any) => {
   const reqUrl = new URL(req.url)
   const path = reqUrl.pathname
   const role = req.auth?.user.role
+  const cookieStore = cookies()
+  const Sid = cookieStore.get('Sid')
 
   const publicRoutes = [
     '/',
-    '/login',
-    '/register',
     '/reset-password',
     '/reset-password-confirmation',
     '/manage-password',
     '/product',
   ]
 
+  const authRoutes = ['/login', '/register']
+
   if (
     (role === 'ADMIN' || role === 'SUPER') &&
     (path === '/' || path.startsWith('/product'))
   ) {
-    return NextResponse.redirect(new URL('/admin/dashboard', req.url))
+    const redirectUrl = new URL('/admin/dashboard', req.url)
+    return NextResponse.redirect(redirectUrl)
   }
 
-  if (publicRoutes.includes(path) || path.startsWith('/product')) {
+  if (req.auth && authRoutes.includes(path)) {
+    const redirectUrl = new URL('/', req.url)
+    redirectUrl.searchParams.set(
+      'modalInfo',
+      JSON.stringify({
+        title: 'Access Denied',
+        description: 'You do not have permission to access this page.',
+        redirectTo: '/',
+      })
+    )
+    return NextResponse.redirect(redirectUrl)
+  }
+
+  if (
+    publicRoutes.includes(path) ||
+    path.startsWith('/product') ||
+    authRoutes.includes(path)
+  ) {
     return NextResponse.next()
   }
 
-  if (!req.auth) {
-    return NextResponse.redirect(new URL('/', req.url))
+  if (!req.auth && Sid) {
+    const redirectUrl = new URL('/', req.url)
+    const response = NextResponse.redirect(redirectUrl)
+    response.cookies.delete('Sid')
+    return response
   }
 
-  // Handle admin routes access
+  if (!req.auth) {
+    const baseUrl = new URL('/', req.url)
+    baseUrl.searchParams.set(
+      'modalInfo',
+      JSON.stringify({
+        title: 'Login Required',
+        description: 'Please log in to access this page.',
+        redirectTo: '/',
+      })
+    )
+    return NextResponse.redirect(baseUrl)
+  }
+
   if (role === 'ADMIN') {
     if (!adminRoutes.includes(path)) {
-      return NextResponse.redirect(new URL('/admin/dashboard', req.url))
+      const redirectUrl = new URL('/admin/dashboard', req.url)
+      redirectUrl.searchParams.set(
+        'modalInfo',
+        JSON.stringify({
+          title: 'Access Denied',
+          description: 'You do not have permission to access this page.',
+          redirectTo: '/admin/dashboard',
+        })
+      )
+      return NextResponse.redirect(redirectUrl)
     }
   } else if (role === 'SUPER') {
     if (!superAdminRoutes.includes(path)) {
-      return NextResponse.redirect(new URL('/admin/dashboard', req.url))
+      const redirectUrl = new URL('/admin/dashboard', req.url)
+      redirectUrl.searchParams.set(
+        'modalInfo',
+        JSON.stringify({
+          title: 'Access Denied',
+          description: 'You do not have permission to access this page.',
+          redirectTo: '/admin/dashboard',
+        })
+      )
+      return NextResponse.redirect(redirectUrl)
     }
   }
 
   if (role === 'USER') {
     if (!userRoutes.includes(path)) {
-      return NextResponse.redirect(new URL('/', req.url))
+      const redirectUrl = new URL('/', req.url)
+      redirectUrl.searchParams.set(
+        'modalInfo',
+        JSON.stringify({
+          title: 'Access Denied',
+          description: 'You do not have permission to access this page.',
+          redirectTo: '/',
+        })
+      )
+      return NextResponse.redirect(redirectUrl)
     }
   }
 
-  // For other authenticated routes
   return NextResponse.next()
 })

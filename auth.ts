@@ -3,6 +3,7 @@ import Credentials from 'next-auth/providers/credentials'
 import { cookies } from 'next/headers'
 import GoogleProvider from 'next-auth/providers/google'
 import { useRouter } from 'next/router'
+import axios from 'axios'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.NEXT_PUBLIC_SECRET,
@@ -30,19 +31,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             email: string
             password: string
           }
-          const response = await fetch(
+          const response = await axios.post(
             `${process.env.NEXT_PUBLIC_API_URL}api/auth/login`,
             {
-              method: 'POST',
+              email: credentials.email,
+              password: credentials.password,
+            },
+            {
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                email: credentials.email,
-                password: credentials.password,
-              }),
             }
           )
-          const data = await response.json()
-          if (!response.ok) {
+          const data = response.data
+          if (response.status !== 200) {
             return {
               error: data.error,
               message: data.message,
@@ -59,7 +59,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             accessToken: data.accessToken,
           }
         } catch (error) {
-          console.log(error)
+          if (axios.isAxiosError(error) && error.response) {
+            return {
+              error: error.response.data.error || 'Unknown error',
+              message: error.response.data.message || 'An error occurred',
+              email: '',
+              sub: '',
+              role: '',
+              accessToken: '',
+            }
+          }
           return null
         }
       },
@@ -72,42 +81,48 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (account?.provider == 'google') {
         const action = cookieStore.get('auth_action')?.value
         if (action == 'register') {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}api/users/register-google`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
+          try {
+            const response = await axios.post(
+              `http://localhost:8080/api/users/register-google`,
+              {
                 email: profile?.email,
                 role: 'USER',
                 name: profile?.name,
                 profilePicture: profile?.picture,
-              }),
+              },
+              {
+                headers: { 'Content-Type': 'application/json' },
+              }
+            )
+            const data2 = response.data
+            if (!data2.success) {
+              return '/register?error=email_already_registered'
             }
-          )
-          const data2 = await response.json()
-          if (!data2.success) {
+          } catch (error) {
             return '/register?error=email_already_registered'
           }
         }
 
-        const responseLogin = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}api/auth/login-social`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+        try {
+          const responseLogin = await axios.post(
+            `http://localhost:8080/api/auth/login-social`,
+            {
               email: profile?.email,
-            }),
-          }
-        )
-        const dataLogin = await responseLogin.json()
-        user.role = dataLogin.role
-        if (dataLogin?.error) {
-          user.error = dataLogin.error
-        } else {
+            },
+            {
+              headers: { 'Content-Type': 'application/json' },
+            }
+          )
+          const dataLogin = responseLogin.data
           user.role = dataLogin.role
-          user.accessToken = dataLogin.accessToken
+          if (dataLogin?.error) {
+            user.error = dataLogin.error
+          } else {
+            user.role = dataLogin.role
+            user.accessToken = dataLogin.accessToken
+          }
+        } catch (error) {
+          return `/login?callbackUrl=${callbackUrl}&error=email_not_found`
         }
       }
 
@@ -119,6 +134,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       if (user.error === 'Invalid Credentials') {
         return `/login?callbackUrl=${callbackUrl}&error=password_not_correct`
+      }
+      if (user.error) {
+        return `/login?callbackUrl=${callbackUrl}&error=${encodeURIComponent(
+          user.error
+        )}`
       }
       const useCookies = cookies()
       useCookies.set('Sid', user.accessToken)

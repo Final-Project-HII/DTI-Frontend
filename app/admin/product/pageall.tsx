@@ -730,7 +730,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import AddProductModal from './_components/AddProductModal';
 import EditProductModal from './_components/EditProductModal';
-import { Pagination } from '@/app/(main)/product/_components/Pagination';
+import { Pagination } from '@/app/(user)/(main)/product/_components/Pagination';
 import { FaSearch } from 'react-icons/fa';
 import Image from 'next/image';
 

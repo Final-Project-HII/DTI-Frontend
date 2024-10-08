@@ -89,7 +89,7 @@ export function DataTable<TData, TValue>({
           </div>
           <Dialog open={openNewWarehouseForm} onOpenChange={setOpenNewWarehouseForm}>
             <DialogTrigger asChild>
-              <Button className="bg-blue-600  flex items-center gap-2"><PlusIcon size={20} /> Add New Warehouse </Button>
+              <Button className="bg-blue-600 flex items-center gap-2"><PlusIcon size={20} /> Add New Warehouse </Button>
             </DialogTrigger>
             <DialogTitle></DialogTitle>
             <DialogContent className="max-w-md lg:max-w-4xl" onInteractOutside={(e) => {

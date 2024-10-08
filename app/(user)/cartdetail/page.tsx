@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useCart } from "../../hooks/useCart";
+import { useCart } from "../../../hooks/useCart";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -47,14 +47,14 @@ const CartPage: React.FC = () => {
   return (
     <>
       <div className="mt-28 container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Keranjang</h1>
+        <h1 className="text-2xl font-bold mb-4">Cart</h1>
         {cartItems.length === 0 ? (
           <p>Your cart is empty.</p>
         ) : (
           <div className="flex gap-4">
             <Card className="flex-grow">
               <CardHeader>
-                <CardTitle>Toko Indomaret ({cartDetails.totalItems} produk)</CardTitle>
+                <CardTitle>Hii Mart ({cartDetails.totalItems} product)</CardTitle>
               </CardHeader>
               <CardContent>
                 {cartItems.map((item) => (
@@ -111,23 +111,15 @@ const CartPage: React.FC = () => {
                   className="text-blue-600 border-blue-600 hover:bg-blue-50"
                   onClick={handleRemoveAllItems}
                 >
-                  Hapus Semua Produk
+                  Delete All Product
                 </Button>
               </CardContent>
             </Card>
-            <Card className="w-96">
+            <Card className="w-96 h-fit">
               <CardContent className="flex flex-col gap-4 mt-10">
                 <div className="flex flex-col gap-2">
-                  <div className="flex justify-between">
-                    <p>Total Harga Pesanan:</p>
-                    <p>Rp {cartDetails.totalPrice.toLocaleString()}</p>
-                  </div>
-                  <div className="flex justify-between text-green-600">
-                    <p>Total Diskon:</p>
-                    <p>Rp 0</p>
-                  </div>
                   <div className="flex justify-between font-bold text-lg">
-                    <p>Total Pembayaran:</p>
+                    <p>Total Price:</p>
                     <p>Rp {cartDetails.totalPrice.toLocaleString()}</p>
                   </div>
                 </div>
