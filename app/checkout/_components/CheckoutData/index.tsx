@@ -174,7 +174,10 @@ const CheckoutData = () => {
             confirmButtonText: "OK",
           });
         } else {
-          setError(responseData.message || "An unexpected error occurred. Please try again.");
+          setError(
+            responseData.message ||
+              "An unexpected error occurred. Please try again."
+          );
         }
       } else if (error instanceof Error) {
         setError(error.message);
@@ -191,9 +194,9 @@ const CheckoutData = () => {
 
   return (
     <div className="mt-24">
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-10">
         <h1 className="text-2xl font-bold mb-4">Checkout</h1>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2">
             <AddressCard
               activeAddress={activeAddresses}
@@ -201,8 +204,8 @@ const CheckoutData = () => {
             />
             <Card className="shadow-xl border-2">
               <CardHeader>
-                <CardTitle>Toko Indomaret</CardTitle>
-                <p>{cartItemsWithDetails.length} produk</p>
+                <CardTitle>Hii Mart</CardTitle>
+                <p>{cartItemsWithDetails.length} Product</p>
               </CardHeader>
               <CardContent>
                 <h3 className="font-bold mb-2">Shipping Method</h3>
@@ -246,7 +249,7 @@ const CheckoutData = () => {
                   </Select>
                 )}
 
-                <h3 className="font-bold mt-4 mb-2">Pesanan</h3>
+                <h3 className="font-bold mt-4 mb-2">Order</h3>
                 {cartItemsWithDetails.length > 0 && (
                   <div className="flex items-center mb-2">
                     <Image
@@ -277,7 +280,7 @@ const CheckoutData = () => {
                     }
                   >
                     <AccordionItem value="items">
-                      <AccordionTrigger>Lihat produk lainnya</AccordionTrigger>
+                      <AccordionTrigger>See Other Product</AccordionTrigger>
                       <AccordionContent>
                         {cartItemsWithDetails.slice(1).map((item) => (
                           <div key={item.id} className="flex items-center mb-2">
@@ -310,19 +313,19 @@ const CheckoutData = () => {
           <div>
             <Card className="shadow-xl border-2">
               <CardHeader>
-                <CardTitle>Ringkasan Pembayaran</CardTitle>
+                <CardTitle>Payment Summary</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex justify-between mb-2">
-                  <span>Total Harga Pesanan</span>
+                  <span>Total Order Product</span>
                   <span>Rp {totalPrice.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between mb-2">
-                  <span>Ongkos Kirim</span>
+                  <span>Shipping Cost</span>
                   <span>Rp {shippingCost.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between font-bold">
-                  <span>Total Pembayaran</span>
+                  <span>Total Payment</span>
                   <span>Rp {totalWithShipping.toLocaleString()}</span>
                 </div>
               </CardContent>

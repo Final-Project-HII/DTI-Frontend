@@ -17,27 +17,28 @@ interface Warehouse {
 }
 
 interface OrderFilterProps {
-  onFilterChange: (
-    status: string,
-    warehouseId: string,
-    date: string
-  ) => void;
+  onFilterChange: (status: string, warehouseId: string, date: string) => void;
+  userRole?: string;
+  userWarehouseId: string | null;
 }
 
-const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
+const OrderFilter: React.FC<OrderFilterProps> = ({
+  onFilterChange,
+  userRole,
+  userWarehouseId,
+}) => {
   const [status, setStatus] = useState("ALL");
-  const [warehouseId, setWarehouseId] = useState("ALL");
+  const [warehouseId, setWarehouseId] = useState(userWarehouseId || "ALL");
   const [date, setDate] = useState<string>("");
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const { data: session } = useSession();
 
+  console.log("User Role:", userRole); // Debug log
+  console.log("User Warehouse ID:", userWarehouseId); // Debug log
+
   const debouncedFilterChange = useCallback(
     debounce((status, warehouseId, date) => {
-      onFilterChange(
-        status,
-        warehouseId === "ALL" ? "" : warehouseId,
-        date
-      );
+      onFilterChange(status, warehouseId === "ALL" ? "" : warehouseId, date);
     }, 300),
     [onFilterChange]
   );
@@ -59,6 +60,7 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
           const data = await response.json();
           const warehouseArray = data.data?.content || [];
           setWarehouses(warehouseArray);
+          console.log("Fetched warehouses:", warehouseArray);
         } else {
           console.error("Failed to fetch warehouses:", response.statusText);
         }
@@ -67,18 +69,36 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
       }
     };
 
-    fetchWarehouses();
-  }, [session]);
+    if (userRole === "SUPER") {
+      fetchWarehouses();
+    }
+  }, [session, userRole]);
 
   useEffect(() => {
+    if (userRole === "ADMIN" && userWarehouseId) {
+      setWarehouseId(userWarehouseId);
+    }
     debouncedFilterChange(status, warehouseId, date);
-  }, [status, warehouseId, date, debouncedFilterChange]);
+  }, [
+    status,
+    warehouseId,
+    date,
+    debouncedFilterChange,
+    userRole,
+    userWarehouseId,
+  ]);
 
   const handleReset = () => {
     setStatus("ALL");
-    setWarehouseId("ALL");
+    setWarehouseId(
+      userRole === "ADMIN" && userWarehouseId ? userWarehouseId : "ALL"
+    );
     setDate("");
-    onFilterChange("ALL", "", "");
+    onFilterChange(
+      "ALL",
+      userRole === "ADMIN" && userWarehouseId ? userWarehouseId : "",
+      ""
+    );
   };
 
   return (
@@ -99,19 +119,21 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
           </SelectContent>
         </Select>
 
-        <Select value={warehouseId} onValueChange={setWarehouseId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select Warehouse" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">All Warehouses</SelectItem>
-            {warehouses.map((warehouse) => (
-              <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
-                {warehouse.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {userRole === "SUPER" && (
+          <Select value={warehouseId} onValueChange={setWarehouseId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Warehouse" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Warehouses</SelectItem>
+              {warehouses.map((warehouse) => (
+                <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
+                  {warehouse.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
 
         <Input
           type="date"

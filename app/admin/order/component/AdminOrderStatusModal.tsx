@@ -26,7 +26,7 @@ interface OrderStatusModalProps {
   onPaymentApproval: (orderId: number, isApproved: boolean) => Promise<void>;
 }
 
-const AdminOrderStatusModal: React.FC<OrderStatusModalProps> = ({
+const OrderStatusModal: React.FC<OrderStatusModalProps> = ({
   order,
   onClose,
   onStatusUpdate,
@@ -205,4 +205,4 @@ const AdminOrderStatusModal: React.FC<OrderStatusModalProps> = ({
   );
 };
 
-export default AdminOrderStatusModal;
+export default OrderStatusModal;

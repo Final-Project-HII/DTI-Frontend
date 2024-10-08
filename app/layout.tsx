@@ -29,9 +29,9 @@ export default async function RootLayout({
         <ProfileProvider>
           <body className={JakartaSans.className}>
             {/* <ModalWrapper> */}
-            {/* <NavBar /> */}
+            <NavBar />
             <Providers>{children}</Providers>
-            {/* <Footer /> */}
+            <Footer />
             {/* </ModalWrapper> */}
           </body>
         </ProfileProvider>

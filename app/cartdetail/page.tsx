@@ -160,10 +160,6 @@ const CartPage: React.FC = () => {
                     <p>Total Harga Pesanan:</p>
                     <p>Rp {cartDetails.totalPrice.toLocaleString()}</p>
                   </div>
-                  <div className="flex justify-between text-green-600">
-                    <p>Total Diskon:</p>
-                    <p>Rp 0</p>
-                  </div>
                   <div className="flex justify-between font-bold text-lg">
                     <p>Total Pembayaran:</p>
                     <p>Rp {cartDetails.totalPrice.toLocaleString()}</p>

@@ -45,7 +45,7 @@ const AdminOrderPagination: React.FC<AdminOrderPaginationProps> = ({
       pageNumbers.push(
         <Button
           key={i}
-          onClick={() => setCurrentPage(i)}
+          onClick={() => setCurrentPage(i - 1)} // Subtract 1 when setting the page
           variant={currentPage === i ? "default" : "outline"}
           size="sm"
           className={`mx-1 ${
@@ -64,7 +64,7 @@ const AdminOrderPagination: React.FC<AdminOrderPaginationProps> = ({
     <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-lg shadow">
       <div className="flex items-center space-x-2">
         <Button
-          onClick={() => setCurrentPage(1)}
+          onClick={() => setCurrentPage(0)} // Set to 0 for the first page
           disabled={currentPage === 1}
           variant="outline"
           size="sm"
@@ -73,7 +73,7 @@ const AdminOrderPagination: React.FC<AdminOrderPaginationProps> = ({
           <ChevronsLeft className="h-4 w-4" />
         </Button>
         <Button
-          onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+          onClick={() => setCurrentPage(Math.max(currentPage - 2, 0))} // Subtract 2 to go back one page (since we're displaying currentPage + 1)
           disabled={currentPage === 1}
           variant="outline"
           size="sm"
@@ -83,7 +83,7 @@ const AdminOrderPagination: React.FC<AdminOrderPaginationProps> = ({
         </Button>
         {renderPageNumbers()}
         <Button
-          onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
+          onClick={() => setCurrentPage(Math.min(currentPage, totalPages - 1))} // Subtract 1 from totalPages
           disabled={currentPage === totalPages}
           variant="outline"
           size="sm"
@@ -92,7 +92,7 @@ const AdminOrderPagination: React.FC<AdminOrderPaginationProps> = ({
           <ChevronRight className="h-4 w-4" />
         </Button>
         <Button
-          onClick={() => setCurrentPage(totalPages)}
+          onClick={() => setCurrentPage(totalPages - 1)} // Subtract 1 from totalPages
           disabled={currentPage === totalPages}
           variant="outline"
           size="sm"
@@ -103,7 +103,7 @@ const AdminOrderPagination: React.FC<AdminOrderPaginationProps> = ({
       </div>
       <div className="flex items-center space-x-2">
         <span className="text-sm text-gray-600">
-          Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
+          Page <strong>{currentPage + 1}</strong> of <strong>{totalPages}</strong>
         </span>
         <Select
           value={pageSize.toString()}
