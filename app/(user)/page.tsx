@@ -12,6 +12,7 @@ const page = () => {
   return (
     <>
       <div className="pt-28 lg:pt-20 w-full">
+        <NavBar />
         <Carousel />
         <CategoryList />
         <ProductList category="Food" />
@@ -19,6 +20,7 @@ const page = () => {
         <ProductList category="Drink" />
         <ReasonToShop />
         <DownloadApp />
+        {/* <Footer /> */}
       </div>
     </>
   );

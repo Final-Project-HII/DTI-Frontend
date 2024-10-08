@@ -11,11 +11,10 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, CheckCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Swal from 'sweetalert2';
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'http://localhost:8080/api';
 const api = axios.create({
     baseURL: BASE_URL,
     withCredentials: true,
@@ -78,20 +77,33 @@ const UpdateStockMutationModal: React.FC<UpdateStockMutationModalProps> = ({ sto
             if (!session) {
                 throw new Error("Not authenticated");
             }
-            return api.put('/api/stock-mutations/process', updateData);
+            return api.put('/stock-mutations/process', updateData);
         },
         onSuccess: () => {
-            // queryClient.invalidateQueries(['stockMutations']);
             setOpen(false);
             onUpdate();
-            setSuccessMessage("Stock mutation status updated successfully!");
+            Swal.fire({
+                icon: 'success',
+                title: 'Updated!',
+                text: 'Stock mutation status updated successfully!',
+                confirmButtonColor: '#3085d6',
+            });
         },
         onError: (error: any) => {
-            if (error.response) {
-                setErrorMessage(error.response.data.message);
-            } else {
-                setErrorMessage('An unexpected error occurred.');
+            let errorMessage = 'An unexpected error occurred.';
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
             }
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: errorMessage,
+                confirmButtonColor: '#3085d6',
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                showConfirmButton: false
+            });
         },
     });
 
@@ -181,22 +193,6 @@ const UpdateStockMutationModal: React.FC<UpdateStockMutationModalProps> = ({ sto
                         {mutation.status === 'pending' ? 'Updating...' : 'Update Status'}
                     </Button>
                 </form>
-
-                {errorMessage && (
-                    <Alert variant="destructive" className="mt-4">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Error</AlertTitle>
-                        <AlertDescription>{errorMessage}</AlertDescription>
-                    </Alert>
-                )}
-
-                {successMessage && (
-                    <Alert className="mt-4 bg-green-100 text-green-700 border border-green-500">
-                        <CheckCircle className="h-4 w-4" />
-                        <AlertTitle>Success</AlertTitle>
-                        <AlertDescription>{successMessage}</AlertDescription>
-                    </Alert>
-                )}
             </DialogContent>
         </Dialog>
     );

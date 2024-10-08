@@ -1,7 +1,5 @@
 'use client'
 import React, { useState } from 'react';
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Trash2, Edit, Plus } from 'lucide-react';
@@ -23,55 +21,34 @@ import {
 import { FaSearch } from 'react-icons/fa';
 import { DataTable } from './_components/DataTable';
 import StockMutationTableSkeleton from '@/app/admin/stock/request/_components/StokMutationTableSkeleton';
-
-interface Category {
-    id: number;
-    name: string;
-    categoryImage: string;
-    products: number[];
-    createdAt: string;
-    updatedAt: string;
-}
-
-interface CategoryRequestDto {
-    name: string;
-}
-
-
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+import { useCategories } from '@/hooks/useCategories';
+import { Category } from '@/types/category';
 
 export default function CategoryManagementPage() {
     const { data: session, status } = useSession();
-    const queryClient = useQueryClient();
+    const { categories, isPending, error, isLoading, deleteCategoryMutation } = useCategories();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
-    const fetchCategories = async (): Promise<Category[]> => {
-        const response = await axios.get<Category[]>(`${BASE_URL}/category`);
-        return response.data;
-    };
-
-    const { data: categories, isPending, error, isLoading } = useQuery<Category[], Error>({
-        queryKey: ['categories'],
-        queryFn: fetchCategories,
-    });
-
-    const deleteCategoryMutation = useMutation({
-        mutationFn: async (id: number) => {
-            await axios.delete(`${BASE_URL}/category/delete/${id}`);
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['categories'] });
-        },
-    });
-
     const handleDeleteCategory = (id: number) => {
-        if (window.confirm('Are you sure you want to delete this category?')) {
-            deleteCategoryMutation.mutate(id);
-        }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteCategoryMutation.mutate(id);
+            }
+        });
     };
 
     const isSuperAdmin = session?.user?.role === 'SUPER';
@@ -149,7 +126,6 @@ export default function CategoryManagementPage() {
             }
         ] : []),
     ];
-
 
     const table = useReactTable({
         data: categories || [],
@@ -236,14 +212,6 @@ export default function CategoryManagementPage() {
                         category={editingCategory}
                     />
                 </>
-            )}
-
-            {deleteCategoryMutation.isError && (
-                <Alert variant="destructive" className="mt-4">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{deleteCategoryMutation.error?.message}</AlertDescription>
-                </Alert>
             )}
         </div>
     );
