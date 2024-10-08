@@ -96,18 +96,6 @@ const AdminOrderManagement = () => {
 
   const userWarehouseId = profileData?.warehouseId?.toString() || null;
 
-  console.log("Session:", session);
-  console.log("Session Status:", sessionStatus);
-  console.log("Profile Data:", profileData);
-  console.log("User Role:", userRole);
-  console.log("User Warehouse ID:", userWarehouseId);
-
-  console.log("Session:", session);
-  console.log("Session Status:", sessionStatus);
-  console.log("Profile Data:", profileData);
-  console.log("User Role:", userRole);
-  console.log("User Warehouse ID:", userWarehouseId);
-
   useEffect(() => {
     if (userRole === "ADMIN" && userWarehouseId) {
       setSelectedWarehouse(userWarehouseId);
@@ -188,13 +176,48 @@ const AdminOrderManagement = () => {
 
         if (response.status === 200) {
           console.log("Order status updated successfully");
-          // Refresh the orders data
           refetch();
         } else {
           console.error("Failed to update order status");
         }
       } catch (error) {
         console.error("Error updating order status:", error);
+      }
+    },
+    [session, refetch]
+  );
+
+  const handlePaymentApproval = useCallback(
+    async (orderId: number, isApproved: boolean) => {
+      if (!session?.user?.accessToken) {
+        console.error("No access token available");
+        return;
+      }
+
+      try {
+        const endpoint = isApproved ? "approve-proof" : "reject-proof";
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}api/payments/${orderId}/${endpoint}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${session.user.accessToken}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          console.log(
+            `Payment ${isApproved ? "approved" : "rejected"} successfully`
+          );
+          refetch();
+        } else {
+          console.error(
+            `Failed to ${isApproved ? "approve" : "reject"} payment`
+          );
+        }
+      } catch (error) {
+        console.error("Error handling payment approval:", error);
       }
     },
     [session, refetch]
@@ -209,7 +232,7 @@ const AdminOrderManagement = () => {
 
       try {
         const response = await axios.put(
-          `${process.env.NEXT_PUBLIC_API_URL}api/orders/${orderId}/cancel`,
+          `${process.env.NEXT_PUBLIC_API_URL}api/orders/${orderId}/status?status=cancelled`,
           {},
           {
             headers: {
@@ -291,7 +314,8 @@ const AdminOrderManagement = () => {
           order={selectedOrder}
           onClose={handleCloseModal}
           onStatusUpdate={handleStatusUpdate}
-          onCancel={handleCancelOrder}
+          onPaymentApproval={handlePaymentApproval}
+          onCancelOrder={handleCancelOrder}
         />
       )}
     </div>
