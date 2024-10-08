@@ -10,8 +10,7 @@ interface OrderTableProps {
 }
 
 const OrderTable: React.FC<OrderTableProps> = ({ orders, onOrderSelect }) => {
-  const formatPaymentMethod = (method: string | null | undefined) => {
-    if (!method) return "N/A";
+  const formatPaymentMethod = (method: string) => {
     return method.toLowerCase().replace(/_/g, " ");
   };
 
@@ -34,8 +33,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, onOrderSelect }) => {
     }
   };
 
-  const getPaymentMethodColor = (method: string | null | undefined) => {
-    if (!method) return "bg-gray-100 text-gray-800";
+  const getPaymentMethodColor = (method: string) => {
     switch (method.toLowerCase()) {
       case "payment_gateway":
         return "bg-teal-100 text-teal-800";
