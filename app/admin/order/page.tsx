@@ -200,17 +200,16 @@ const AdminOrderManagement = () => {
     [session, refetch]
   );
 
-  const handlePaymentApproval = useCallback(
-    async (orderId: number, isApproved: boolean) => {
+  const handleCancelOrder = useCallback(
+    async (orderId: number) => {
       if (!session?.user?.accessToken) {
         console.error("No access token available");
         return;
       }
 
       try {
-        const endpoint = isApproved ? "approve-proof" : "reject-proof";
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}api/payments/${orderId}/${endpoint}`,
+        const response = await axios.put(
+          `${process.env.NEXT_PUBLIC_API_URL}api/orders/${orderId}/cancel`,
           {},
           {
             headers: {
@@ -220,17 +219,13 @@ const AdminOrderManagement = () => {
         );
 
         if (response.status === 200) {
-          console.log(
-            `Payment ${isApproved ? "approved" : "rejected"} successfully`
-          );
+          console.log("Order cancelled successfully");
           refetch();
         } else {
-          console.error(
-            `Failed to ${isApproved ? "approve" : "reject"} payment`
-          );
+          console.error("Failed to cancel order");
         }
       } catch (error) {
-        console.error("Error handling payment approval:", error);
+        console.error("Error cancelling order:", error);
       }
     },
     [session, refetch]
@@ -296,7 +291,7 @@ const AdminOrderManagement = () => {
           order={selectedOrder}
           onClose={handleCloseModal}
           onStatusUpdate={handleStatusUpdate}
-          onPaymentApproval={handlePaymentApproval}
+          onCancel={handleCancelOrder}
         />
       )}
     </div>

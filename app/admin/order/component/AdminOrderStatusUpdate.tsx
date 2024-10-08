@@ -1,40 +1,55 @@
 import React from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 interface AdminOrderStatusUpdateProps {
   orderId: number;
   currentStatus: string;
   onStatusChange: (orderId: number, newStatus: string) => Promise<void>;
+  onCancel: (orderId: number) => Promise<void>;
 }
 
 const AdminOrderStatusUpdate: React.FC<AdminOrderStatusUpdateProps> = ({
   orderId,
   currentStatus,
   onStatusChange,
+  onCancel,
 }) => {
+  const statusSequence = [
+    "pending_payment",
+    "confirmation",
+    "process",
+    "shipped",
+    "delivered"
+  ];
+
+  const currentStatusIndex = statusSequence.indexOf(currentStatus);
+  const nextStatus = statusSequence[currentStatusIndex + 1];
+
+  const handleNextStep = () => {
+    if (nextStatus) {
+      onStatusChange(orderId, nextStatus);
+    }
+  };
+
+  const handleCancel = () => {
+    onCancel(orderId);
+  };
+
+  const isBeforeShipped = currentStatusIndex < statusSequence.indexOf("shipped");
+
   return (
-    <Select
-      value={currentStatus}
-      onValueChange={(newStatus) => onStatusChange(orderId, newStatus)}
-    >
-      <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Change status" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="pending_payment">pending_payment</SelectItem>
-        <SelectItem value="confirmation">confirmation</SelectItem>
-        <SelectItem value="process">process</SelectItem>
-        <SelectItem value="shipped">shipped</SelectItem>
-        <SelectItem value="delivered">delivered</SelectItem>
-        <SelectItem value="cancelled">cancelled</SelectItem>
-      </SelectContent>
-    </Select>
+    <div className="flex space-x-2">
+      {nextStatus && (
+        <Button onClick={handleNextStep}>
+          Next Step ({nextStatus})
+        </Button>
+      )}
+      {isBeforeShipped && (
+        <Button onClick={handleCancel} variant="destructive">
+          Cancel Order
+        </Button>
+      )}
+    </div>
   );
 };
 
