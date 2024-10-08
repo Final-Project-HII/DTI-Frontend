@@ -35,7 +35,8 @@ interface ProductSelectProps {
     disabled?: boolean;
     selectedWarehouse?: string | undefined;
 }
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+// const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+const BASE_URL = 'http://localhost:8080/api';
 const fetchProducts = async (): Promise<Product[]> => {
     let allProducts: Product[] = [];
     let currentPage = 0;
