@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Swal from 'sweetalert2';
 
-const BASE_URL = 'http://localhost:8080/api';
+// const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 const api = axios.create({
     baseURL: BASE_URL,

@@ -4,10 +4,10 @@ import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { Warehouse, ApiResponse, SalesSummary, CategorySales, ProductSales, SalesDetail } from '@/types/salesreport';
 
-const BASE_URL = 'http://localhost:8080/api';
+// const BASE_URL = 'http://localhost:8080/api';
 // import { Warehouse, ApiResponse, SalesSummary, CategorySales, ProductSales, SalesDetail } from '@/types/salesReport';
 
-// const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 const fetchSalesSummary = async (token: string, warehouseId: string, month: string): Promise<ApiResponse<SalesSummary>> => {
     const response = await axios.get(`${BASE_URL}/sales/report/summary`, {

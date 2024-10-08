@@ -34,6 +34,7 @@ interface ProductSelectProps {
     placeholder?: string;
     disabled?: boolean;
 }
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 const fetchProducts = async (): Promise<Product[]> => {
     let allProducts: Product[] = [];
@@ -41,7 +42,7 @@ const fetchProducts = async (): Promise<Product[]> => {
     let totalPages = 1;
 
     while (currentPage < totalPages) {
-        const response = await axios.get('http://localhost:8080/api/product', {
+        const response = await axios.get(`${BASE_URL}`, {
             params: {
                 page: currentPage,
                 size: 100, // Adjust this value based on your API's maximum allowed page size

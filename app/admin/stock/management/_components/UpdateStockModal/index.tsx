@@ -36,8 +36,8 @@ interface StockItem {
     categoryId: string;
     categoryName: string;
 }
-// const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+// const BASE_URL = 'http://localhost:8080/api';
 const UpdateStockModal: React.FC<UpdateStockModalProps> = ({ stockItem, selectedWarehouse, onUpdate }) => {
     const [open, setOpen] = useState(false);
     const [quantity, setQuantity] = useState(stockItem.quantity.toString());
