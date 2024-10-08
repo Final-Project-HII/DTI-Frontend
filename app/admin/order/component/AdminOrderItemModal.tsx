@@ -14,13 +14,18 @@ interface OrderItemsModalProps {
   children: React.ReactNode;
 }
 
-const OrderItemsModal: React.FC<OrderItemsModalProps> = ({ items, children }) => {
+const OrderItemsModal: React.FC<OrderItemsModalProps> = ({
+  items,
+  children,
+}) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="sm:max-w-[1000px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold mb-4">Order Items</DialogTitle>
+          <DialogTitle className="text-2xl font-bold mb-4">
+            Order Items
+          </DialogTitle>
         </DialogHeader>
         <ScrollArea className="h-[400px] w-full pr-4">
           <table className="w-full">
@@ -38,7 +43,9 @@ const OrderItemsModal: React.FC<OrderItemsModalProps> = ({ items, children }) =>
                   <td className="px-4 py-2">{item.productId}</td>
                   <td className="px-4 py-2">{item.productName}</td>
                   <td className="px-4 py-2 text-right">{item.quantity}</td>
-                  <td className="px-4 py-2 text-right">Rp {item.price.toLocaleString()}</td>
+                  <td className="px-4 py-2 text-right">
+                    Rp {item.price.toLocaleString()}
+                  </td>
                 </tr>
               ))}
             </tbody>
