@@ -49,7 +49,7 @@ export const useSalesReport = () => {
     const { data: session, status } = useSession();
 
     useEffect(() => {
-        axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`)
+        axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouse`)
             .then(response => {
                 setWarehouses(response.data.data.content);
             })
