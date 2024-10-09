@@ -17,7 +17,7 @@ import { InfoForm } from '@/app/(user)/profile/components/ProfilePage'
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`
 
-// export const BASE_URL_DEV = `http://localhost:8080/api`
+export const BASE_URL_DEV = `http://localhost:8080/api`
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
