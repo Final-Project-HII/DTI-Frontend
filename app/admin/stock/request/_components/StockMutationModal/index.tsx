@@ -147,17 +147,17 @@ const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ war
     });
 
     const { data: stockResponse, refetch: refetchStocks, isLoading } = useQuery<StockResponse>({
-        queryKey: ['allStocks'],
-        queryFn: async ({ pageParam = 0 }) => {
+        queryKey: ['allStocks', session?.user?.accessToken],
+        queryFn: async () => {
             const response = await api.get('/stocks', {
-                params: { page: pageParam, size: 1000 },
+                params: { size: 1000 },
                 headers: {
                     'Authorization': `Bearer ${session?.user?.accessToken}`
                 }
             });
             return response.data;
         },
-        enabled: open, // Fetch when modal is opened
+        enabled: open && !!session?.user?.accessToken,
     });
     useEffect(() => {
         if (open && session?.user?.accessToken) {
