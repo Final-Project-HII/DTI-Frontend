@@ -42,7 +42,7 @@ const fetchProducts = async (): Promise<Product[]> => {
     let totalPages = 1;
 
     while (currentPage < totalPages) {
-        const response = await axios.get(`${BASE_URL}`, {
+        const response = await axios.get(`${BASE_URL}/product`, {
             params: {
                 page: currentPage,
                 size: 100, // Adjust this value based on your API's maximum allowed page size
