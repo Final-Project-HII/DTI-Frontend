@@ -15,13 +15,13 @@ const GenerateNewVerificationModal: React.FC<GenerateNewVerificationModalProps> 
 
   const handleNewLink = async () => {
     try {
-      const result = await AddNewVerificationLink(email);
-      if (result) {
-        setShowNewVerificationLinkModal(true);
-        setTimeout(() => {
-          router.push('/login');
-        }, 6000);
-      }
+      await AddNewVerificationLink(email);
+
+      setShowNewVerificationLinkModal(true);
+      setTimeout(() => {
+        router.push('/login');
+      }, 6000);
+
     } catch (error) {
       console.log("Error:", error);
     }

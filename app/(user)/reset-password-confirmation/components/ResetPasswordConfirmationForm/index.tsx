@@ -71,9 +71,7 @@ const ResetPasswordConfirmationForm = () => {
     try {
       const formDataWithEmail = { ...data, email: email };
       const result = await AddNewPassword(formDataWithEmail)
-      if (result) {
-        setShowResetPasswordSuccessModal(true)
-      }
+      setShowResetPasswordSuccessModal(true)
     } catch (error) {
       console.log("Error")
     }

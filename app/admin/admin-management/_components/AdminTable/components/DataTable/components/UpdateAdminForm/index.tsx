@@ -4,15 +4,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Warehouse } from '@/types/warehouse';
-import { createNewAdmin, getAllWarehouse, updateAdmin } from '@/utils/api';
+import { getAllWarehouse, updateAdmin } from '@/utils/api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronsUpDown } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react';
+import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 import { z } from 'zod';
-import Swal from 'sweetalert2'
-import 'sweetalert2/dist/sweetalert2.min.css'
-import { error } from 'console';
 
 
 interface User {
@@ -49,6 +49,7 @@ interface UpdateAdminFormProps {
 const UpdateAdminForm: React.FC<UpdateAdminFormProps> = ({ onClose, onAdminUpdated, data }) => {
   const [warehouse, setWarehouse] = useState<Warehouse[]>([]);
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
+  const { data: session } = useSession()
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<AdminFormData>({
     resolver: zodResolver(adminSchema),
     defaultValues: {
@@ -64,7 +65,7 @@ const UpdateAdminForm: React.FC<UpdateAdminFormProps> = ({ onClose, onAdminUpdat
   useEffect(() => {
     const fetchWarehouse = async () => {
       try {
-        const response = await getAllWarehouse("", "", "", "");
+        const response = await getAllWarehouse("", "", "", "", session!.user.accessToken);
         setWarehouse(response.content);
       } catch (error) {
         console.error(error);
@@ -75,7 +76,7 @@ const UpdateAdminForm: React.FC<UpdateAdminFormProps> = ({ onClose, onAdminUpdat
 
   const onSubmit = async (data: AdminFormData) => {
     try {
-      await updateAdmin(data);
+      await updateAdmin(data, session!.user.accessToken);
       Swal.fire({
         title: 'Admin Has Been Updated!',
         text: 'This will close in 3 seconds.',

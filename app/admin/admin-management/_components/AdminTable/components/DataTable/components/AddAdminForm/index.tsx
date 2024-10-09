@@ -13,6 +13,7 @@ import { z } from 'zod';
 import Swal from 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
 import { error } from 'console';
+import { useSession } from 'next-auth/react';
 
 
 
@@ -37,6 +38,7 @@ interface AddAdminFormProps {
 const AddAdminForm: React.FC<AddAdminFormProps> = ({ onClose, onAdminAdded }) => {
   const [warehouse, setWarehouse] = useState<Warehouse[]>([]);
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
+  const { data: session } = useSession()
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<AdminFormData>({
     resolver: zodResolver(adminSchema),
     defaultValues: {
@@ -52,7 +54,7 @@ const AddAdminForm: React.FC<AddAdminFormProps> = ({ onClose, onAdminAdded }) =>
   useEffect(() => {
     const fetchWarehouse = async () => {
       try {
-        const response = await getAllWarehouse("", "", "", "");
+        const response = await getAllWarehouse("", "", "", "", session!.user.accessToken);
         setWarehouse(response.content);
       } catch (error) {
         console.error(error);
@@ -63,7 +65,7 @@ const AddAdminForm: React.FC<AddAdminFormProps> = ({ onClose, onAdminAdded }) =>
 
   const onSubmit = async (data: AdminFormData) => {
     try {
-      await createNewAdmin(data);
+      await createNewAdmin(data, session!.user.accessToken);
       Swal.fire({
         title: 'Admin Has Been Added Succesfully!',
         text: 'This will close in 3 seconds.',
