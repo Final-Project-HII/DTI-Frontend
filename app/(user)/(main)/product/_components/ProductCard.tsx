@@ -53,7 +53,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         showConfirmButton: false,
         timerProgressBar: true,
       });
-      console.log("After Swal.fire"); // Debugging line
+      console.log("After Swal.fire"); 
     } catch (error) {
       console.error("Failed to add product to cart:", error);
       Swal.fire({
