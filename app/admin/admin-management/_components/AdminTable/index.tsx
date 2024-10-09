@@ -11,6 +11,7 @@ import DataTablePagination from "./components/DataTable/components/Pagination"
 import UpdateAdminForm from "./components/DataTable/components/UpdateAdminForm"
 import { AlertDialog } from "@/components/ui/alert-dialog"
 import DeleteModal from "@/components/DeleteModal"
+import { useSession } from "next-auth/react"
 
 interface User {
   id: number;
@@ -36,11 +37,12 @@ const AdminTable = () => {
   const [isUpdateAdminDialogOpen, setIsUpdateAdminDialogOpen] = useState<boolean>(false);
   const [isToogleDialogOpen, setIsToogleDialogOpen] = useState<boolean>(false);
   const [userToToggle, setUserToToggle] = useState<User | null>(null);
+  const { data: session } = useSession()
 
   const fetchAdminData = async () => {
     setLoading(true);
     try {
-      const response = await getAllUser(emailFilter, selectedRole, currentPage.toString(), pageSize.toString());
+      const response = await getAllUser(emailFilter, selectedRole, currentPage.toString(), pageSize.toString(), session!.user.accessToken);
       setAdminData(response.content);
       setTotalPages(response.totalPages);
       setTotalElements(response.totalElements)
@@ -67,7 +69,7 @@ const AdminTable = () => {
   const handleToggleUserStatus = async () => {
     if (userToToggle) {
       try {
-        await toogleUserActiveStatus(userToToggle.id);
+        await toogleUserActiveStatus(userToToggle.id, session!.user.accessToken);
         setAdminData(prevData =>
           prevData.map(admin =>
             admin.id === userToToggle.id ? { ...admin, isActive: !admin.isActive } : admin
@@ -167,7 +169,6 @@ const AdminTable = () => {
       },
     },
   ];
-
   return (
     <div className="container mx-auto py-10">
       <DataTableAdmin<User, keyof User>
@@ -203,5 +204,4 @@ const AdminTable = () => {
     </div>
   )
 }
-
 export default AdminTable
