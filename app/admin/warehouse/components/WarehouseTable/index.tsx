@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button"
 import { MoreHorizontal } from "lucide-react"
 import { DataTable } from "./DataTable"
 import { AlertDialog } from "@/components/ui/alert-dialog"
+import { useSession } from 'next-auth/react'
 
 const WarehouseTable = () => {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -34,6 +35,8 @@ const WarehouseTable = () => {
   const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
+  const { data: session } = useSession()
+
 
   const fetchWarehouses = async () => {
     setLoading(true);
@@ -59,7 +62,7 @@ const WarehouseTable = () => {
   const handleDeleteWarehouse = async () => {
     if (warehouseToDelete) {
       try {
-        await deleteWarehouse(warehouseToDelete.id);
+        await deleteWarehouse(warehouseToDelete.id,session!.user.accessToken);
         await fetchWarehouses();
         setIsDeleteDialogOpen(false);
         setWarehouseToDelete(null);
