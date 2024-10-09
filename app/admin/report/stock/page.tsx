@@ -28,10 +28,12 @@ export default function StockMutationJournalPage() {
     const isAdmin = session?.user?.role === 'ADMIN';
 
     useEffect(() => {
-        fetchWarehouses()
-            .then(setWarehouses)
-            .catch(error => console.error("Failed to fetch warehouses:", error));
-    }, []);
+        if (session?.user?.accessToken) {
+            fetchWarehouses(session.user.accessToken)
+                .then(setWarehouses)
+                .catch(error => console.error("Failed to fetch warehouses:", error));
+        }
+    }, [session?.user?.accessToken]);
 
     const { data, isLoading, error, refetch } = useQuery<StockMutationJournalResponse>({
         queryKey: ['stock-mutation-journals', selectedWarehouse, currentPage, pageSize, session?.user?.accessToken, dateRange, mutationType],

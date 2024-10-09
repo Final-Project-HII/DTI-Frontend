@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { StockMutationJournalResponse, StockReportResponse, Warehouse } from '../types/stockMutation';
 
+// const BASE_URL = 'http://localhost:8080/api';
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 export const fetchStockReport = async (
@@ -50,7 +51,24 @@ export const fetchStockMutationJournals = async (
     return response.data;
 };
 
-export const fetchWarehouses = async () => {
-    const response = await axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`);
+export const fetchWarehouses = async (token: string): Promise<Warehouse[]> => {
+    const response = await axios.get<{ data: { content: Warehouse[] } }>(
+        `${BASE_URL}/warehouses`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
     return response.data.data.content;
 };
+// export const fetchWarehouses = async () => {
+//     const response = await axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`);
+//     return response.data.data.content;
+// };
+// export const fetchWarehouses = async (token: string): Promise<Warehouse[]> => {
+//     const response = await axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`, {
+//         headers: { Authorization: `Bearer ${token}` },
+//     });
+//     return response.data.data.content;
+// };

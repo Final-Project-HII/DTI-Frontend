@@ -17,7 +17,8 @@ import ProductSelect from '../ProductSelect';
 import { useSession } from "next-auth/react";
 import Swal from 'sweetalert2';
 
-const BASE_URL = 'http://localhost:8080/api';
+// const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 interface Stock {
     id: number;

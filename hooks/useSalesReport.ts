@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { Warehouse, ApiResponse, SalesSummary, CategorySales, ProductSales, SalesDetail } from '@/types/salesReport';
-
+import { Warehouse, ApiResponse, SalesSummary, CategorySales, ProductSales, SalesDetail } from '@/types/salesReporting';
+//new
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 const fetchSalesSummary = async (token: string, warehouseId: string, month: string): Promise<ApiResponse<SalesSummary>> => {
@@ -37,6 +37,12 @@ const fetchSalesDetails = async (token: string, warehouseId: string, status: str
     });
     return response.data;
 };
+const fetchWarehouses = async (token: string): Promise<Warehouse[]> => {
+    const response = await axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data.data.content;
+};
 
 export const useSalesReport = () => {
     const [selectedWarehouse, setSelectedWarehouse] = useState<string>('74');
@@ -48,14 +54,20 @@ export const useSalesReport = () => {
     const [pageSize, setPageSize] = useState(50);
     const { data: session, status } = useSession();
 
+    // useEffect(() => {
+    //     axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`)
+    //         .then(response => {
+    //             setWarehouses(response.data.data.content);
+    //         })
+    //         .catch(error => console.error("Failed to fetch warehouses:", error));
+    // }, []);
     useEffect(() => {
-        axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`)
-            .then(response => {
-                setWarehouses(response.data.data.content);
-            })
-            .catch(error => console.error("Failed to fetch warehouses:", error));
-    }, []);
-
+        if (session?.user?.accessToken) {
+            fetchWarehouses(session.user.accessToken)
+                .then(setWarehouses)
+                .catch(error => console.error("Failed to fetch warehouses:", error));
+        }
+    }, [session?.user?.accessToken]);
     const formattedMonth = selectedDate ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}` : '';
 
     const summaryQuery = useQuery<ApiResponse<SalesSummary>>({
