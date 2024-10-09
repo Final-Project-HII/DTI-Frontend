@@ -11,7 +11,7 @@ export const useCategories = () => {
     });
 
     const deleteCategoryMutation = useMutation({
-        mutationFn: deleteCategory,
+        mutationFn: ({ id, token }: { id: number; token: string }) => deleteCategory(id, token),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['categories'] });
             Swal.fire({

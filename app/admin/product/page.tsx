@@ -134,8 +134,10 @@ export default function ProductSearchPage() {
     }, [data, currentPage, pageSize, categoryName, sortBy, sortDirection, searchTerm, queryClient]);
 
     const deleteProductMutation = useMutation({
-        mutationFn: async (id: number) => {
-            await axios.delete(`${BASE_URL}/product/delete/${id}`);
+        mutationFn: async ({ id, token }: { id: number; token: string | undefined }) => {
+            await axios.delete(`${BASE_URL}/product/delete/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -168,7 +170,7 @@ export default function ProductSearchPage() {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                deleteProductMutation.mutate(id);
+                deleteProductMutation.mutate({ id, token: session?.user?.accessToken });
             }
         });
     };
