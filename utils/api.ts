@@ -208,7 +208,6 @@ export const getAllWarehouse = async (
   }
   const response = await axios.get<any>(
     `${BASE_URL}/warehouses?${params.toString()}`,
-    { withCredentials: true }
   )
   return response.data.data
 }
@@ -216,7 +215,7 @@ export const getAllWarehouse = async (
 export const createWarehouse = async (
   formData: WarehouseFormData
 ): Promise<Warehouse> => {
-  const response = await axios.post(`${BASE_URL}/warehouses`, formData, { withCredentials: true })
+  const response = await axios.post(`${BASE_URL}/warehouses`, formData)
   return response.data
 }
 
@@ -224,12 +223,12 @@ export const updateWarehouse = async (
   id: number,
   formData: WarehouseFormData
 ): Promise<Category> => {
-  const response = await axios.put(`${BASE_URL}/warehouses/${id}`, formData, { withCredentials: true })
+  const response = await axios.put(`${BASE_URL}/warehouses/${id}`, formData)
   return response.data
 }
 
 export const deleteWarehouse = async (id: number): Promise<void> => {
-  await axios.delete(`${BASE_URL}/warehouses/${id}`, { withCredentials: true })
+  await axios.delete(`${BASE_URL}/warehouses/${id}`)
 }
 
 export const getAllAddress = async (
