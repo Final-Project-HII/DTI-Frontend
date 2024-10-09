@@ -335,15 +335,12 @@ export const getAllUser = async (
   const params = new URLSearchParams()
   params.set('page', page)
   params.set('size', size)
-
   if (email) {
     params.set('email', email)
   }
-
   if (role) {
     params.set('role', role)
   }
-
   try {
     const response = await axios.get<any>(
       `${BASE_URL}/users?${params.toString()}`,
