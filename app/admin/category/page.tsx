@@ -45,8 +45,8 @@ export default function CategoryManagementPage() {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
-            if (result.isConfirmed) {
-                deleteCategoryMutation.mutate(id);
+            if (result.isConfirmed && session?.user?.accessToken) {
+                deleteCategoryMutation.mutate({ id, token: session.user.accessToken });
             }
         });
     };
@@ -201,6 +201,7 @@ export default function CategoryManagementPage() {
                     <AddCategoryModal
                         isOpen={isAddModalOpen}
                         onClose={() => setIsAddModalOpen(false)}
+                        token={session?.user?.accessToken}
                     />
 
                     <EditCategoryModal
@@ -210,6 +211,7 @@ export default function CategoryManagementPage() {
                             setEditingCategory(null);
                         }}
                         category={editingCategory}
+                        token={session?.user?.accessToken}
                     />
                 </>
             )}
