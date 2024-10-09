@@ -25,7 +25,7 @@ interface AddProductModalProps {
     token: string;
 }
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 const productSchema = z.object({
     name: z.string().min(1, "Product name is required"),
     description: z.string().min(1, "Description is required"),
