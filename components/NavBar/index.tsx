@@ -1,10 +1,6 @@
 "use client";
 import useProfileData from "@/contexts/ProfileContext";
-import {
-  ChevronDown,
-  LogOutIcon,
-  ShoppingCart
-} from "lucide-react";
+import { ChevronDown, LogOutIcon, ShoppingCart } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -39,17 +35,14 @@ const NavBar = () => {
   const pathname = usePathname();
   const loginHref = `/login?callbackUrl=${encodeURIComponent(pathname)}`;
 
-
-
   const handleSignOut = async () => {
     try {
-      await logout(session!.user.accessToken)
-      signOut()
-
+      await logout(session!.user.accessToken);
+      signOut();
     } catch (error) {
-      console.log("Error to logout")
+      console.log("Error to logout");
     }
-  }
+  };
 
   const toggleMenu = () => {
     setOpenHamburgerMenu((prev) => !prev);
@@ -101,16 +94,19 @@ const NavBar = () => {
                 onClick={toggleMenu}
               >
                 <span
-                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${open ? "rotate-45 translate-y-1" : ""
-                    }`}
+                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${
+                    open ? "rotate-45 translate-y-1" : ""
+                  }`}
                 ></span>
                 <span
-                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${open ? "opacity-0" : "my-1"
-                    }`}
+                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${
+                    open ? "opacity-0" : "my-1"
+                  }`}
                 ></span>
                 <span
-                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${open ? "-rotate-45 -translate-y-1" : ""
-                    }`}
+                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${
+                    open ? "-rotate-45 -translate-y-1" : ""
+                  }`}
                 ></span>
               </button>
               <Link href="/">
@@ -144,9 +140,11 @@ const NavBar = () => {
             </div>
 
             <div className="flex items-center lg:space-x-4 space-x-1">
-              <Button variant="ghost" size="icon" className="relative">
-                <IoIosListBox className="h-6 w-6 text-blue-600" />
-              </Button>
+              <Link href="/order">
+                <Button variant="ghost" size="icon" className="relative">
+                  <IoIosListBox className="h-6 w-6 text-blue-600" />
+                </Button>
+              </Link>
               <SearchSheet />
               <Link href="/cartdetail">
                 <Button variant="ghost" size="icon" className="relative">
@@ -248,10 +246,11 @@ const NavBar = () => {
           </QueryClientProvider>
         </div>
         <div
-          className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${openHamburgerMenu
-            ? "translate-y-full h-screen"
-            : "translate-y-0 overflow-hidden"
-            }`}
+          className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${
+            openHamburgerMenu
+              ? "translate-y-full h-screen"
+              : "translate-y-0 overflow-hidden"
+          }`}
         >
           {data?.user.role == "USER" ? (
             <>
