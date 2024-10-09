@@ -17,7 +17,7 @@ import { InfoForm } from '@/app/(user)/profile/components/ProfilePage'
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`
 
-export const BASE_URL_DEV = `http://localhost:8080/api`
+// export const BASE_URL_DEV = `http://localhost:8080/api`
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -207,7 +207,7 @@ export const getAllWarehouse = async (
     params.set('cityName', cityName)
   }
   const response = await axios.get<any>(
-    `${BASE_URL_DEV}/warehouses?${params.toString()}`,
+    `${BASE_URL}/warehouses?${params.toString()}`,
     { withCredentials: true }
   )
   return response.data.data
@@ -410,7 +410,7 @@ export const updateAvatar = async (
   formData: any,
   token: string
 ): Promise<any> => {
-  const response = await axios.put(`${BASE_URL_DEV}/users/avatar`, formData, {
+  const response = await axios.put(`${BASE_URL}/users/avatar`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`,
@@ -435,7 +435,7 @@ export const getShippingData = async (token: string): Promise<any> => {
 
 export const resetPassword = async (formData: any): Promise<any> => {
   const response = await axios.post(
-    `${BASE_URL_DEV}/users/set-password`,
+    `${BASE_URL}/users/set-password`,
     formData,
     { withCredentials: true }
   )
@@ -447,7 +447,7 @@ export const changeEmail = async (
   token: string
 ): Promise<any> => {
   const response = await axios.put(
-    `${BASE_URL_DEV}/users/change-email`,
+    `${BASE_URL}/users/change-email`,
     formData,
     {
       headers: { Authorization: `Bearer ${token}` },
