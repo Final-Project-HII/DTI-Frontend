@@ -17,10 +17,6 @@ import Swal from 'sweetalert2';
 // const BASE_URL = 'http://localhost:8080/api';
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
-const api = axios.create({
-    baseURL: BASE_URL,
-    withCredentials: true,
-});
 
 interface UpdateStockMutationModalProps {
     stockMutation: StockMutation;
@@ -61,6 +57,13 @@ const UpdateStockMutationModal: React.FC<UpdateStockMutationModalProps> = ({ sto
 
     const { data: session } = useSession();
     const queryClient = useQueryClient();
+    const api = axios.create({
+        baseURL: BASE_URL,
+        withCredentials: true,
+        headers: {
+            'Authorization': `Bearer ${session?.user?.accessToken}`
+        }
+    });
 
     const mutation = useMutation({
         mutationFn: async (updateData: StockMutationUpdateDto) => {

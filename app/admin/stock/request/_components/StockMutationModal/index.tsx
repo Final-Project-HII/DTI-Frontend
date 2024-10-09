@@ -138,6 +138,13 @@ const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ war
 
     const queryClient = useQueryClient();
     const { data: session } = useSession();
+    const api = axios.create({
+        baseURL: BASE_URL,
+        withCredentials: true,
+        headers: {
+            'Authorization': `Bearer ${session?.user?.accessToken}`
+        }
+    });
 
     const { data: stockResponse, refetch: refetchStocks, isLoading } = useQuery<StockResponse>({
         queryKey: ['allStocks'],

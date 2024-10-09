@@ -45,11 +45,12 @@ interface EditProductModalProps {
     product: Product | null;
     categories: Category[];
     openAddCategoryModal: (type: 'new' | 'edit') => void;
+    token: string;
 }
 
 const BASE_URL = 'http://localhost:8080/api';
 
-export default function EditProductModal({ isOpen, onClose, product, categories, openAddCategoryModal }: EditProductModalProps) {
+export default function EditProductModal({ isOpen, onClose, product, categories, openAddCategoryModal, token }: EditProductModalProps) {
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [editProductImages, setEditProductImages] = useState<File[]>([]);
     const [deleteImages, setDeleteImages] = useState<number[]>([]);
@@ -70,6 +71,7 @@ export default function EditProductModal({ isOpen, onClose, product, categories,
             const response = await axios.put(`${BASE_URL}/product/update/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
                 },
             });
             return response.data;

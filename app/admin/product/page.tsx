@@ -303,20 +303,25 @@ export default function ProductSearchPage() {
                     onPageSizeChange={handlePageSizeChange}
                 />
             )}
-            <AddProductModal
-                isOpen={isAddModalOpen}
-                onClose={() => setIsAddModalOpen(false)}
-                categories={categories}
-                openAddCategoryModal={openAddCategoryModal}
-            />
-            <EditProductModal
-                isOpen={isEditModalOpen}
-                onClose={() => setIsEditModalOpen(false)}
-                product={editingProduct}
-                categories={categories}
-                openAddCategoryModal={openAddCategoryModal}
-            />
-
+            {session?.user?.accessToken && (
+                <AddProductModal
+                    isOpen={isAddModalOpen}
+                    onClose={() => setIsAddModalOpen(false)}
+                    categories={categories}
+                    openAddCategoryModal={openAddCategoryModal}
+                    token={session?.user?.accessToken}
+                />
+            )}
+            {session?.user?.accessToken && (
+                <EditProductModal
+                    isOpen={isEditModalOpen}
+                    onClose={() => setIsEditModalOpen(false)}
+                    product={editingProduct}
+                    categories={categories}
+                    openAddCategoryModal={openAddCategoryModal}
+                    token={session?.user?.accessToken}
+                />
+            )}
             {deleteProductMutation.isError && (
                 <Alert variant="destructive" className="mt-4">
                     <AlertCircle className="h-4 w-4" />

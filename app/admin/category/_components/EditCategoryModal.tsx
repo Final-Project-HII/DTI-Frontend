@@ -25,6 +25,7 @@ interface EditCategoryModalProps {
     isOpen: boolean;
     onClose: () => void;
     category: Category | null;
+    token: string;
 }
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
@@ -39,7 +40,7 @@ const categorySchema = z.object({
     )
 });
 
-export default function EditCategoryModal({ isOpen, onClose, category }: EditCategoryModalProps) {
+export default function EditCategoryModal({ isOpen, onClose, category, token }: EditCategoryModalProps) {
     const queryClient = useQueryClient();
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [editingCategoryImage, setEditingCategoryImage] = useState<File | null>(null);
@@ -61,6 +62,7 @@ export default function EditCategoryModal({ isOpen, onClose, category }: EditCat
             const response = await axios.put(`${BASE_URL}/category/update/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
                 },
             });
             return response.data;
