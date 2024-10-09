@@ -20,6 +20,7 @@ import { PaymentDetails } from "@/types/payment";
 import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
 import { useProductDetails } from "@/hooks/useProduct";
+import { useSession } from "next-auth/react";
 
 interface OrderDetailDialogProps {
   order: Order;
@@ -35,6 +36,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
   const [payment, setPayment] = useState<PaymentDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { data: session } = useSession();
 
   const productIds = order.items.map((item) => item.productId);
   const productQueryResults = useProductDetails(productIds);
@@ -53,7 +55,12 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
     const fetchPaymentDetails = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}api/payments/${order.id}/status`
+          `${process.env.NEXT_PUBLIC_API_URL}api/payments/${order.id}/status`,
+          {
+            headers: {
+              Authorization: `Bearer ${session?.user?.accessToken}`,
+            },
+          }
         );
         setPayment(response.data);
       } catch (error) {
@@ -61,14 +68,22 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
       }
     };
 
-    fetchPaymentDetails();
-  }, [order.id]);
+    if (session?.user?.accessToken) {
+      fetchPaymentDetails();
+    }
+  }, [order.id, session?.user?.accessToken]);
 
   const handleCancelOrder = async () => {
     setIsLoading(true);
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}api/orders/${order.id}/cancel`
+        `${process.env.NEXT_PUBLIC_API_URL}api/orders/${order.id}/cancel`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.accessToken}`,
+          },
+        }
       );
       onOrderUpdate(response.data.data);
       toast({
@@ -91,7 +106,13 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
     setIsLoading(true);
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}api/orders/${order.id}/deliver`
+        `${process.env.NEXT_PUBLIC_API_URL}api/orders/${order.id}/deliver`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.accessToken}`,
+          },
+        }
       );
       onOrderUpdate(response.data.data);
       toast({
@@ -299,6 +320,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
               </div>
             </div>
 
+            {/* Action buttons */}
             <div className="flex justify-end space-x-4">
               {canBeCancelled && (
                 <Button
