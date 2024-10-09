@@ -228,7 +228,7 @@ export const updateWarehouse = async (
 }
 
 export const deleteWarehouse = async (id: number,token:string): Promise<void> => {
-  await axios.delete(`${BASE_URL}/warehouses/${id}`,{}, {
+  await axios.delete(`${BASE_URL}/warehouses/${id}`,{
       headers: { Authorization: `Bearer ${token}` }
     })
 }
