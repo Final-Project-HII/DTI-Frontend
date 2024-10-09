@@ -82,6 +82,12 @@ const fetchStock = async (
     return response.data;
 };
 
+const fetchWarehouses = async (token: string): Promise<Warehouse[]> => {
+    const response = await axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data.data.content;
+};
 
 
 export default function StockPage() {
@@ -94,12 +100,12 @@ export default function StockPage() {
     const isAdmin = session?.user?.role === 'ADMIN';
 
     useEffect(() => {
-        axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouse`)
-            .then(response => {
-                setWarehouses(response.data.data.content);
-            })
-            .catch(error => console.error("Failed to fetch warehouses:", error));
-    }, []);
+        if (session?.user?.accessToken) {
+            fetchWarehouses(session.user.accessToken)
+                .then(setWarehouses)
+                .catch(error => console.error("Failed to fetch warehouses:", error));
+        }
+    }, [session?.user?.accessToken]);
 
     const { data, isLoading, error, refetch } = useQuery<StockResponse>({
         queryKey: ['stock', selectedWarehouse, currentPage, pageSize, session?.user?.accessToken],

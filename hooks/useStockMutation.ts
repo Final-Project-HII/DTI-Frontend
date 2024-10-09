@@ -51,7 +51,24 @@ export const fetchStockMutationJournals = async (
     return response.data;
 };
 
-export const fetchWarehouses = async () => {
-    const response = await axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouse`);
+export const fetchWarehouses = async (token: string): Promise<Warehouse[]> => {
+    const response = await axios.get<{ data: { content: Warehouse[] } }>(
+        `${BASE_URL}/warehouses`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
     return response.data.data.content;
 };
+// export const fetchWarehouses = async () => {
+//     const response = await axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`);
+//     return response.data.data.content;
+// };
+// export const fetchWarehouses = async (token: string): Promise<Warehouse[]> => {
+//     const response = await axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`, {
+//         headers: { Authorization: `Bearer ${token}` },
+//     });
+//     return response.data.data.content;
+// };
