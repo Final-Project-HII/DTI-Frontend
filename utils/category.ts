@@ -9,7 +9,7 @@ export const fetchCategories = async (): Promise<Category[]> => {
     return response.data;
 };
 export const deleteCategory = async (id: number, token: string) => {
-    const response = await axios.delete(`${BASE_URL}/categories/${id}`, {
+    const response = await axios.delete(`${BASE_URL}/category/delete/${id}`, {
         headers: {
             Authorization: `Bearer ${token}`
         }
