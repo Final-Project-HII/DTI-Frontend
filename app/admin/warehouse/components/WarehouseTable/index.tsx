@@ -41,7 +41,7 @@ const WarehouseTable = () => {
   const fetchWarehouses = async () => {
     setLoading(true);
     try {
-      const response = await getAllWarehouse(nameFilter, selectedCity, currentPage.toString(), pageSize.toString());
+      const response = await getAllWarehouse(nameFilter, selectedCity, currentPage.toString(), pageSize.toString(), session!.user.accessToken);
       setWarehouses(response.content);
       setTotalPages(response.totalPages);
       setTotalElements(response.totalElements)
@@ -62,7 +62,7 @@ const WarehouseTable = () => {
   const handleDeleteWarehouse = async () => {
     if (warehouseToDelete) {
       try {
-        await deleteWarehouse(warehouseToDelete.id,session!.user.accessToken);
+        await deleteWarehouse(warehouseToDelete.id, session!.user.accessToken);
         await fetchWarehouses();
         setIsDeleteDialogOpen(false);
         setWarehouseToDelete(null);

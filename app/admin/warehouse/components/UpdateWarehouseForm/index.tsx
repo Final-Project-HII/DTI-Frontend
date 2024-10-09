@@ -28,6 +28,7 @@ import { updateWarehouse } from '@/utils/api';
 import { Warehouse } from '@/types/warehouse';
 import Swal from 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
+import { useSession } from 'next-auth/react';
 
 const MapComponent = dynamic(() => import('../MapComponent'), {
   ssr: false,
@@ -81,6 +82,7 @@ const UpdateWarehouseForm: React.FC<AddWarehouseFormProps> = ({ data, onClose, o
   const [position, setPosition] = useState<LatLng>({ lat: data!.lat, lng: data!.lon });
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [cities, setCities] = useState<City[]>([]);
+  const { data: session } = useSession()
 
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<WarehouseFormData>({
     resolver: zodResolver(warehouseSchema),
@@ -156,7 +158,7 @@ const UpdateWarehouseForm: React.FC<AddWarehouseFormProps> = ({ data, onClose, o
 
   const onSubmit = async (formData: WarehouseFormData) => {
     try {
-      await updateWarehouse(data!.id, formData);
+      await updateWarehouse(data!.id, formData, session!.user.accessToken);
       Swal.fire({
         title: 'Warehouse Has Been Updated Succesfully!',
         text: 'This will close in 3 seconds.',
