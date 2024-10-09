@@ -35,6 +35,7 @@ interface Warehouse {
     city: City;
 }
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+// const BASE_URL = 'http://localhost:8080/api';
 
 const AddStockModal: React.FC<AddStockModalProps> = ({ warehouses, onAdd, selectedWarehouse }) => {
     const [open, setOpen] = useState(false);

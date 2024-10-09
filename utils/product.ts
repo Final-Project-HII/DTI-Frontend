@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { ApiResponse, Category, ParsedSlug } from '../types/product';
 
+// const BASE_URL = 'http://localhost:8080/api';
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 export const fetchProducts = async (

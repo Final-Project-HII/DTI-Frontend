@@ -84,7 +84,7 @@ interface RowInfo {
     };
 }
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 const fetchStockMutations = async (
     originWarehouseId?: string,
     // destinationWarehouseId?: string,
@@ -109,6 +109,12 @@ const fetchStockMutations = async (
     });
     return response.data;
 };
+const fetchWarehouses = async (token: string): Promise<Warehouse[]> => {
+    const response = await axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data.data.content;
+};
 
 export default function StockMutationPage() {
     const [selectedWarehouse, setSelectedWarehouse] = useState<string>('2');
@@ -119,13 +125,20 @@ export default function StockMutationPage() {
     const isSuperAdmin = session?.user?.role === 'SUPER';
     const isAdmin = session?.user?.role === 'ADMIN';
 
+    // useEffect(() => {
+    //     axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`)
+    //         .then(response => {
+    //             setWarehouses(response.data.data.content);
+    //         })
+    //         .catch(error => console.error("Failed to fetch warehouses:", error));
+    // }, []);
     useEffect(() => {
-        axios.get<{ data: { content: Warehouse[] } }>(`${BASE_URL}/warehouses`)
-            .then(response => {
-                setWarehouses(response.data.data.content);
-            })
-            .catch(error => console.error("Failed to fetch warehouses:", error));
-    }, []);
+        if (session?.user?.accessToken) {
+            fetchWarehouses(session.user.accessToken)
+                .then(setWarehouses)
+                .catch(error => console.error("Failed to fetch warehouses:", error));
+        }
+    }, [session?.user?.accessToken]);
 
     const { data, isLoading, error, refetch } = useQuery<StockMutationResponse>({
         queryKey: ['stock-mutations', selectedWarehouse, currentPage, pageSize, session?.user?.accessToken],
