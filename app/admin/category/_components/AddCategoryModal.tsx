@@ -18,6 +18,7 @@ interface CategoryRequestDto {
 interface AddCategoryModalProps {
     isOpen: boolean;
     onClose: () => void;
+    token: string;
 }
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
@@ -32,7 +33,7 @@ const categorySchema = z.object({
         .optional()
 });
 
-export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
+export default function AddCategoryModal({ isOpen, onClose, token }: AddCategoryModalProps) {
     const queryClient = useQueryClient();
     const [newCategory, setNewCategory] = useState<CategoryRequestDto>({ name: '' });
     const [newCategoryImage, setNewCategoryImage] = useState<File | null>(null);
@@ -48,6 +49,7 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
             const response = await axios.post(`${BASE_URL}/category/create`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
                 },
             });
             return response.data;

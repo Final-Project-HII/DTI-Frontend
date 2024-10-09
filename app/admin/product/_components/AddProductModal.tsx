@@ -22,6 +22,7 @@ interface AddProductModalProps {
     onClose: () => void;
     categories: Category[];
     openAddCategoryModal: (type: 'new' | 'edit') => void;
+    token: string;
 }
 
 const BASE_URL = 'http://localhost:8080/api';
@@ -38,7 +39,7 @@ const imageSchema = z.array(z.instanceof(File))
     .refine((files) => files.every(file => ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].includes(file.type)),
         "Only .jpg, .jpeg, .png, and .gif formats are supported");
 
-export default function AddProductModal({ isOpen, onClose, categories, openAddCategoryModal }: AddProductModalProps) {
+export default function AddProductModal({ isOpen, onClose, categories, openAddCategoryModal, token }: AddProductModalProps) {
     const [newProduct, setNewProduct] = useState({
         name: '',
         description: '',
@@ -58,6 +59,7 @@ export default function AddProductModal({ isOpen, onClose, categories, openAddCa
             const response = await axios.post(`${BASE_URL}/product/create`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
                 },
             });
             return response.data;

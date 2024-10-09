@@ -201,6 +201,7 @@ export default function CategoryManagementPage() {
                     <AddCategoryModal
                         isOpen={isAddModalOpen}
                         onClose={() => setIsAddModalOpen(false)}
+                        token={session?.user?.accessToken}
                     />
 
                     <EditCategoryModal
@@ -210,6 +211,7 @@ export default function CategoryManagementPage() {
                             setEditingCategory(null);
                         }}
                         category={editingCategory}
+                        token={session?.user?.accessToken}
                     />
                 </>
             )}
