@@ -22,7 +22,7 @@ export interface ProductDataResponse {
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 async function getProductData(id: number): Promise<ProductDataResponse> {
-  const response = await fetch(`${BASE_URL}api/product/${id}`);
+  const response = await fetch(`${BASE_URL}/product/${id}`);
   if (!response.ok) {
     throw new Error("Failed to fetch product");
   }
