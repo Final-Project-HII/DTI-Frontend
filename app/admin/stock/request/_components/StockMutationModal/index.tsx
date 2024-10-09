@@ -150,17 +150,20 @@ const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ war
         queryKey: ['allStocks'],
         queryFn: async ({ pageParam = 0 }) => {
             const response = await api.get('/stocks', {
-                params: { page: pageParam, size: 1000 }
+                params: { page: pageParam, size: 1000 },
+                headers: {
+                    'Authorization': `Bearer ${session?.user?.accessToken}`
+                }
             });
             return response.data;
         },
         enabled: open, // Fetch when modal is opened
     });
     useEffect(() => {
-        if (open) {
+        if (open && session?.user?.accessToken) {
             refetchStocks();
         }
-    }, [open, refetchStocks]);
+    }, [open, refetchStocks, session?.user?.accessToken]);
     useEffect(() => {
         setFormData(prev => ({
             ...prev,
@@ -170,7 +173,11 @@ const CreateStockMutationModal: React.FC<CreateStockMutationModalProps> = ({ war
 
     const mutation = useMutation<any, Error, FormData>({
         mutationFn: (newMutation) => {
-            return api.post('/stock-mutations/manual', newMutation);
+            return api.post('/stock-mutations/manual', newMutation, {
+                headers: {
+                    'Authorization': `Bearer ${session?.user?.accessToken}`
+                }
+            });
         },
         onSuccess: () => {
             setOpen(false);
