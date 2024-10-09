@@ -48,7 +48,7 @@ interface EditProductModalProps {
     token: string;
 }
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 export default function EditProductModal({ isOpen, onClose, product, categories, openAddCategoryModal, token }: EditProductModalProps) {
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
