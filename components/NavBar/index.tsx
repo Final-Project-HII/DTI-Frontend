@@ -21,6 +21,7 @@ import SearchInput from "./_components/SearchInput";
 import SearchSheet from "./_components/SearchSheet";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { logout } from "@/hooks/useLogout";
+import { useCart } from "@/hooks/useCart";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const NavBar = () => {
   const [isDesktop, setIsDesktop] = useState(false);
   const [openDropdownMenu, setOpenDropdownMenu] = useState(false);
   const [itemCount, setItemCount] = useState(0);
+  const { getCartItemCount } = useCart();
   const { data } = useSession();
   const { profileData } = useProfileData();
   const searchParams = useSearchParams();
@@ -76,6 +78,14 @@ const NavBar = () => {
       setOpenDropdownMenu(false);
     }
   }, [isDesktop, openHamburgerMenu]);
+
+  useEffect(() => {
+    if (session) {
+      setItemCount(getCartItemCount());
+    } else {
+      setItemCount(0);
+    }
+  }, [session, getCartItemCount]);
 
   return (
     <header className="fixed top-0 w-full z-50 text-white bg-no-repeat bg-cover">
