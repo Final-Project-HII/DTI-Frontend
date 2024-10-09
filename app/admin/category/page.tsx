@@ -45,8 +45,8 @@ export default function CategoryManagementPage() {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
-            if (result.isConfirmed) {
-                deleteCategoryMutation.mutate(id);
+            if (result.isConfirmed && session?.user?.accessToken) {
+                deleteCategoryMutation.mutate({ id, token: session.user.accessToken });
             }
         });
     };
