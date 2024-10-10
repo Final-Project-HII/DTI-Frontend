@@ -113,7 +113,7 @@ export default function CombinedDashboard() {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                 <SummaryCard
                     title="Total Orders"
                     value={salesSummary?.totalOrders || 0}
@@ -121,14 +121,16 @@ export default function CombinedDashboard() {
                     isPositive={true}
                     showPercentage={false}
                     icon={<BarChart3 className="h-4 w-4 text-muted-foreground" />}
+                    className="overflow-hidden"
                 />
                 <SummaryCard
                     title="Total Gross Revenue"
-                    value={Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(salesSummary?.totalGrossRevenue || 0)}
+                    value={Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(salesSummary?.totalGrossRevenue || 0)}
                     percentage={0}
                     isPositive={true}
                     showPercentage={false}
                     icon={<LineChartIcon className="h-4 w-4 text-muted-foreground" />}
+                    className="overflow-hidden"
                 />
                 <SummaryCard
                     title="Stock In"
@@ -136,6 +138,7 @@ export default function CombinedDashboard() {
                     percentage={stockInPercentage}
                     isPositive={true}
                     icon={<ArrowUpIcon className="h-4 w-4 text-muted-foreground" />}
+                    className="overflow-hidden"
                 />
                 <SummaryCard
                     title="Stock Out"
@@ -143,6 +146,7 @@ export default function CombinedDashboard() {
                     percentage={stockOutPercentage}
                     isPositive={false}
                     icon={<ArrowDownIcon className="h-4 w-4 text-muted-foreground" />}
+                    className="overflow-hidden"
                 />
                 <SummaryCard
                     title="Total Stock"
@@ -151,6 +155,7 @@ export default function CombinedDashboard() {
                     isPositive={true}
                     showPercentage={false}
                     icon={<BarChart3 className="h-4 w-4 text-muted-foreground" />}
+                    className="overflow-hidden"
                 />
             </div>
 
