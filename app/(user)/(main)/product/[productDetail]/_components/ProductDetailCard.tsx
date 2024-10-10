@@ -9,10 +9,11 @@ import YouMayLike from "@/app/(user)/(main)/product/[productDetail]/_components/
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
 import { addToCartApi } from "@/utils/api";
+import { useSession } from "next-auth/react";
 import {
   Product, ProductImage, ProductDetailProps
 } from '@/types/product';
-import { useSession } from "next-auth/react";
+import Swal from "sweetalert2";
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
@@ -20,6 +21,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { addToCart, updateQuantity, cartItems } = useCart();
   const { data: session } = useSession();
+
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2000);
@@ -30,23 +32,24 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     setQuantity(product.totalStock > 0 ? 1 : 0);
   }, [product]);
 
+
   const handleAddToCart = async () => {
-     if (session?.user != undefined) {
+    if (session?.user != undefined) {
       await addToCart(product.id, quantity);
       Swal.fire({
-        title: "Product added to cart!",
+        title: `${quantity} ${product.name}(s) added to your cart!`,
         icon: "success",
         timer: 2000,
         showConfirmButton: false,
         timerProgressBar: true,
       });
-    } else{
+    } else {
       Swal.fire({
         title: "Error!",
         text: "Please login first before you can add the product to cart.",
         icon: "error",
       });
-     }
+    }
   };
   const decreaseQuantity = () => {
     setQuantity(Math.max(1, quantity - 1));
