@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle, X } from 'lucide-react';
 import CategorySelect from './CategorySelect';
 import Swal from "sweetalert2";
@@ -49,11 +48,10 @@ export default function AddProductModal({ isOpen, onClose, categories, openAddCa
     });
     const [productImages, setProductImages] = useState<File[]>([]);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null); // State untuk pesan sukses
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
 
     const queryClient = useQueryClient();
-
     const createProductMutation = useMutation({
         mutationFn: async (formData: FormData) => {
             const response = await axios.post(`${BASE_URL}/product/create`, formData, {
@@ -90,7 +88,6 @@ export default function AddProductModal({ isOpen, onClose, categories, openAddCa
                 timer: 3000,
                 timerProgressBar: true,
                 toast: true,
-                // position: 'top-end',
                 showConfirmButton: false
             });
         }
@@ -120,7 +117,6 @@ export default function AddProductModal({ isOpen, onClose, categories, openAddCa
         try {
             productSchema.parse(newProduct);
             imageSchema.parse(productImages);
-
             const formData = new FormData();
             Object.entries(newProduct).forEach(([key, value]) => {
                 formData.append(key, value);
@@ -135,7 +131,10 @@ export default function AddProductModal({ isOpen, onClose, categories, openAddCa
                     icon: 'error',
                     title: 'Validation Error',
                     text: error.errors[0].message,
-                    confirmButtonColor: '#3085d6',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    toast: true,
+                    showConfirmButton: false
                 });
             }
         }
@@ -151,7 +150,7 @@ export default function AddProductModal({ isOpen, onClose, categories, openAddCa
         });
         setProductImages([]);
         setErrorMessage(null);
-        setSuccessMessage(null); // Reset pesan sukses
+        setSuccessMessage(null);
     };
 
     return (
@@ -226,21 +225,6 @@ export default function AddProductModal({ isOpen, onClose, categories, openAddCa
                         {createProductMutation.status === 'pending' ? 'Creating...' : 'Create Product'}
                     </Button>
                 </form>
-                {/* {errorMessage && (
-                    <Alert variant="destructive" className="mt-4">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Error</AlertTitle>
-                        <AlertDescription>{errorMessage}</AlertDescription>
-                    </Alert>
-                )}
-                {successMessage && (
-                    <Alert className="mt-4 bg-green-100 text-green-700 border border-green-500">
-                        <CheckCircle className="h-4 w-4" />
-                        <AlertTitle>Success</AlertTitle>
-                        <AlertDescription>{successMessage}</AlertDescription>
-                    </Alert>
-                )} */}
-
             </DialogContent>
         </Dialog>
     );

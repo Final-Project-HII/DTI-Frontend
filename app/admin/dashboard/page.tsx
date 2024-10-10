@@ -10,6 +10,7 @@ import { MonthYearPicker } from '@/components/ui/date-picker';
 import { SummaryCard } from './_components/SummaryCard';
 import { ProductSummaryChart, CategorySalesChart, ProductSalesChart, DailySalesChart } from './_components/Charts';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { Loader2 } from 'lucide-react';
 
 interface DailySalesData {
     date: string;
@@ -73,7 +74,11 @@ export default function CombinedDashboard() {
     }, [stockReportData, productSortOrder]);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
     }
 
     return (

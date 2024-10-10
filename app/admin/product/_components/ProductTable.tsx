@@ -21,30 +21,7 @@ import {
 } from "@tanstack/react-table";
 import { formatDate } from 'date-fns';
 import { useSession } from 'next-auth/react';
-
-interface ProductImage {
-    id: number;
-    productId: number;
-    imageUrl: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
-interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    weight: number;
-    categoryId: number;
-    categoryName: string;
-    totalStock: number;
-    productImages: ProductImage[];
-    createdAt: string;
-    updatedAt: string;
-    onEdit: (product: Product) => void;
-    onDelete: (id: number) => void;
-}
+import { Product } from '@/types/product';
 
 interface ProductTableProps {
     products: Product[];
@@ -54,8 +31,6 @@ interface ProductTableProps {
     onDelete: (id: number) => void;
     isLoading: boolean;
 }
-
-
 
 export function ProductTable({
     products,
@@ -104,25 +79,6 @@ export function ProductTable({
             accessorKey: "categoryName",
             header: "Category",
         },
-        // {
-        //     accessorKey: "totalStock",
-        //     header: "Stock",
-        // },
-        // {
-        //     header: "Ordered Qty",
-        //     cell: () => "20", // Placeholder value
-        // },
-        // {
-        //     accessorKey: "totalStock",
-        //     header: "Status",
-        //     cell: ({ row }) => (
-        //         row.original.totalStock > 0 ? (
-        //             <Badge className="bg-green-100 text-green-700"> • Available</Badge>
-        //         ) : (
-        //             <Badge className="bg-red-100 text-red-700"> • Out of Stock</Badge>
-        //         )
-        //     ),
-        // },
         {
             accessorKey: "price",
             header: "Price",
