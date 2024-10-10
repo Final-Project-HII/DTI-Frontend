@@ -13,6 +13,22 @@ const JakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"], fallback: ["sans-ser
 export const metadata: Metadata = {
   title: "Hiimart Store - Your Trusted Source for Fast & Easy Online Shopping",
   description: "Shop a wide range of products quickly and easily at Hiimart. Discover exclusive deals and fast delivery services.",
+  keywords: ['cart', 'shopping', 'Hiimart Store', 'online shopping'],
+  openGraph: {
+    title: "Your Cart - Hiimart Store",
+    description: "Manage your cart at Hiimart Store to enjoy fast shopping, track your orders, and discover exclusive deals tailored for you.",
+    url: '/cart',
+    siteName: 'Hiimart Store',
+    images: [
+      {
+        url: '/hiimart v0.png',
+        width: 800,
+        height: 600,
+        alt: 'Your Cart at Hiimart Store',
+      },
+    ],
+    type: 'website',
+  },
 };
 
 export default async function RootLayout({

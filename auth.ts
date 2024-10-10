@@ -27,7 +27,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       authorize: async (credentialsPromise) => {
         try {
-          const credentials = (await await credentialsPromise) as {
+          const credentials = (await credentialsPromise) as {
             email: string
             password: string
           }
@@ -42,16 +42,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
           )
           const data = response.data
-          if (response.status !== 200) {
-            return {
-              error: data.error,
-              message: data.message,
-              email: credentials.email,
-              sub: '',
-              role: '',
-              accessToken: '',
-            }
-          }
+
           return {
             email: data.email,
             sub: data.email,
@@ -59,11 +50,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             accessToken: data.accessToken,
           }
         } catch (error) {
+          const credentials = (await credentialsPromise) as {
+            email: string
+            password: string
+          }
           if (axios.isAxiosError(error) && error.response) {
             return {
               error: error.response.data.error || 'Unknown error',
               message: error.response.data.message || 'An error occurred',
-              email: '',
+              email: credentials.email,
               sub: '',
               role: '',
               accessToken: '',
@@ -141,7 +136,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         )}`
       }
       const useCookies = cookies()
-      useCookies.set('Sid', user.accessToken)
+      useCookies.set('Sid', user.accessToken, { maxAge: 3600 })
       return true
     },
     async jwt({ token, user }) {

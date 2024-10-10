@@ -6,32 +6,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Plus, ShoppingBag } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
-
+import { Product, ProductImage } from '@/types/product';
 
 interface ProductCardProps {
   product: Product;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  weight: number;
-  categoryId: number;
-  categoryName: string;
-  totalStock: number;
-  productImages: ProductImage[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface ProductImage {
-  id: number;
-  productId: number;
-  imageUrl: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {

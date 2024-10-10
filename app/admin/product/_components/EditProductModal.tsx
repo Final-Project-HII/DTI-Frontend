@@ -5,39 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, X } from 'lucide-react';
 import CategorySelect from './CategorySelect';
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { z } from 'zod';
-
-interface Category {
-    id: number;
-    name: string;
-}
-
-interface ProductImage {
-    id: number;
-    productId: number;
-    imageUrl: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
-interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    weight: number;
-    categoryId: number;
-    categoryName: string;
-    totalStock: number;
-    productImages: ProductImage[];
-    createdAt: string;
-    updatedAt: string;
-}
+import { Category, Product } from '@/types/product';
 
 interface EditProductModalProps {
     isOpen: boolean;
@@ -101,7 +74,6 @@ export default function EditProductModal({ isOpen, onClose, product, categories,
                 timer: 3000,
                 timerProgressBar: true,
                 toast: true,
-                // position: 'top-end',
                 showConfirmButton: false
             });
         }
@@ -257,14 +229,6 @@ export default function EditProductModal({ isOpen, onClose, product, categories,
                         {updateProductMutation.status === 'pending' ? 'Updating...' : 'Update Product'}
                     </Button>
                 </form>
-                {/* {updateProductMutation.isError && (
-                    <Alert variant="destructive" className="mt-4">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Error</AlertTitle>
-                        <AlertDescription>{errorMessage}</AlertDescription>
-                        <AlertDescription>{(updateProductMutation.error as Error).message}</AlertDescription>
-                    </Alert>
-                )} */}
             </DialogContent>
         </Dialog>
     );
