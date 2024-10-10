@@ -26,12 +26,14 @@ interface OrderDetailDialogProps {
   order: Order;
   onOrderUpdate: (updatedOrder: Order) => void;
   canBeCancelled: boolean;
+  onNavigateToPayment: () => void;
 }
 
 const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
   order,
   onOrderUpdate,
   canBeCancelled,
+  onNavigateToPayment
 }) => {
   const [payment, setPayment] = useState<PaymentDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -201,6 +203,17 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                     </p>
                   </div>
                 )}
+                {order.status === "pending_payment" && !payment && (
+          <div className="bg-yellow-100 p-4 rounded-lg">
+            <p className="text-yellow-800 mb-2">
+              Your order is awaiting payment. Please complete the payment process.
+            </p>
+            <Button onClick={onNavigateToPayment} variant="outline">
+              Go to Payment Page
+            </Button>
+          </div>
+        )}
+
             </div>
 
             <div>
