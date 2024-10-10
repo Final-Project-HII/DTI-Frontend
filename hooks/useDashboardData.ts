@@ -54,7 +54,8 @@ const fetchWarehouses = async (token: string): Promise<Warehouse[]> => {
     return response.data.data.content;
 };
 export const useDashboardData = () => {
-    const [selectedWarehouse, setSelectedWarehouse] = useState('all');
+    // const [selectedWarehouse, setSelectedWarehouse] = useState('all');
+    const [selectedWarehouse, setSelectedWarehouse] = useState('74');
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
     const [productSummaryPage, setProductSummaryPage] = useState(0);
