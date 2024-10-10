@@ -6,8 +6,8 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import CategoryItemSkeleton from './CategoryitemSkeleton';
 import CategoryItem from './CategoryItem'
+import CategoryItemSkeleton from "./CategoryitemSkeleton";
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 

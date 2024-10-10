@@ -76,6 +76,12 @@ export default auth((req: any) => {
     '/product',
   ]
 
+  const resetPasswordRoutes = [
+    '/reset-password',
+    '/reset-password-confirmation',
+    '/manage-password',
+  ]
+
   const authRoutes = ['/login', '/register']
 
   if (
@@ -96,6 +102,11 @@ export default auth((req: any) => {
         redirectTo: '/',
       })
     )
+    return NextResponse.redirect(redirectUrl)
+  }
+
+  if (req.auth && resetPasswordRoutes.includes(path)) {
+    const redirectUrl = new URL('/', req.url)
     return NextResponse.redirect(redirectUrl)
   }
 

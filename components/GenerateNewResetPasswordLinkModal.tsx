@@ -19,13 +19,11 @@ const GenerateNewResetPasswordLinkModal: React.FC<GenerateNewResetPasswordLinkMo
 
   const handleNewLink = async () => {
     try {
-      const result = await AddNewResetPasswordLink(email);
-      if (result) {
-        setShowNewResetPasswordModal(true);
-        setTimeout(() => {
-          router.push('/login');
-        }, 6000);
-      }
+      await AddNewResetPasswordLink(email);
+      setShowNewResetPasswordModal(true);
+      setTimeout(() => {
+        router.push('/login');
+      }, 6000);
     } catch (error) {
       console.log("Error:", error);
     }

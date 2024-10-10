@@ -42,7 +42,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
           )
           const data = response.data
-
           return {
             email: data.email,
             sub: data.email,
@@ -120,6 +119,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return `/login?callbackUrl=${callbackUrl}&error=email_not_found`
         }
       }
+      console.log(user)
 
       if (user.error === 'Email Not Found') {
         return `/login?callbackUrl=${callbackUrl}&error=email_not_found`

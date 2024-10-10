@@ -19,6 +19,8 @@ import { MessageCircle, HelpCircle, Package } from "lucide-react";
 import { PaymentDetails } from "@/types/payment";
 import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
+import { useProductDetails } from "@/hooks/useProduct";
+import { useSession } from "next-auth/react";
 
 interface OrderDetailDialogProps {
   order: Order;
@@ -34,12 +36,31 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
   const [payment, setPayment] = useState<PaymentDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { data: session } = useSession();
+
+  const productIds = order.items.map((item) => item.productId);
+  const productQueryResults = useProductDetails(productIds);
+
+  const productDetailsMap = React.useMemo(() => {
+    const map = new Map();
+    productQueryResults.forEach((result) => {
+      if (result.data) {
+        map.set(result.data.id, result.data);
+      }
+    });
+    return map;
+  }, [productQueryResults]);
 
   useEffect(() => {
     const fetchPaymentDetails = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}api/payments/${order.id}/status`
+          `${process.env.NEXT_PUBLIC_API_URL}api/payments/${order.id}/status`,
+          {
+            headers: {
+              Authorization: `Bearer ${session?.user?.accessToken}`,
+            },
+          }
         );
         setPayment(response.data);
       } catch (error) {
@@ -47,14 +68,22 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
       }
     };
 
-    fetchPaymentDetails();
-  }, [order.id]);
+    if (session?.user?.accessToken) {
+      fetchPaymentDetails();
+    }
+  }, [order.id, session?.user?.accessToken]);
 
   const handleCancelOrder = async () => {
     setIsLoading(true);
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}api/orders/${order.id}/cancel`
+        `${process.env.NEXT_PUBLIC_API_URL}api/orders/${order.id}/cancel`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.accessToken}`,
+          },
+        }
       );
       onOrderUpdate(response.data.data);
       toast({
@@ -77,7 +106,13 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
     setIsLoading(true);
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}api/orders/${order.id}/deliver`
+        `${process.env.NEXT_PUBLIC_API_URL}api/orders/${order.id}/deliver`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.accessToken}`,
+          },
+        }
       );
       onOrderUpdate(response.data.data);
       toast({
@@ -175,8 +210,12 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                   <>
                     <div className="flex items-center">
                       <img
-                        src="/api/placeholder/50/50"
-                        alt="Product"
+                        src={
+                          productDetailsMap.get(order.items[0].productId)
+                            ?.productImages?.[0]?.imageUrl ||
+                          "/api/placeholder/50/50"
+                        }
+                        alt={order.items[0].productName}
                         className="w-12 h-12 object-cover rounded mr-4"
                       />
                       <div className="flex-grow">
@@ -210,6 +249,15 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                                 key={item.id}
                                 className="flex items-center mt-4"
                               >
+                                <img
+                                  src={
+                                    productDetailsMap.get(item.productId)
+                                      ?.productImages?.[0]?.imageUrl ||
+                                    "/api/placeholder/50/50"
+                                  }
+                                  alt={item.productName}
+                                  className="w-12 h-12 object-cover rounded mr-4"
+                                />
                                 <div className="flex-grow">
                                   <h4 className="font-medium">
                                     {item.productName}
@@ -272,6 +320,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
               </div>
             </div>
 
+            {/* Action buttons */}
             <div className="flex justify-end space-x-4">
               {canBeCancelled && (
                 <Button

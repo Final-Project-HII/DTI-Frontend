@@ -176,18 +176,18 @@ export const createOrder = async (): Promise<OrderItem> => {
     const response = await axios.post(BASE_URL)
     return response.data
   } catch (error) {
-    console.error('Error creating order:', error);
-    throw error;
+    console.error('Error creating order:', error)
+    throw error
   }
 }
 
 export const getOrder = async (orderId: number): Promise<Order> => {
   try {
-    const response = await axios.get<Order>(`${BASE_URL}/${orderId}`);
-    return response.data;
+    const response = await axios.get<Order>(`${BASE_URL}/${orderId}`)
+    return response.data
   } catch (error) {
-    console.error('Error fetching order:', error);
-    throw error;
+    console.error('Error fetching order:', error)
+    throw error
   }
 }
 
@@ -195,7 +195,8 @@ export const getAllWarehouse = async (
   name: string,
   cityName: string | undefined,
   page: string,
-  size: string
+  size: string,
+  token: string
 ): Promise<any> => {
   const params = new URLSearchParams()
   params.set('page', page)
@@ -206,30 +207,54 @@ export const getAllWarehouse = async (
   if (cityName) {
     params.set('cityName', cityName)
   }
-  const response = await axios.get<any>(
-    `${BASE_URL}/warehouses?${params.toString()}`,
-    { withCredentials: true }
-  )
-  return response.data.data
+  try {
+    const response = await axios.get<any>(
+      `${BASE_URL}/warehouses?${params.toString()}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data.data
+  } catch (error) {
+    console.error('Error fetching warehouse data:', error)
+    throw error
+  }
 }
 
 export const createWarehouse = async (
-  formData: WarehouseFormData
+  formData: WarehouseFormData,
+  token: string
 ): Promise<Warehouse> => {
-  const response = await axios.post(`${BASE_URL}/warehouses`, formData, { withCredentials: true })
+  const response = await axios.post(`${BASE_URL}/warehouses`, formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
   return response.data
 }
 
 export const updateWarehouse = async (
   id: number,
-  formData: WarehouseFormData
+  formData: WarehouseFormData,
+  token: string
 ): Promise<Category> => {
-  const response = await axios.put(`${BASE_URL}/warehouses/${id}`, formData, { withCredentials: true })
+  const response = await axios.put(`${BASE_URL}/warehouses/${id}`, formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
   return response.data
 }
 
-export const deleteWarehouse = async (id: number): Promise<void> => {
-  await axios.delete(`${BASE_URL}/warehouses/${id}`, { withCredentials: true })
+export const deleteWarehouse = async (
+  id: number,
+  token: string
+): Promise<void> => {
+  await axios.delete(`${BASE_URL}/warehouses/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
 }
 
 export const getAllAddress = async (
@@ -264,7 +289,6 @@ export const deleteAddresses = async (
 ): Promise<void> => {
   await axios.delete(`${BASE_URL}/addresses/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
-    withCredentials: true,
   })
 }
 
@@ -275,7 +299,6 @@ export const updateAddress = async (
 ): Promise<Address> => {
   const response = await axios.put(`${BASE_URL}/addresses/${id}`, formData, {
     headers: { Authorization: `Bearer ${token}` },
-    withCredentials: true,
   })
   return response.data
 }
@@ -286,7 +309,6 @@ export const createAddress = async (
 ): Promise<Address> => {
   const response = await axios.post(`${BASE_URL}/addresses`, formData, {
     headers: { Authorization: `Bearer ${token}` },
-    withCredentials: true,
   })
   return response.data
 }
@@ -300,7 +322,6 @@ export const toogleActiveAddress = async (
     {},
     {
       headers: { Authorization: `Bearer ${token}` },
-      withCredentials: true,
     }
   )
   return response.data
@@ -310,7 +331,7 @@ export const getActiveAddress = async (token: string): Promise<any> => {
   try {
     const response = await axios.get<any>(
       `${BASE_URL}/addresses/active-address`,
-      { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+      { headers: { Authorization: `Bearer ${token}` } }
     )
     return response.data
   } catch (error) {
@@ -330,24 +351,26 @@ export const getAllUser = async (
   email: string,
   role: string | undefined,
   page: string,
-  size: string
+  size: string,
+  token: string
 ): Promise<any> => {
   const params = new URLSearchParams()
   params.set('page', page)
   params.set('size', size)
-
   if (email) {
     params.set('email', email)
   }
-
   if (role) {
     params.set('role', role)
   }
-
   try {
     const response = await axios.get<any>(
       `${BASE_URL}/users?${params.toString()}`,
-      { withCredentials: true }
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     )
     return response.data.data
   } catch (error) {
@@ -356,27 +379,67 @@ export const getAllUser = async (
   }
 }
 
-export const toogleUserActiveStatus = async (id: number): Promise<any> => {
-  const response = await axios.put(
-    `${BASE_URL}/users/toggle-active-user/${id}`,
-    {},
-    { withCredentials: true }
-  )
-  return response.data
+export const toogleUserActiveStatus = async (
+  id: number,
+  token: string
+): Promise<any> => {
+  try {
+    const response = await axios.put(
+      `${BASE_URL}/users/toggle-active-user/${id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error toggling user active status:', error)
+    throw error
+  }
 }
 
-export const createNewAdmin = async (formData: AdminFormData): Promise<any> => {
-  const response = await axios.post(
-    `${BASE_URL}/users/register-admin`,
-    formData,
-    { withCredentials: true }
-  )
-  return response.data
+export const createNewAdmin = async (
+  formData: AdminFormData,
+  token: string
+): Promise<any> => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/users/register-admin`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error creating new admin:', error)
+    throw error
+  }
 }
 
-export const updateAdmin = async (formData: AdminFormData): Promise<any> => {
-  const response = await axios.put(`${BASE_URL}/users/update-admin`, formData, { withCredentials: true })
-  return response.data
+export const updateAdmin = async (
+  formData: AdminFormData,
+  token: string
+): Promise<any> => {
+  try {
+    const response = await axios.put(
+      `${BASE_URL}/users/update-admin`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error updating admin:', error)
+    throw error
+  }
 }
 
 export const getProfileData = async (token: string): Promise<any> => {
@@ -400,7 +463,6 @@ export const updateProfile = async (
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`,
-      withCredentials: true,
     },
   })
   return response.data
@@ -414,7 +476,6 @@ export const updateAvatar = async (
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`,
-      withCredentials: true,
     },
   })
   return response.data
@@ -446,13 +507,9 @@ export const changeEmail = async (
   formData: any,
   token: string
 ): Promise<any> => {
-  const response = await axios.put(
-    `${BASE_URL}/users/change-email`,
-    formData,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-      withCredentials: true,
-    }
-  )
+  const response = await axios.put(`${BASE_URL}/users/change-email`, formData, {
+    headers: { Authorization: `Bearer ${token}` },
+    withCredentials: true,
+  })
   return response.data
 }
