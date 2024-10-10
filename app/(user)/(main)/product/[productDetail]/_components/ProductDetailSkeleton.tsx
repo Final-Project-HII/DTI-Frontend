@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Minus, Plus } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const ProductDetailSkeleton = () => {

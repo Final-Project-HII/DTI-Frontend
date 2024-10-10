@@ -4,12 +4,10 @@ import { ProductCard } from '@/app/(user)/(main)/product/_components/ProductCard
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import Link from 'next/link';
-
-// Import Swiper styles
 import 'swiper/css';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import axios from 'axios';
-// import { Product } from '@/types/product';
+import { Product } from '@/types/product';
 import { useQuery } from '@tanstack/react-query';
 import ProductListSkeleton from '@/app/_components/ProductList/ProductListSkeleton';
 
@@ -17,28 +15,6 @@ const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
 
 interface ProductListProps {
     category?: string;
-}
-
-interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    weight: number;
-    categoryId: number;
-    categoryName: string;
-    totalStock: number;
-    productImages: ProductImage[];
-    createdAt: string;
-    updatedAt: string;
-}
-
-interface ProductImage {
-    id: number;
-    productId: number;
-    imageUrl: string;
-    createdAt: string;
-    updatedAt: string;
 }
 
 const fetchProducts = async (category?: string): Promise<Product[]> => {

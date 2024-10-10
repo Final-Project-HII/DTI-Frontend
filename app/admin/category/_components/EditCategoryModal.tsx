@@ -4,18 +4,12 @@ import axios from 'axios';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Upload } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import Image from 'next/image';
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { z } from 'zod';
-
-interface Category {
-    id: number;
-    name: string;
-    categoryImage: string;
-}
+import { Category } from '@/types/category';
 
 interface CategoryRequestDto {
     name: string;
@@ -94,7 +88,6 @@ export default function EditCategoryModal({ isOpen, onClose, category, token }: 
                 timer: 3000,
                 timerProgressBar: true,
                 toast: true,
-                // position: 'top-end',
                 showConfirmButton: false
             });
         },
@@ -177,13 +170,6 @@ export default function EditCategoryModal({ isOpen, onClose, category, token }: 
                         {updateCategoryMutation.isPending ? 'Updating...' : 'Update Category'}
                     </Button>
                 </form>
-                {/* {updateCategoryMutation.isError && (
-                    <Alert variant="destructive" className="mt-4">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Error</AlertTitle>
-                        <AlertDescription>{updateCategoryMutation.error.message}</AlertDescription>
-                    </Alert>
-                )} */}
             </DialogContent>
         </Dialog>
     );

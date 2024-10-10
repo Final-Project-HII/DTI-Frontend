@@ -136,7 +136,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         )}`
       }
       const useCookies = cookies()
-      useCookies.set('Sid', user.accessToken)
+      useCookies.set('Sid', user.accessToken, { maxAge: 3600 })
       return true
     },
     async jwt({ token, user }) {
