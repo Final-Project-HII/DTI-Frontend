@@ -14,12 +14,14 @@ interface OrderCardProps {
   order: Order;
   productDetails: ProductDataResponse | undefined;
   onOrderUpdate: (updatedOrder: Order) => void;
+  onNavigateToPayment: () => void; 
 }
 
 const OrderCard: React.FC<OrderCardProps> = ({
   order: initialOrder,
   productDetails,
   onOrderUpdate,
+  onNavigateToPayment
 }) => {
   const [order, setOrder] = useState(initialOrder);
 
@@ -62,29 +64,27 @@ const OrderCard: React.FC<OrderCardProps> = ({
   );
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row justify-between items-center">
-        <div className="flex items-center gap-2">
+    <Card className="w-full">
+      <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2 sm:mb-0">
           <CardTitle className="text-lg font-semibold">
             {order.invoiceId}
           </CardTitle>
           <p className="text-sm text-gray-500">{formatDate(order.orderDate)}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div
-            className="px-2 py-1 rounded-full text-sm"
-            style={{
-              backgroundColor: statusColor.bg,
-              color: statusColor.text,
-            }}
-          >
-            {order.status.replace("_", " ").charAt(0).toUpperCase() +
-              order.status.replace("_", " ").slice(1) || "Unknown"}
-          </div>
+        <div
+          className="px-2 py-1 rounded-full text-sm self-start sm:self-auto"
+          style={{
+            backgroundColor: statusColor.bg,
+            color: statusColor.text,
+          }}
+        >
+          {order.status.replace("", " ").charAt(0).toUpperCase() +
+            order.status.replace("", " ").slice(1) || "Unknown"}
         </div>
       </CardHeader>
-      <CardContent className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
+      <CardContent className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div className="flex items-center gap-4 mb-4 sm:mb-0">
           <img
             src={
               productDetails?.productImages?.[0]?.imageUrl ||
@@ -104,18 +104,19 @@ const OrderCard: React.FC<OrderCardProps> = ({
             </p>
           </div>
         </div>
-        <div className="text-right">
+        <div className="text-left sm:text-right w-full sm:w-auto">
           <p className="text-sm text-gray-500">Total Order</p>
           <p className="font-bold">
             Rp {order.finalAmount?.toLocaleString() || "N/A"}
           </p>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between">
-        <OrderDetailDialog
+      <CardFooter className="flex justify-start sm:justify-start">
+      <OrderDetailDialog
           order={order}
           onOrderUpdate={handleOrderUpdate}
           canBeCancelled={canBeCancelled}
+          onNavigateToPayment={onNavigateToPayment} // Pass the prop
         />
       </CardFooter>
     </Card>
