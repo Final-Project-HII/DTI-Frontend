@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import ProductPageClient from './ProductDetailClient';
 import { getProductData } from '@/utils/product';
 import { ProductDataResponse } from '@/types/product';
-import { metadata as rootMetadata } from '@/app/layout'; // Import root metadata
+import { metadata as rootMetadata } from '@/app/layout';
 
 interface ProductPageProps {
   params: { productDetail: string };
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     return {
       title: `${product.name} | Hiimart Store - Your Trusted Source for Fast & Easy Online Shopping`,
       description: product.description,
-      keywords: [...keywords, product.name, 'product details'], // Extend keywords
+      keywords: [...keywords, product.name, 'product details'],
       openGraph: {
         title: `${product.name} | Hiimart Store`,
         description: product.description,
