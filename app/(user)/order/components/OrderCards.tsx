@@ -14,12 +14,14 @@ interface OrderCardProps {
   order: Order;
   productDetails: ProductDataResponse | undefined;
   onOrderUpdate: (updatedOrder: Order) => void;
+  onNavigateToPayment: () => void; 
 }
 
 const OrderCard: React.FC<OrderCardProps> = ({
   order: initialOrder,
   productDetails,
   onOrderUpdate,
+  onNavigateToPayment
 }) => {
   const [order, setOrder] = useState(initialOrder);
 
@@ -110,10 +112,11 @@ const OrderCard: React.FC<OrderCardProps> = ({
         </div>
       </CardContent>
       <CardFooter className="flex justify-start sm:justify-start">
-        <OrderDetailDialog
+      <OrderDetailDialog
           order={order}
           onOrderUpdate={handleOrderUpdate}
           canBeCancelled={canBeCancelled}
+          onNavigateToPayment={onNavigateToPayment} // Pass the prop
         />
       </CardFooter>
     </Card>

@@ -10,6 +10,7 @@ import OrderPagination from "./components/OrderPagination";
 import { Order } from "@/types/order";
 import OrderCard from "./components/OrderCards";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from 'next/navigation';
 
 const OrderSkeleton: React.FC = () => (
   <div className="space-y-2">
@@ -26,6 +27,7 @@ const OrderList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [totalItems, setTotalItems] = useState(0);
+  const router = useRouter();
 
   const { ordersData, loading, error } = useOrders(
     currentPage - 1,
@@ -70,6 +72,10 @@ const OrderList: React.FC = () => {
     );
   };
 
+  const handleNavigateToPayment = (orderId: number) => {
+    router.push(`/payment?orderId=${orderId}`);
+  };
+
   if (!session) return <div>Please log in to view your orders.</div>;
   if (error) return <div>Error loading orders: {error.message}</div>;
 
@@ -103,8 +109,11 @@ const OrderList: React.FC = () => {
               <OrderCard
                 key={order.id}
                 order={order}
-                productDetails={productDetailsMap.get(order.items[0]?.productId)}
+                productDetails={productDetailsMap.get(
+                  order.items[0]?.productId
+                )}
                 onOrderUpdate={handleOrderUpdate}
+                onNavigateToPayment={() => handleNavigateToPayment(order.id)}
               />
             ))
           )}

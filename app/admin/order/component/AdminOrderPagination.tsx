@@ -61,8 +61,8 @@ const OrderPagination: React.FC<OrderPaginationProps> = ({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between mt-4 bg-white p-4 rounded-lg shadow">
-      <div className="flex items-center space-x-2 mb-4 sm:mb-0">
+    <div className="flex flex-col md:flex-row items-center justify-between mt-4 bg-white p-4 rounded-lg shadow">
+      <div className="flex items-center space-x-2 mb-4 md:mb-0">
         <Button
           onClick={() => setCurrentPage(1)}
           disabled={currentPage === 1}
@@ -81,7 +81,7 @@ const OrderPagination: React.FC<OrderPaginationProps> = ({
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        {renderPageNumbers()}
+        <div className="hidden md:flex">{renderPageNumbers()}</div>
         <Button
           onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
           disabled={currentPage === totalPages}
