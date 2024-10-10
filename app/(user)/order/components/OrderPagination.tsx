@@ -33,21 +33,12 @@ const OrderPagination: React.FC<OrderPaginationProps> = ({
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
-    let startPage: number;
-    let endPage: number;
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
-    if (totalPages <= 5) {
-      startPage = 1;
-      endPage = totalPages;
-    } else if (currentPage <= 3) {
-      startPage = 1;
-      endPage = 5;
-    } else if (currentPage + 2 >= totalPages) {
-      startPage = totalPages - 4;
-      endPage = totalPages;
-    } else {
-      startPage = currentPage - 2;
-      endPage = currentPage + 2;
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
 
     for (let i = startPage; i <= endPage; i++) {
@@ -58,8 +49,8 @@ const OrderPagination: React.FC<OrderPaginationProps> = ({
           variant={currentPage === i ? "default" : "outline"}
           size="sm"
           className={`mx-1 ${
-            currentPage === i ? "bg-gray-600 text-white" : "text-gray-600"
-          } hidden sm:inline-flex`}
+            currentPage === i ? "bg-blue-600 text-white" : "text-blue-600"
+          }`}
         >
           {i}
         </Button>
@@ -70,14 +61,14 @@ const OrderPagination: React.FC<OrderPaginationProps> = ({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between mt-4 bg-white p-2 rounded-lg shadow">
-      <div className="flex items-center space-x-1 mb-2 sm:mb-0">
+    <div className="flex flex-col md:flex-row items-center justify-between mt-4 bg-white p-4 rounded-lg shadow">
+      <div className="flex items-center space-x-2 mb-4 md:mb-0">
         <Button
           onClick={() => setCurrentPage(1)}
           disabled={currentPage === 1}
           variant="outline"
           size="sm"
-          className="text-gray-600"
+          className="text-blue-600"
         >
           <ChevronsLeft className="h-4 w-4" />
         </Button>
@@ -86,17 +77,17 @@ const OrderPagination: React.FC<OrderPaginationProps> = ({
           disabled={currentPage === 1}
           variant="outline"
           size="sm"
-          className="text-gray-600"
+          className="text-blue-600"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        {renderPageNumbers()}
+        <div className="hidden md:flex">{renderPageNumbers()}</div>
         <Button
           onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
           disabled={currentPage === totalPages}
           variant="outline"
           size="sm"
-          className="text-gray-600"
+          className="text-blue-600"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -105,7 +96,7 @@ const OrderPagination: React.FC<OrderPaginationProps> = ({
           disabled={currentPage === totalPages}
           variant="outline"
           size="sm"
-          className="text-gray-600"
+          className="text-blue-600"
         >
           <ChevronsRight className="h-4 w-4" />
         </Button>
@@ -125,7 +116,7 @@ const OrderPagination: React.FC<OrderPaginationProps> = ({
             <SelectValue placeholder="Page size" />
           </SelectTrigger>
           <SelectContent>
-            {[10, 20, 30, 40, 50].map((size) => (
+            {[10, 20, 50, 100].map((size) => (
               <SelectItem key={size} value={size.toString()}>
                 {size} / page
               </SelectItem>
