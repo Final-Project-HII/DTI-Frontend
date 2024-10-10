@@ -134,8 +134,10 @@ export default function ProductSearchPage() {
     }, [data, currentPage, pageSize, categoryName, sortBy, sortDirection, searchTerm, queryClient]);
 
     const deleteProductMutation = useMutation({
-        mutationFn: async (id: number) => {
-            await axios.delete(`${BASE_URL}/product/delete/${id}`);
+        mutationFn: async ({ id, token }: { id: number; token: string | undefined }) => {
+            await axios.delete(`${BASE_URL}/product/delete/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -168,7 +170,7 @@ export default function ProductSearchPage() {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                deleteProductMutation.mutate(id);
+                deleteProductMutation.mutate({ id, token: session?.user?.accessToken });
             }
         });
     };
@@ -303,20 +305,25 @@ export default function ProductSearchPage() {
                     onPageSizeChange={handlePageSizeChange}
                 />
             )}
-            <AddProductModal
-                isOpen={isAddModalOpen}
-                onClose={() => setIsAddModalOpen(false)}
-                categories={categories}
-                openAddCategoryModal={openAddCategoryModal}
-            />
-            <EditProductModal
-                isOpen={isEditModalOpen}
-                onClose={() => setIsEditModalOpen(false)}
-                product={editingProduct}
-                categories={categories}
-                openAddCategoryModal={openAddCategoryModal}
-            />
-
+            {session?.user?.accessToken && (
+                <AddProductModal
+                    isOpen={isAddModalOpen}
+                    onClose={() => setIsAddModalOpen(false)}
+                    categories={categories}
+                    openAddCategoryModal={openAddCategoryModal}
+                    token={session?.user?.accessToken}
+                />
+            )}
+            {session?.user?.accessToken && (
+                <EditProductModal
+                    isOpen={isEditModalOpen}
+                    onClose={() => setIsEditModalOpen(false)}
+                    product={editingProduct}
+                    categories={categories}
+                    openAddCategoryModal={openAddCategoryModal}
+                    token={session?.user?.accessToken}
+                />
+            )}
             {deleteProductMutation.isError && (
                 <Alert variant="destructive" className="mt-4">
                     <AlertCircle className="h-4 w-4" />

@@ -13,6 +13,7 @@ import Image from "next/image";
 import { Plus, ShoppingBag } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import Swal from "sweetalert2";
+import { useSession } from "next-auth/react";
 
 interface ProductCardProps {
   product: Product;
@@ -42,9 +43,10 @@ interface ProductImage {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
+  const { data: session } = useSession();
 
   const handleAddToCart = async () => {
-    try {
+    if (session?.user != undefined) {
       await addToCart(product.id, 1);
       Swal.fire({
         title: "Product added to cart!",
@@ -53,23 +55,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         showConfirmButton: false,
         timerProgressBar: true,
       });
-      console.log("After Swal.fire"); 
-    } catch (error) {
-      console.error("Failed to add product to cart:", error);
+    } else {
       Swal.fire({
-        title: "Error",
-        text: "Failed to add product to cart.",
+        title: "Error!",
+        text: "Please login first before you can add the product to cart.",
         icon: "error",
       });
     }
-  };
-
-  const truncateDescription = (description: string, maxLength: number) => {
-    if (description.length > maxLength) {
-      return description.slice(0, maxLength) + "...";
-    }
-    return description;
-  };
+  }
 
   return (
     <Card className="flex flex-col h-full bg-white hover:shadow-lg transition-all transform hover:scale-105 duration-200 ease-in-out border-none">
@@ -85,10 +78,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             alt={product.name}
             layout="fill"
             objectFit="cover"
-            className={`rounded-t-lg ${
-              product.totalStock === 0 ? "grayscale" : ""
-            }`}
-            // style={{ filter: product.totalStock === 0 ? 'grayscale(100%)' : 'none' }}
+            className={`rounded-t-lg ${product.totalStock === 0 ? "grayscale" : ""
+              }`}
+          // style={{ filter: product.totalStock === 0 ? 'grayscale(100%)' : 'none' }}
           />
           <Badge className="absolute top-3 right-3 bg-gray-100 text-blue-600 hover:bg-transparent-none">
             {product.categoryName}

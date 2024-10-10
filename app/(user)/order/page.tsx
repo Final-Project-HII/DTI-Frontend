@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useOrders } from "@/hooks/useOrder";
 import { useProductDetails } from "@/hooks/useProduct";
@@ -23,8 +24,8 @@ const OrderList: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [statusFilter, setStatusFilter] = useState("all");
-  const [totalItems, setTotalItems] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [totalItems, setTotalItems] = useState(0);
 
   const { ordersData, loading, error } = useOrders(
     currentPage - 1,
@@ -36,7 +37,7 @@ const OrderList: React.FC = () => {
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    console.log("Received ordersData:", ordersData); 
+    console.log("Received ordersData:", ordersData);
     if (ordersData && ordersData.data && ordersData.data.content) {
       setFilteredOrders(ordersData.data.content);
       setTotalItems(ordersData.data.totalElements);
@@ -73,38 +74,51 @@ const OrderList: React.FC = () => {
   if (error) return <div>Error loading orders: {error.message}</div>;
 
   return (
-    <div className="space-y-4 mt-28 mx-28">
-      <OrderHeader />
-      <OrderFilters
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        setDate={setSelectedDate}
-      />
-      <div className="space-y-4">
-        {loading ? (
-          Array.from({ length: 5 }).map((_, index) => (
-            <OrderSkeleton key={index} />
-          ))
-        ) : filteredOrders.length === 0 ? (
-          <div>No orders found.</div>
-        ) : (
-          filteredOrders.map((order: Order) => (
-            <OrderCard
-              key={order.id}
-              order={order}
-              productDetails={productDetailsMap.get(order.items[0]?.productId)}
-              onOrderUpdate={handleOrderUpdate}
-            />
-          ))
+    <div className="flex flex-col min-h-screen">
+      <div className="flex-grow space-y-4 mt-36 mb-8 mx-4 sm:mt-28 sm:mx-8 md:mx-16 lg:mx-28">
+        <OrderHeader />
+        <OrderFilters
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          setDate={setSelectedDate}
+        />
+        <div className="space-y-4 min-h-[60vh] flex flex-col justify-center">
+          {loading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <OrderSkeleton key={index} />
+            ))
+          ) : filteredOrders.length === 0 ? (
+            <div className="flex flex-col items-center justify-center">
+              <Image
+                src="/LogoV3.png"
+                alt="Logo"
+                width={200}
+                height={200}
+                className="filter grayscale opacity-50"
+              />
+              <p className="text-gray-500 mt-4 text-xl">No orders found</p>
+            </div>
+          ) : (
+            filteredOrders.map((order: Order) => (
+              <OrderCard
+                key={order.id}
+                order={order}
+                productDetails={productDetailsMap.get(order.items[0]?.productId)}
+                onOrderUpdate={handleOrderUpdate}
+              />
+            ))
+          )}
+        </div>
+        {filteredOrders.length > 0 && (
+          <OrderPagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+            totalItems={totalItems}
+          />
         )}
       </div>
-      <OrderPagination
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        pageSize={pageSize}
-        setPageSize={setPageSize}
-        totalItems={totalItems}
-      />
     </div>
   );
 };

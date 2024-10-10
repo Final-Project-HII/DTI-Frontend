@@ -14,11 +14,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Swal from 'sweetalert2';
 
-const BASE_URL = 'http://localhost:8080/api';
-const api = axios.create({
-    baseURL: BASE_URL,
-    withCredentials: true,
-});
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
+// const api = axios.create({
+//     baseURL: BASE_URL,
+//     withCredentials: true,
+// });
 
 interface UpdateStockMutationModalProps {
     stockMutation: StockMutation;
@@ -70,6 +70,13 @@ const UpdateStockMutationModal: React.FC<UpdateStockMutationModalProps> = ({ sto
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     const { data: session } = useSession();
+    const api = axios.create({
+        baseURL: BASE_URL,
+        withCredentials: true,
+        headers: {
+            'Authorization': `Bearer ${session?.user?.accessToken}`
+        }
+    });
     const queryClient = useQueryClient();
 
     const mutation = useMutation({

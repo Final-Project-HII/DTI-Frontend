@@ -2,11 +2,12 @@
 import React from "react";
 import { useCart } from "../../../hooks/useCart";
 import { useSession } from "next-auth/react";
-import CartSkeleton from "./components/cartSkeleton";
-import CartItemList from "./components/cartItemList";
-import CartSummary from "./components/cartSummary";
-import SuggestedProducts from "./components/suggestedProduct";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import CartSkeleton from "./cartSkeleton";
+import CartItemList from "./cartItemList";
+import SuggestedProducts from "./suggestedProduct";
+import CartSummary from "./cartSummary";
 
 const CartPage: React.FC = () => {
   const { data: session, status } = useSession();

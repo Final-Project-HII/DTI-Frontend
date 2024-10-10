@@ -139,7 +139,7 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
                   value={selectedBank}
                 >
                   <div className="space-y-4">
-                    {["bca", "bri", "bni"].map((bank) => (
+                    {["BCA", "BRI", "BNI"].map((bank) => (
                       <div
                         key={bank}
                         className="flex items-center space-x-3 p-3 bg-white rounded-lg border"

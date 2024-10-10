@@ -1,18 +1,14 @@
 'use client'
-import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
-import qr from '@/public/QR.png'
-import { useForm } from "react-hook-form";
-import { z, ZodType } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from 'next/link';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import logoV3 from "@/public/LogoV3.png"
-import { useRouter, useSearchParams } from 'next/navigation';
-import SetNewPassword from '@/hooks/SetNewPassword';
-import CheckVerificationLinkValid from '@/hooks/CheckVerificationLinkValid';
 import GenerateNewVerificationModal from '@/components/GenerateNewVerificationModal';
 import Modal from '@/components/Modal';
+import CheckVerificationLinkValid from '@/hooks/CheckVerificationLinkValid';
+import SetNewPassword from '@/hooks/SetNewPassword';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useForm } from "react-hook-form";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { z, ZodType } from "zod";
 
 type managePasswordData = {
   password: string
@@ -66,10 +62,8 @@ const ManagePasswordForm = () => {
   const onSubmit = async (data: managePasswordData) => {
     try {
       const formDataWithEmail = { ...data, email: email };
-      const result = await AddNewPassword(formDataWithEmail)
-      if (result) {
-        setShowVerifiedModal(true)
-      }
+      await AddNewPassword(formDataWithEmail)
+      setShowVerifiedModal(true)
     } catch (error) {
       console.log("Error")
     }

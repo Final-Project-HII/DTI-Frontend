@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, RefreshCw } from "lucide-react"; // Import RefreshCw icon
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -33,14 +33,15 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   return (
-    <>
-      <div className="flex gap-2 mb-4 flex-wrap items-center">
+    <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap gap-2">
         {orderStatuses.map((status) => (
           <Button
             key={status}
             variant={status === statusFilter ? "default" : "outline"}
             size="sm"
             onClick={() => setStatusFilter(status === "all" ? "" : status)}
+            className="mb-2 sm:mb-0"
           >
             {status === "all"
               ? "All"
@@ -48,9 +49,11 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
                 status.slice(1).replace("_", " ")}
           </Button>
         ))}
+      </div>
+      <div className="flex items-center space-x-2">
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline" className="w-full sm:w-auto">
               <CalendarIcon className="mr-2 h-4 w-4" />
               {selectedDate ? format(selectedDate, "PPP") : "Pick a date"}
             </Button>
@@ -61,25 +64,27 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
               selected={selectedDate}
               onSelect={(newDate) => {
                 setSelectedDate(newDate);
-                setDate(newDate ?? null); // Convert undefined to null for parent component
+                setDate(newDate ?? null);
               }}
               initialFocus
             />
           </PopoverContent>
         </Popover>
         <Button
-          variant="link"
-          className="text-green-600"
+          variant="outline"
+          size="sm"
+          className="text-gray-600"
           onClick={() => {
             setStatusFilter("");
             setDate(null);
             setSelectedDate(undefined);
           }}
         >
+          <RefreshCw className="mr-2 h-4 w-4" />
           Reset Filter
         </Button>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -8,8 +8,13 @@ export const fetchCategories = async (): Promise<Category[]> => {
     const response = await axios.get<Category[]>(`${BASE_URL}/category`);
     return response.data;
 };
-export const deleteCategory = async (id: number): Promise<void> => {
-    await axios.delete(`${BASE_URL}/category/delete/${id}`);
+export const deleteCategory = async (id: number, token: string) => {
+    const response = await axios.delete(`${BASE_URL}/category/delete/${id}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+    return response.data;
 };
 
 export const fetchProducts = async (queryKey: readonly unknown[]): Promise<ApiResponse> => {

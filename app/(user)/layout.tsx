@@ -1,7 +1,6 @@
 import Footer from "@/components/Footer";
 import NavBar from "@/components/NavBar";
 
-
 export default async function UserLayout({
   children,
 }: Readonly<{
@@ -10,9 +9,7 @@ export default async function UserLayout({
   return (
     <div>
       <NavBar />
-      <main>
-        {children}
-      </main>
+      <main>{children}</main>
       <Footer />
     </div>
   );
