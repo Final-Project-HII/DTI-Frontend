@@ -1,8 +1,8 @@
 import React from "react";
+import { ProductCard } from "../../(main)/product/_components/ProductCard";
+import SkeletonCard from "../../(main)/product/_components/SkeletonCard";
 import { useProductDetails } from "@/hooks/useProduct";
 import { ProductDataResponse } from "@/types/product";
-import { ProductCard } from "../(main)/product/_components/ProductCard";
-import SkeletonCard from "../(main)/product/_components/SkeletonCard";
 
 interface SuggestedProductsProps {
   productIds: number[];
