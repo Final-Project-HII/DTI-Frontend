@@ -7,12 +7,17 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 export type PaymentMethodType = "" | "PAYMENT_GATEWAY" | "PAYMENT_PROOF";
 export type BankType = "" | "bca" | "bri" | "bni";
 
 const CLOUDINARY_UPLOAD_PRESET = "finproHII";
 const CLOUDINARY_CLOUD_NAME = "djyevwtie";
+
+const FILE_SIZE = 1024 * 1024; // 1MB
+const SUPPORTED_FORMATS = ["image/jpg", "image/jpeg", "image/png"];
 
 interface PaymentMethodSelectionProps {
   paymentMethod: PaymentMethodType;
@@ -22,6 +27,23 @@ interface PaymentMethodSelectionProps {
   proofImageUrl: string;
   setProofImageUrl: (url: string) => void;
 }
+
+const validationSchema = Yup.object().shape({
+  proofImage: Yup.mixed()
+    .test("fileSize", "File size is too large (max 1MB)", (value) => {
+      if (!value) return true;
+      return (value as File).size <= FILE_SIZE;
+    })
+    .test(
+      "fileFormat",
+      "Unsupported file format (only jpg, jpeg, png allowed)",
+      (value) => {
+        if (!value) return true;
+        return SUPPORTED_FORMATS.includes((value as File).type);
+      }
+    )
+    .required("Payment proof is required"),
+});
 
 const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
   paymentMethod,
@@ -34,39 +56,34 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
   const { toast } = useToast();
 
-  const handleProofUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      setUploadingImage(true);
+  const handleProofUpload = async (file: File) => {
+    setUploadingImage(true);
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-      try {
-        const response = await axios.post(
-          `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-          formData
-        );
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        formData
+      );
 
-        setProofImageUrl(response.data.secure_url);
-        toast({
-          title: "Upload Successful",
-          description: "Your payment proof has been uploaded.",
-          duration: 3000,
-        });
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        toast({
-          title: "Upload Failed",
-          description: "Failed to upload payment proof. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setUploadingImage(false);
-      }
+      setProofImageUrl(response.data.secure_url);
+      toast({
+        title: "Upload Successful",
+        description: "Your payment proof has been uploaded.",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload payment proof. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -101,12 +118,46 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Upload Payment Proof:</h3>
-                  <Input
-                    type="file"
-                    onChange={handleProofUpload}
-                    disabled={uploadingImage}
-                    className="mt-2"
-                  />
+                  <Formik
+                    initialValues={{ proofImage: null }}
+                    validationSchema={validationSchema}
+                    onSubmit={(values, { setSubmitting }) => {
+                      if (values.proofImage) {
+                        handleProofUpload(values.proofImage);
+                      }
+                      setSubmitting(false);
+                    }}
+                  >
+                    {({ setFieldValue, isSubmitting }) => (
+                      <Form>
+                        <Field name="proofImage">
+                          {({ field }: any) => (
+                            <Input
+                              type="file"
+                              onChange={(event) => {
+                                const file = event.currentTarget.files?.[0];
+                                setFieldValue("proofImage", file);
+                              }}
+                              disabled={isSubmitting || uploadingImage}
+                              className="mt-2"
+                            />
+                          )}
+                        </Field>
+                        <ErrorMessage
+                          name="proofImage"
+                          component="div"
+                          className="text-red-500"
+                        />
+                        <button
+                          type="submit"
+                          disabled={isSubmitting || uploadingImage}
+                          className="mt-2 bg-gray-800 text-white px-4 py-2 rounded"
+                        >
+                          Upload
+                        </button>
+                      </Form>
+                    )}
+                  </Formik>
                   {uploadingImage && <p>Uploading image...</p>}
                   {proofImageUrl && (
                     <img
@@ -141,16 +192,19 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
                   <div className="space-y-4">
                     {["BCA", "BRI", "BNI"].map((bank) => (
                       <div
-                        key={bank}
+                        key={bank.toLowerCase()}
                         className="flex items-center space-x-3 p-3 bg-white rounded-lg border"
                       >
-                        <RadioGroupItem value={bank} id={bank} />
+                        <RadioGroupItem
+                          value={bank.toLowerCase()}
+                          id={bank.toLowerCase()}
+                        />
                         <Label
-                          htmlFor={bank}
+                          htmlFor={bank.toLowerCase()}
                           className="flex items-center space-x-3 cursor-pointer"
                         >
                           <img
-                            src={`/${bank}.png`}
+                            src={`/${bank.toLowerCase()}.png`}
                             alt={`${bank.toUpperCase()} logo`}
                             className="w-20 h-10 object-contain"
                           />

@@ -67,8 +67,11 @@ const PaymentProcessPage: React.FC = () => {
           setPaymentStatus(paymentResponse.data);
           setOrderDetails(orderResponse.data);
 
-          // Calculate countdown based on expirationTime from backend
-          if (paymentResponse.data.expirationTime) {
+          // Calculate countdown only for payment gateway method
+          if (
+            paymentDetails.method === "PAYMENT_GATEWAY" &&
+            paymentResponse.data.expirationTime
+          ) {
             const expirationTime = new Date(
               paymentResponse.data.expirationTime
             ).getTime();
@@ -97,7 +100,11 @@ const PaymentProcessPage: React.FC = () => {
     const intervalId = setInterval(fetchPaymentAndOrderDetails, 10000); // Check every 10 seconds
 
     return () => clearInterval(intervalId);
-  }, [paymentDetails?.orderId, session?.user?.accessToken]);
+  }, [
+    paymentDetails?.orderId,
+    session?.user?.accessToken,
+    paymentDetails?.method,
+  ]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -182,25 +189,38 @@ const PaymentProcessPage: React.FC = () => {
 
   const displayInvoiceId = orderDetails?.invoiceId || "N/A";
 
+  console.log("Current payment details:", paymentDetails);
+  console.log("Payment method:", paymentDetails.method);
+
   return (
-    <div className="container mx-auto px-4 py-8 mt-20">
-      <Card className="max-w-md mx-auto">
-        <CardHeader>
+    <div className="container mx-auto px-4 py-8 mt-20 min-h-screen">
+      <Card className="max-w-md mx-auto shadow-lg border-blue-500 border-2">
+        <CardHeader className="bg-blue-500 text-white">
           <CardTitle>Payment Process</CardTitle>
         </CardHeader>
-        <CardContent>
-          {paymentDetails.paymentMethod === "PAYMENT_PROOF" ? (
-            <div>
-              <p>
+        <CardContent className="p-6">
+          {paymentDetails.method === "PAYMENT_PROOF" ? (
+            <div className="space-y-4">
+              <p className="font-semibold">
                 Your manual payment proof has been submitted for Invoice #
                 {displayInvoiceId}.
               </p>
-              <br />
-              <p>We will process your payment shortly.</p>
+              <p>
+                We will process your payment shortly. Please wait for admin
+                approval.
+              </p>
+              <p className="font-bold">
+                Current Status: {paymentStatus?.status || "PENDING"}
+              </p>
+              <p>Amount: Rp {paymentStatus?.amount.toLocaleString()}</p>
+              <p>
+                Created At:{" "}
+                {new Date(paymentStatus?.createdAt || "").toLocaleString()}
+              </p>
             </div>
           ) : (
-            <>
-              <p className="mb-4">
+            <div className="space-y-4">
+              <p className="font-semibold">
                 Please complete your payment for Invoice #{displayInvoiceId}
               </p>
               <p className="font-bold">
@@ -211,27 +231,22 @@ const PaymentProcessPage: React.FC = () => {
                 {paymentDetails.va_numbers?.[0]?.va_number}
               </p>
               {countdown !== null && countdown > 0 && (
-                <>
-                  <p className="mt-4">Time remaining to pay:</p>
-                  <p className="text-2xl font-bold text-center my-4">
+                <div className="text-center">
+                  <p className="font-semibold">Time remaining to pay:</p>
+                  <p className="text-2xl font-bold text-blue-500">
                     {formatTime(countdown)}
                   </p>
-                </>
+                </div>
               )}
-            </>
-          )}
-          <p className="mt-4">
-            Current Status: {paymentStatus?.status || "PENDING"}
-          </p>
-          <br />
-          {paymentStatus && (
-            <div className="mt-2">
-              <p>Amount: Rp {paymentStatus.amount.toLocaleString()}</p>
-              <p>Payment Method: {paymentStatus.paymentMethod}</p>
-              <p>
-                Created At: {new Date(paymentStatus.createdAt).toLocaleString()}
+              <p className="font-bold">
+                Current Status: {paymentStatus?.status || "PENDING"}
               </p>
-              {paymentStatus.expirationTime && (
+              <p>Amount: Rp {paymentStatus?.amount.toLocaleString()}</p>
+              <p>
+                Created At:{" "}
+                {new Date(paymentStatus?.createdAt || "").toLocaleString()}
+              </p>
+              {paymentStatus?.expirationTime && (
                 <p>
                   Expires At:{" "}
                   {new Date(paymentStatus.expirationTime).toLocaleString()}
@@ -239,7 +254,10 @@ const PaymentProcessPage: React.FC = () => {
               )}
             </div>
           )}
-          <Button onClick={handleBackToHome} className="w-full mt-4">
+          <Button
+            onClick={handleBackToHome}
+            className="w-full mt-6 bg-blue-500 hover:bg-yellow-600"
+          >
             Back to Home
           </Button>
         </CardContent>
