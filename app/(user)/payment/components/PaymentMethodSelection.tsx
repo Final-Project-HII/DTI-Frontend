@@ -204,7 +204,7 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
                           className="flex items-center space-x-3 cursor-pointer"
                         >
                           <img
-                            src={`${bank.toLowerCase()}.png`}
+                            src={`/public/${bank.toLowerCase()}.png`}
                             alt={`${bank.toUpperCase()} logo`}
                             className="w-20 h-10 object-contain"
                           />
