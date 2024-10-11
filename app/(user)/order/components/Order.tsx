@@ -6,11 +6,11 @@ import { useOrders } from "@/hooks/useOrder";
 import { useProductDetails } from "@/hooks/useProduct";
 import { Order } from "@/types/order";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRouter } from 'next/navigation';
-import OrderHeader from "./OrderHeader";
-import OrderFilters from "./OrderFilters";
-import OrderCard from "./OrderCards";
 import OrderPagination from "./OrderPagination";
+import OrderCard from "./OrderCard";
+import OrderFilters from "./OrderFilters";
+import OrderHeader from "./OrderHeader";
+import { useRouter } from 'next/navigation';
 
 const OrderSkeleton: React.FC = () => (
   <div className="space-y-2">
@@ -21,13 +21,13 @@ const OrderSkeleton: React.FC = () => (
 );
 
 const OrderList: React.FC = () => {
+  const router = useRouter();
   const { data: session } = useSession();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [totalItems, setTotalItems] = useState(0);
-  const router = useRouter();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const { ordersData, loading, error } = useOrders(
     currentPage - 1,
@@ -39,12 +39,9 @@ const OrderList: React.FC = () => {
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    console.log("Received ordersData:", ordersData);
     if (ordersData && ordersData.data && ordersData.data.content) {
       setFilteredOrders(ordersData.data.content);
       setTotalItems(ordersData.data.totalElements);
-    } else {
-      console.error("Unexpected ordersData structure:", ordersData);
     }
   }, [ordersData]);
 
