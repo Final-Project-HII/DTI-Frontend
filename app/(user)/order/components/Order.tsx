@@ -10,7 +10,7 @@ import OrderPagination from "./OrderPagination";
 import OrderCard from "./OrderCard";
 import OrderFilters from "./OrderFilters";
 import OrderHeader from "./OrderHeader";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 const OrderSkeleton: React.FC = () => (
   <div className="space-y-2">
@@ -85,13 +85,13 @@ const OrderList: React.FC = () => {
           setStatusFilter={setStatusFilter}
           setDate={setSelectedDate}
         />
-        <div className="space-y-4 min-h-[60vh] flex flex-col justify-center">
+        <div className="space-y-4 min-h-[60vh] flex flex-col">
           {loading ? (
             Array.from({ length: 5 }).map((_, index) => (
               <OrderSkeleton key={index} />
             ))
           ) : filteredOrders.length === 0 ? (
-            <div className="flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center justify-center mt-10">
               <Image
                 src="/LogoV3.png"
                 alt="Logo"
