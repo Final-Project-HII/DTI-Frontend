@@ -77,7 +77,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (action == 'register') {
           try {
             const response = await axios.post(
-              `http://localhost:8080/api/users/register-google`,
+              `${process.env.NEXT_PUBLIC_API_URL}api/users/register-google`,
               {
                 email: profile?.email,
                 role: 'USER',
@@ -99,7 +99,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         try {
           const responseLogin = await axios.post(
-            `http://localhost:8080/api/auth/login-social`,
+            `${process.env.NEXT_PUBLIC_API_URL}api/auth/login-social`,
             {
               email: profile?.email,
             },
