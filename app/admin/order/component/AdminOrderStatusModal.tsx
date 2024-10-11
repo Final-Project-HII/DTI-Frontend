@@ -27,13 +27,11 @@ const OrderStatusModal: React.FC<OrderStatusModalProps> = ({
   onPaymentApproval,
   onCancelOrder,
 }) => {
-  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(
-    null
-  );
-  const [loading, setLoading] = useState(true);
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const { data: session } = useSession();
 
-  const statusSequence = [
+  const statusSequence: string[] = [
     "pending_payment",
     "confirmation",
     "process",
@@ -73,8 +71,13 @@ const OrderStatusModal: React.FC<OrderStatusModalProps> = ({
 
   const handleNextStep = async () => {
     if (nextStatus) {
-      await onStatusUpdate(order.id, nextStatus);
-      onClose();
+      try {
+        await onStatusUpdate(order.id, nextStatus);
+        onClose();
+      } catch (error) {
+        // Error handling is done in the parent component (AdminOrderManagement)
+        // We don't need to show an alert here as it's already handled
+      }
     }
   };
 
@@ -105,7 +108,6 @@ const OrderStatusModal: React.FC<OrderStatusModalProps> = ({
       }
     }
 
-    // Show Next Step button for all cases when there's a next status
     if (nextStatus && order.status.toLowerCase() !== "cancelled" && order.status.toLowerCase() !== "delivered") {
       return <Button onClick={handleNextStep}>Next Step ({nextStatus})</Button>;
     }
