@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useOrders } from "@/hooks/useOrder";
 import { useProductDetails } from "@/hooks/useProduct";
@@ -9,7 +10,7 @@ import OrderPagination from "./OrderPagination";
 import OrderCard from "./OrderCard";
 import OrderFilters from "./OrderFilters";
 import OrderHeader from "./OrderHeader";
-
+import { useRouter } from 'next/navigation';
 
 const OrderSkeleton: React.FC = () => (
   <div className="space-y-2">
@@ -20,6 +21,7 @@ const OrderSkeleton: React.FC = () => (
 );
 
 const OrderList: React.FC = () => {
+  const router = useRouter();
   const { data: session } = useSession();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -67,25 +69,38 @@ const OrderList: React.FC = () => {
     );
   };
 
+  const handleNavigateToPayment = (orderId: number) => {
+    router.push(`/payment?orderId=${orderId}`);
+  };
+
   if (!session) return <div>Please log in to view your orders.</div>;
   if (error) return <div>Error loading orders: {error.message}</div>;
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex-grow space-y-4 mt-28 mx-4 sm:mx-8 md:mx-16 lg:mx-28">
+      <div className="flex-grow space-y-4 mt-36 mb-8 mx-4 sm:mt-28 sm:mx-8 md:mx-16 lg:mx-28">
         <OrderHeader />
         <OrderFilters
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
           setDate={setSelectedDate}
         />
-        <div className="space-y-4">
+        <div className="space-y-4 min-h-[60vh] flex flex-col justify-center">
           {loading ? (
             Array.from({ length: 5 }).map((_, index) => (
               <OrderSkeleton key={index} />
             ))
           ) : filteredOrders.length === 0 ? (
-            <div className="text-center py-8">No orders found.</div>
+            <div className="flex flex-col items-center justify-center">
+              <Image
+                src="/LogoV3.png"
+                alt="Logo"
+                width={200}
+                height={200}
+                className="filter grayscale opacity-50"
+              />
+              <p className="text-gray-500 mt-4 text-xl">No orders found</p>
+            </div>
           ) : (
             filteredOrders.map((order: Order) => (
               <OrderCard
@@ -95,16 +110,12 @@ const OrderList: React.FC = () => {
                   order.items[0]?.productId
                 )}
                 onOrderUpdate={handleOrderUpdate}
-                onNavigateToPayment={() => {
-                  /* Implement navigation logic */
-                }}
+                onNavigateToPayment={() => handleNavigateToPayment(order.id)}
               />
             ))
           )}
         </div>
-      </div>
-      {filteredOrders.length > 0 && (
-        <div className="mt-4 mb-8 mx-4 sm:mx-8 md:mx-16 lg:mx-28">
+        {filteredOrders.length > 0 && (
           <OrderPagination
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
@@ -112,8 +123,8 @@ const OrderList: React.FC = () => {
             setPageSize={setPageSize}
             totalItems={totalItems}
           />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
