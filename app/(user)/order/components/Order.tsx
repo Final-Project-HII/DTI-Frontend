@@ -12,7 +12,6 @@ import OrderFilters from "./OrderFilters";
 import OrderHeader from "./OrderHeader";
 import { useRouter } from "next/navigation";
 
-
 const OrderSkeleton: React.FC = () => (
   <div className="space-y-2">
     <Skeleton className="h-10 w-full" />
