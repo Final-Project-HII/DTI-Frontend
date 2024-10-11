@@ -1,16 +1,14 @@
-"use client";
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useOrders } from "@/hooks/useOrder";
 import { useProductDetails } from "@/hooks/useProduct";
-import { Order } from "@/types/order";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useRouter } from 'next/navigation';
 import OrderHeader from "./OrderHeader";
 import OrderFilters from "./OrderFilters";
-import OrderCard from "./OrderCards";
 import OrderPagination from "./OrderPagination";
+import { Order } from "@/types/order";
+
+import { Skeleton } from "@/components/ui/skeleton";
+import OrderCard from "./OrderCard";
 
 const OrderSkeleton: React.FC = () => (
   <div className="space-y-2">
@@ -25,9 +23,8 @@ const OrderList: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [totalItems, setTotalItems] = useState(0);
-  const router = useRouter();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const { ordersData, loading, error } = useOrders(
     currentPage - 1,
@@ -39,12 +36,9 @@ const OrderList: React.FC = () => {
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    console.log("Received ordersData:", ordersData);
     if (ordersData && ordersData.data && ordersData.data.content) {
       setFilteredOrders(ordersData.data.content);
       setTotalItems(ordersData.data.totalElements);
-    } else {
-      console.error("Unexpected ordersData structure:", ordersData);
     }
   }, [ordersData]);
 
@@ -72,38 +66,25 @@ const OrderList: React.FC = () => {
     );
   };
 
-  const handleNavigateToPayment = (orderId: number) => {
-    router.push(`/payment?orderId=${orderId}`);
-  };
-
   if (!session) return <div>Please log in to view your orders.</div>;
   if (error) return <div>Error loading orders: {error.message}</div>;
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex-grow space-y-4 mt-36 mb-8 mx-4 sm:mt-28 sm:mx-8 md:mx-16 lg:mx-28">
+      <div className="flex-grow space-y-4 mt-28 mx-4 sm:mx-8 md:mx-16 lg:mx-28">
         <OrderHeader />
         <OrderFilters
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
           setDate={setSelectedDate}
         />
-        <div className="space-y-4 min-h-[60vh] flex flex-col justify-center">
+        <div className="space-y-4">
           {loading ? (
             Array.from({ length: 5 }).map((_, index) => (
               <OrderSkeleton key={index} />
             ))
           ) : filteredOrders.length === 0 ? (
-            <div className="flex flex-col items-center justify-center">
-              <Image
-                src="/LogoV3.png"
-                alt="Logo"
-                width={200}
-                height={200}
-                className="filter grayscale opacity-50"
-              />
-              <p className="text-gray-500 mt-4 text-xl">No orders found</p>
-            </div>
+            <div className="text-center py-8">No orders found.</div>
           ) : (
             filteredOrders.map((order: Order) => (
               <OrderCard
@@ -113,12 +94,16 @@ const OrderList: React.FC = () => {
                   order.items[0]?.productId
                 )}
                 onOrderUpdate={handleOrderUpdate}
-                onNavigateToPayment={() => handleNavigateToPayment(order.id)}
+                onNavigateToPayment={() => {
+                  /* Implement navigation logic */
+                }}
               />
             ))
           )}
         </div>
-        {filteredOrders.length > 0 && (
+      </div>
+      {filteredOrders.length > 0 && (
+        <div className="mt-4 mb-8 mx-4 sm:mx-8 md:mx-16 lg:mx-28">
           <OrderPagination
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
@@ -126,8 +111,8 @@ const OrderList: React.FC = () => {
             setPageSize={setPageSize}
             totalItems={totalItems}
           />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
