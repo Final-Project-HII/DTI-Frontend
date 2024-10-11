@@ -1,14 +1,15 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useOrders } from "@/hooks/useOrder";
 import { useProductDetails } from "@/hooks/useProduct";
-import OrderHeader from "./OrderHeader";
-import OrderFilters from "./OrderFilters";
-import OrderPagination from "./OrderPagination";
 import { Order } from "@/types/order";
-
 import { Skeleton } from "@/components/ui/skeleton";
+import OrderPagination from "./OrderPagination";
 import OrderCard from "./OrderCard";
+import OrderFilters from "./OrderFilters";
+import OrderHeader from "./OrderHeader";
+
 
 const OrderSkeleton: React.FC = () => (
   <div className="space-y-2">

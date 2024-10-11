@@ -8,23 +8,18 @@ import PaymentMethodSelection, {
   PaymentMethodType,
 } from "./PaymentMethodSelection";
 import OrderSummary from "./OrderSummary";
-import { Input } from "@/components/ui/input";
-
 import { useRouter } from "next/navigation";
 import { Order } from "@/types/order";
 import { useOrders } from "@/hooks/useOrder";
 import PaymentPageSkeleton from "./PaymentPageSkeleton";
+import Swal from "sweetalert2";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-const CLOUDINARY_UPLOAD_PRESET = "finproHII";
-const CLOUDINARY_CLOUD_NAME = "djyevwtie";
 
 const PaymentPage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>("");
   const [selectedBank, setSelectedBank] = useState<BankType>("");
-
   const [proofImageUrl, setProofImageUrl] = useState<string>("");
-  const [uploadingImage, setUploadingImage] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { data: session, status } = useSession();
   const { toast } = useToast();
@@ -34,9 +29,12 @@ const PaymentPage: React.FC = () => {
     ordersData,
     loading: orderLoading,
     error: orderError,
-  } = useOrders(0, 1, "PENDING", null);
+  } = useOrders(0, 1, "PENDING_PAYMENT", null);
 
   const [latestOrder, setLatestOrder] = useState<Order | null>(null);
+
+  const isPendingPayment = (status: string) =>
+    status.toLowerCase() === "pending_payment";
 
   useEffect(() => {
     if (
@@ -45,12 +43,24 @@ const PaymentPage: React.FC = () => {
       ordersData.data.content &&
       ordersData.data.content.length > 0
     ) {
-      setLatestOrder(ordersData.data.content[0]);
+      const order = ordersData.data.content[0];
+      setLatestOrder(order);
+
+      
+      if (!isPendingPayment(order.status)) {
+        Swal.fire({
+          title: "Order Not Ready for Payment",
+          text: "This order is not in a state ready for payment.",
+          icon: "warning",
+          confirmButtonText: "OK",
+        }).then(() => {
+          router.push("/orders"); 
+        });
+      }
     } else if (!orderLoading && !orderError) {
-      router.push('/404');
+      router.push("/404");
     }
   }, [ordersData, orderLoading, orderError, router]);
-
 
   const handlePayment = async () => {
     if (status !== "authenticated") {
@@ -67,6 +77,26 @@ const PaymentPage: React.FC = () => {
         title: "Error",
         description: "No order found. Please create an order first.",
         variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isPendingPayment(latestOrder.status)) {
+      Swal.fire({
+        title: "Error",
+        text: "This order is not in a state ready for payment.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
+    if (paymentMethod === "PAYMENT_PROOF" && !proofImageUrl) {
+      Swal.fire({
+        title: "Error!",
+        text: "Please upload your payment proof.",
+        icon: "error",
+        confirmButtonText: "OK",
       });
       return;
     }
@@ -97,15 +127,6 @@ const PaymentPage: React.FC = () => {
           }
         );
       } else if (paymentMethod === "PAYMENT_PROOF") {
-        if (!proofImageUrl) {
-          toast({
-            title: "Error",
-            description: "Please upload proof of payment.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
         response = await axios.post(
           `${API_BASE_URL}api/payments/create`,
           null,
@@ -150,8 +171,7 @@ const PaymentPage: React.FC = () => {
 
   if (orderLoading) return <PaymentPageSkeleton />;
   if (orderError) return <div>Error loading order: {orderError.message}</div>;
-  if (!latestOrder)
-    return <div>No order found. Please create an order first.</div>;
+  if (!latestOrder || !isPendingPayment(latestOrder.status)) return null; // We'll handle the redirect in the useEffect
 
   return (
     <div className="container mx-auto px-4 py-8 mt-20">
