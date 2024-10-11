@@ -192,25 +192,20 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
                   <div className="space-y-4">
                     {["BCA", "BRI", "BNI"].map((bank) => (
                       <div
-                        key={bank.toLowerCase()}
+                        key={bank}
                         className="flex items-center space-x-3 p-3 bg-white rounded-lg border"
                       >
-                        <RadioGroupItem
-                          value={bank.toLowerCase()}
-                          id={bank.toLowerCase()}
-                        />
+                        <RadioGroupItem value={bank} id={bank.toLowerCase()} />
                         <Label
                           htmlFor={bank.toLowerCase()}
                           className="flex items-center space-x-3 cursor-pointer"
                         >
                           <img
-                            src={`/${bank.toLowerCase()}.png`}
-                            alt={`${bank.toUpperCase()} logo`}
+                            src={`/${bank}.png`}
+                            alt={`${bank} logo`}
                             className="w-20 h-10 object-contain"
                           />
-                          <span className="font-semibold">
-                            {bank.toUpperCase()}
-                          </span>
+                          <span className="font-semibold">{bank}</span>
                         </Label>
                       </div>
                     ))}
