@@ -2,7 +2,8 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import Swal from "sweetalert2";
 import { Order } from "@/types/order";
 import OrderFilter from "./component/AdminOrderFilters";
 import OrderTable from "./component/AdminOrdertable";
@@ -31,6 +32,13 @@ interface OrderResponse {
     size: number;
     number: number;
   };
+}
+
+interface InsufficientStockItem {
+  productName: string;
+  requiredQuantity: number;
+  availableQuantity: number;
+  warehouseName: string;
 }
 
 const fetchOrders = async (
@@ -71,7 +79,7 @@ const fetchProfile = async (token?: string): Promise<ProfileResponseDTO> => {
   return response.data.data;
 };
 
-const AdminOrderManagement = () => {
+const AdminOrderManagement: React.FC = () => {
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
 
@@ -181,7 +189,48 @@ const AdminOrderManagement = () => {
           console.error("Failed to update order status");
         }
       } catch (error) {
-        console.error("Error updating order status:", error);
+        if (axios.isAxiosError(error)) {
+          const axiosError = error as AxiosError<{
+            message: string;
+            insufficientItems?: InsufficientStockItem[];
+          }>;
+          if (
+            axiosError.response?.status === 400 &&
+            axiosError.response.data.message.includes("Insufficient stock")
+          ) {
+            const insufficientItems =
+              axiosError.response.data.insufficientItems || [];
+            const itemsList = insufficientItems
+              .map(
+                (item) =>
+                  `${item.productName}: Required ${item.requiredQuantity}, Available ${item.availableQuantity} in ${item.warehouseName}`
+              )
+              .join("\n");
+
+            Swal.fire({
+              icon: "error",
+              title: "Insufficient Stock",
+              html: `The following items have insufficient stock:<br><pre>${itemsList}</pre>`,
+              confirmButtonText: "OK",
+            });
+          } else {
+            console.error("Error updating order status:", error);
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "An error occurred while updating the order status.",
+              confirmButtonText: "OK",
+            });
+          }
+        } else {
+          console.error("Error updating order status:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "An unexpected error occurred.",
+            confirmButtonText: "OK",
+          });
+        }
       }
     },
     [session, refetch]
