@@ -33,7 +33,7 @@ export const useMidtransStatus = (orders: Order[]) => {
           }
 
           const data: MidtransStatus = await response.json();
-          newStatusMap.set(String(order.id), data);  // Convert order.id to string
+          newStatusMap.set(String(order.id), data);
         });
 
         await Promise.all(fetchPromises);
