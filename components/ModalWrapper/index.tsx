@@ -2,7 +2,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Modal from '../Modal';
 
 interface ModalInfo {
@@ -14,7 +14,6 @@ interface ModalInfo {
 export const ModalWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const pathname = usePathname()
   const [showModal, setShowModal] = useState(false)
   const [modalInfo, setModalInfo] = useState<ModalInfo | null>(null)
 
@@ -27,28 +26,40 @@ export const ModalWrapper: React.FC<{ children: React.ReactNode }> = ({ children
         setModalInfo(parsedModalInfo)
         setShowModal(true)
 
-    
+        // Set a timer for automatic redirect
         const timer = setTimeout(() => {
-          setShowModal(false)
-          router.push(parsedModalInfo.redirectTo)
+          handleCloseModal()
         }, 4000)
 
         return () => clearTimeout(timer)
       } catch (error) {
         console.error('Error parsing modalInfo:', error)
       }
+    } else {
+      // If there's no modalInfo in the URL, close the modal
+      setShowModal(false)
+      setModalInfo(null)
     }
-  }, [searchParams, router])
+  }, [searchParams])
 
-  useEffect(() => {
+  const handleCloseModal = () => {
     setShowModal(false)
     setModalInfo(null)
-  }, [pathname])
+    
+    // Remove the modalInfo parameter from the URL
+    const newSearchParams = new URLSearchParams(searchParams.toString())
+    newSearchParams.delete('modalInfo')
+    router.push(`${window.location.pathname}?${newSearchParams.toString()}`)
+  }
 
   return (
     <>
       {showModal && modalInfo && (
-        <Modal title={modalInfo.title} description={modalInfo.description} />
+        <Modal 
+          title={modalInfo.title} 
+          description={modalInfo.description} 
+          onClose={handleCloseModal}
+        />
       )}
       {children}
     </>
