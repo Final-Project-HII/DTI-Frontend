@@ -1,4 +1,7 @@
 'use client'
+// components/ModalWrapper.tsx
+'use client'
+
 import React, { useEffect, useState } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Modal from '../Modal';
@@ -13,6 +16,7 @@ export const ModalWrapper: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
+  const [showModal, setShowModal] = useState(false)
   const [modalInfo, setModalInfo] = useState<ModalInfo | null>(null)
 
   useEffect(() => {
@@ -22,35 +26,40 @@ export const ModalWrapper: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const parsedModalInfo: ModalInfo = JSON.parse(modalInfoParam)
         setModalInfo(parsedModalInfo)
+        setShowModal(true)
+
         const timer = setTimeout(() => {
-          setModalInfo(null)
+          setShowModal(false)
           router.push(parsedModalInfo.redirectTo)
         }, 4000)
+
         return () => clearTimeout(timer)
       } catch (error) {
         console.error('Error parsing modalInfo:', error)
+        setShowModal(false)
         setModalInfo(null)
       }
     } else {
+      setShowModal(false)
       setModalInfo(null)
     }
   }, [searchParams, router])
 
+  // Reset modal state when pathname changes
   useEffect(() => {
+    setShowModal(false)
     setModalInfo(null)
   }, [pathname])
 
   return (
     <>
-      {modalInfo && (
-        <Modal
-          title={modalInfo.title}
-          description={modalInfo.description}
-        />
+      {showModal && modalInfo && (
+        <Modal title={modalInfo.title} description={modalInfo.description} />
       )}
       {children}
     </>
   )
 }
 
+export default ModalWrapper
 export default ModalWrapper
