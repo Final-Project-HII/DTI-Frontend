@@ -192,10 +192,11 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
                   <div className="space-y-4">
                     {["BCA", "BRI", "BNI"].map((bank) => (
                       <div
-                        key={bank}
+                        key={bank.toLowerCase()}
                         className="flex items-center space-x-3 p-3 bg-white rounded-lg border"
                       >
                         <RadioGroupItem value={bank} id={bank.toLowerCase()} />
+
                         <Label
                           htmlFor={bank.toLowerCase()}
                           className="flex items-center space-x-3 cursor-pointer"
