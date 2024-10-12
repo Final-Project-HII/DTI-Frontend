@@ -1,6 +1,7 @@
 'use client'
+
 import React, { useEffect, useState } from 'react'
-import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Modal from '../Modal';
 
 interface ModalInfo {
@@ -12,7 +13,6 @@ interface ModalInfo {
 export const ModalWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const pathname = usePathname()
   const [showModal, setShowModal] = useState(false)
   const [modalInfo, setModalInfo] = useState<ModalInfo | null>(null)
 
@@ -33,20 +33,9 @@ export const ModalWrapper: React.FC<{ children: React.ReactNode }> = ({ children
         return () => clearTimeout(timer)
       } catch (error) {
         console.error('Error parsing modalInfo:', error)
-        setShowModal(false)
-        setModalInfo(null)
       }
-    } else {
-      setShowModal(false)
-      setModalInfo(null)
     }
   }, [searchParams, router])
-
-  // Reset modal state when pathname changes
-  useEffect(() => {
-    setShowModal(false)
-    setModalInfo(null)
-  }, [pathname])
 
   return (
     <>
@@ -58,5 +47,4 @@ export const ModalWrapper: React.FC<{ children: React.ReactNode }> = ({ children
   )
 }
 
-export default ModalWrapper
 export default ModalWrapper
