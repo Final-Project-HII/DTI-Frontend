@@ -1,7 +1,4 @@
 'use client'
-// components/ModalWrapper.tsx
-'use client'
-
 import React, { useEffect, useState } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Modal from '../Modal';
