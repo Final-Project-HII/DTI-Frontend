@@ -1,5 +1,6 @@
 'use client';
 import { useFetchProfileData } from '@/hooks/useProfileData'
+import { useSession } from 'next-auth/react';
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 
 interface ProfileData {
@@ -23,11 +24,14 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [error, setError] = useState<string | null>(null)
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
   const fetchProfileDataHook = useFetchProfileData()
+  const { data: session } = useSession();
 
   const fetchProfileData = async () => {
     try {
-      const data = await fetchProfileDataHook()
-      setProfileData(data)
+      if (session != undefined) {
+        const data = await fetchProfileDataHook()
+        setProfileData(data)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     }
