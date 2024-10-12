@@ -22,6 +22,11 @@ export const ModalWrapper: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const parsedModalInfo: ModalInfo = JSON.parse(modalInfoParam)
         setModalInfo(parsedModalInfo)
+        const timer = setTimeout(() => {
+          setModalInfo(null)
+          router.push(parsedModalInfo.redirectTo)
+        }, 4000)
+        return () => clearTimeout(timer)
       } catch (error) {
         console.error('Error parsing modalInfo:', error)
         setModalInfo(null)
@@ -29,13 +34,11 @@ export const ModalWrapper: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       setModalInfo(null)
     }
-  }, [searchParams])
+  }, [searchParams, router])
 
   useEffect(() => {
     setModalInfo(null)
   }, [pathname])
-
-
 
   return (
     <>
