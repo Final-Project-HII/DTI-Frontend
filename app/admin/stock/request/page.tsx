@@ -118,7 +118,7 @@ const fetchWarehouses = async (token: string): Promise<Warehouse[]> => {
 };
 
 export default function StockMutationPage() {
-    const [selectedWarehouse, setSelectedWarehouse] = useState<string>('2');
+    const [selectedWarehouse, setSelectedWarehouse] = useState<string>('1');
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(5);

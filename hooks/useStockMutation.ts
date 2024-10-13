@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { StockMutationJournalResponse, StockReportResponse, Warehouse } from '../types/stockMutation';
+import { ApiResponse, ProductSummary } from '@/types/dashboard';
 
 // const BASE_URL = 'http://localhost:8080/api';
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}api`;
@@ -11,6 +12,8 @@ export const fetchStockReport = async (
     page: number,
     size: number
 ): Promise<StockReportResponse> => {
+    // ): Promise<ApiResponse<ProductSummary>> => {
+
     const response = await axios.get(
         `${BASE_URL}/stock-mutations/report`,
         {

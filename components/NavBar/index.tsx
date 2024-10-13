@@ -81,7 +81,7 @@ const NavBar = () => {
   }, [session, getCartItemCount]);
 
   return (
-    <header className="fixed top-0 w-full z-50 text-white bg-no-repeat bg-cover">
+    <header className="fixed top-0 w-full z-40 text-white bg-no-repeat bg-cover">
       <div className="relative">
         <div
           className="relative z-40 text-white bg-no-repeat bg-cover py-4"
@@ -94,19 +94,16 @@ const NavBar = () => {
                 onClick={toggleMenu}
               >
                 <span
-                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${
-                    open ? "rotate-45 translate-y-1" : ""
-                  }`}
+                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${open ? "rotate-45 translate-y-1" : ""
+                    }`}
                 ></span>
                 <span
-                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${
-                    open ? "opacity-0" : "my-1"
-                  }`}
+                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${open ? "opacity-0" : "my-1"
+                    }`}
                 ></span>
                 <span
-                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${
-                    open ? "-rotate-45 -translate-y-1" : ""
-                  }`}
+                  className={`block w-6 h-1 bg-blue-500 rounded-sm transform transition-transform duration-300 ease-in-out ${open ? "-rotate-45 -translate-y-1" : ""
+                    }`}
                 ></span>
               </button>
               <Link href="/">
@@ -246,11 +243,10 @@ const NavBar = () => {
           </QueryClientProvider>
         </div>
         <div
-          className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${
-            openHamburgerMenu
+          className={`absolute z-30  text-xl text-blue-600 font-bold w-screen bottom-0 bg-white  transition-transform duration-500 ease-in-out ${openHamburgerMenu
               ? "translate-y-full h-screen"
               : "translate-y-0 overflow-hidden"
-          }`}
+            }`}
         >
           {data?.user.role == "USER" ? (
             <>
