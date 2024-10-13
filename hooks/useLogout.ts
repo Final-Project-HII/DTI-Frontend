@@ -15,7 +15,7 @@ export async function logout(token: string): Promise<void> {
     }
 
     const response = await axios.post<LogoutResponse>(
-      `${BASE_URL_DEV}/auth/logout`,
+      `${process.env.NEXT_PUBLIC_API_URL}api/auth/logout`,
       {},
       {
         headers: {
