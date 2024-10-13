@@ -1,9 +1,8 @@
-// components/ModalWrapper.tsx
 'use client'
 
 import React, { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Modal from '../Modal';
+import AuthModal from '../AuthModal';
 
 interface ModalInfo {
   title: string;
@@ -29,7 +28,7 @@ export const ModalWrapper: React.FC<{ children: React.ReactNode }> = ({ children
         const timer = setTimeout(() => {
           setShowModal(false)
           router.push(parsedModalInfo.redirectTo)
-        }, 4000)
+        }, 3000)
 
         return () => clearTimeout(timer)
       } catch (error) {
@@ -41,7 +40,7 @@ export const ModalWrapper: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <>
       {showModal && modalInfo && (
-        <Modal title={modalInfo.title} description={modalInfo.description} />
+        <AuthModal title={modalInfo.title} description={modalInfo.description} />
       )}
       {children}
     </>
