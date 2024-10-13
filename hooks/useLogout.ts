@@ -24,18 +24,7 @@ export async function logout(token: string): Promise<void> {
       }
     )
 
-    // const originalCookie = cookies().get('Sid')
-
-    // if (originalCookie) {
-    //   cookies().set({
-    //     name: 'Sid',
-    //     value: '',
-    //     expires: new Date(0),
-    //     path: '/',
-    //     domain: 'localhost',
-    //   })
-    // }
-    // console.log(response.data.message)
+  console.log(response)
   } catch (error) {
     console.error('Logout failed:', error)
   }
