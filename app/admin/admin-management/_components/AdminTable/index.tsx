@@ -141,16 +141,19 @@ const AdminTable = () => {
       header: "Active",
       cell: ({ row }) => {
         const user = row.original;
-        return (
-          <Switch
-            checked={user.isActive}
-            className="data-[state=checked]:bg-blue-600"
-            onCheckedChange={() => {
-              setUserToToggle(user);
-              setIsToogleDialogOpen(true);
-            }}
-          />
-        );
+        if (user.role === "ADMIN") {
+          return (
+            <Switch
+              checked={user.isActive}
+              className="data-[state=checked]:bg-blue-600"
+              onCheckedChange={() => {
+                setUserToToggle(user);
+                setIsToogleDialogOpen(true);
+              }}
+            />
+          );
+        }
+        return null
       },
     },
     {
