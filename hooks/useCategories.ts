@@ -21,11 +21,15 @@ export const useCategories = () => {
                 confirmButtonColor: '#3085d6',
             });
         },
-        onError: (error) => {
+        onError: (error: any) => {
+            let errorMessage = 'An error occurred while deleting the category.';
+            if (error.response && error.response.data && error.response.data.message) {
+                errorMessage = error.response.data.message;
+            }
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
-                text: 'An error occurred while deleting the category.',
+                text: errorMessage,
                 confirmButtonColor: '#3085d6',
                 timer: 3000,
                 timerProgressBar: true,
