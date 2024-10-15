@@ -46,7 +46,27 @@ export default function CategoryManagementPage() {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed && session?.user?.accessToken) {
-                deleteCategoryMutation.mutate({ id, token: session.user.accessToken });
+                deleteCategoryMutation.mutate(
+                    { id, token: session.user.accessToken },
+                    {
+                        onSuccess: (data) => {
+                            Swal.fire('Deleted!', 'Category has been deleted.', 'success');
+                        },
+                        onError: (error: any) => {
+                            if (error.response) {
+                                if (error.response.status === 400) {
+                                    Swal.fire('Cannot Delete', error.response.data.message, 'error');
+                                } else if (error.response.status === 404) {
+                                    Swal.fire('Not Found', 'Category not found', 'error');
+                                } else {
+                                    Swal.fire('Error', 'Failed to delete category', 'error');
+                                }
+                            } else {
+                                Swal.fire('Error', 'An unexpected error occurred', 'error');
+                            }
+                        }
+                    }
+                );
             }
         });
     };
