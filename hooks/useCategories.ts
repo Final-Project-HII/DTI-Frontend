@@ -22,7 +22,8 @@ export const useCategories = () => {
             });
         },
         onError: (error: any) => {
-            const errorMessage = error.message || 'An unexpected error occurred';
+            // const errorMessage = error.message || 'An unexpected error occurred';
+            const errorMessage = error.message;
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
