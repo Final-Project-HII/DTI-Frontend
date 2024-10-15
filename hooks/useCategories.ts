@@ -22,10 +22,7 @@ export const useCategories = () => {
             });
         },
         onError: (error: any) => {
-            let errorMessage = 'An error occurred while deleting the category.';
-            if (error && typeof error === 'object' && 'message' in error) {
-                errorMessage = error.message;
-            }
+            const errorMessage = error.message || 'An unexpected error occurred';
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
