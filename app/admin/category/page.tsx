@@ -53,17 +53,11 @@ export default function CategoryManagementPage() {
                             Swal.fire('Deleted!', 'Category has been deleted.', 'success');
                         },
                         onError: (error: any) => {
-                            if (error.response) {
-                                if (error.response.status === 400) {
-                                    Swal.fire('Cannot Delete', error.response.data.message, 'error');
-                                } else if (error.response.status === 404) {
-                                    Swal.fire('Not Found', 'Category not found', 'error');
-                                } else {
-                                    Swal.fire('Error', 'Failed to delete category', 'error');
-                                }
-                            } else {
-                                Swal.fire('Error', 'An unexpected error occurred', 'error');
+                            let errorMessage = 'An unexpected error occurred';
+                            if (error.response && error.response.data) {
+                                errorMessage = error.response.data.message || errorMessage;
                             }
+                            Swal.fire('Error', errorMessage, 'error');
                         }
                     }
                 );
