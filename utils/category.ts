@@ -24,6 +24,7 @@ export const deleteCategory = async (id: number, token: string) => {
     }
 };
 
+
 export const fetchProducts = async (queryKey: readonly unknown[]): Promise<ApiResponse> => {
     const [_, page, size, category, sort, direction, search] = queryKey as [string, string, string, string, string, string, string];
     const params = new URLSearchParams();
