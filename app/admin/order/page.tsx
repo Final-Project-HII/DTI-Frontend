@@ -218,6 +218,7 @@ const AdminOrderManagement: React.FC = () => {
 
           } else if (axiosError.response?.status === 500) {
             console.error("Server error:", axiosError.response.data);
+
             Swal.fire({
               icon: "error",
               title: "Product Not Found",
