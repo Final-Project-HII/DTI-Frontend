@@ -193,7 +193,8 @@ const AdminOrderManagement: React.FC = () => {
           const axiosError = error as AxiosError<{
             message: string;
             insufficientItems?: InsufficientStockItem[];
-            nonExistentProducts?: string[];
+            errorDetails?: string;
+
           }>;
           if (
             axiosError.response?.status === 400 &&
@@ -214,16 +215,17 @@ const AdminOrderManagement: React.FC = () => {
               html: `The following items have insufficient stock:<br><pre>${itemsList}</pre>`,
               confirmButtonText: "OK",
             });
-          } else if (
-            axiosError.response?.status === 404 &&
-            axiosError.response.data.message.includes("Product not found")
-          ) {
-            const nonExistentProducts = axiosError.response.data.nonExistentProducts || [];
-            const productList = nonExistentProducts.join(", ");
+
+          } else if (axiosError.response?.status === 500) {
+            console.error("Server error:", axiosError.response.data);
+            const errorMessage =
+              axiosError.response.data.errorDetails ||
+              axiosError.response.data.message ||
+              "An unexpected error occurred on the server.";
             Swal.fire({
               icon: "error",
-              title: "Product Not Found",
-              html: `The following products do not exist in the inventory:<br><pre>${productList}</pre>`,
+              title: "Server Error",
+              html: `There was an error processing your request:<br><pre>${errorMessage}</pre>`,
               confirmButtonText: "OK",
             });
           } else {
