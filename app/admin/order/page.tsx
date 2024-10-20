@@ -194,6 +194,7 @@ const AdminOrderManagement: React.FC = () => {
             message: string;
             insufficientItems?: InsufficientStockItem[];
             errorDetails?: string;
+
           }>;
           if (
             axiosError.response?.status === 400 &&
@@ -214,6 +215,7 @@ const AdminOrderManagement: React.FC = () => {
               html: `The following items have insufficient stock:<br><pre>${itemsList}</pre>`,
               confirmButtonText: "OK",
             });
+
           } else if (axiosError.response?.status === 500) {
             console.error("Server error:", axiosError.response.data);
             let errorMessage = axiosError.response.data.errorDetails || 
