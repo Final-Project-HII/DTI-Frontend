@@ -218,14 +218,24 @@ const AdminOrderManagement: React.FC = () => {
 
           } else if (axiosError.response?.status === 500) {
             console.error("Server error:", axiosError.response.data);
-            const errorMessage =
-              axiosError.response.data.errorDetails ||
-              axiosError.response.data.message ||
-              "An unexpected error occurred on the server.";
+
+            let errorMessage = axiosError.response.data.errorDetails || 
+                               axiosError.response.data.message || 
+                               "An unexpected error occurred on the server.";
+            let title = "Server Error";
+      
+            if (errorMessage.includes("product not found") || errorMessage.includes("item does not exist")) {
+              title = "Product Not Found";
+              errorMessage = "One or more products in this order do not exist in the inventory.";
+            } else if (errorMessage.includes("warehouse not found")) {
+              title = "Warehouse Issue";
+              errorMessage = "There was an issue with the warehouse assignment for this order.";
+            }
+      
             Swal.fire({
               icon: "error",
-              title: "Server Error",
-              html: `There was an error processing your request:<br><pre>${errorMessage}</pre>`,
+              title: title,
+              html: `The following error occurred while processing the order:<br><pre>${errorMessage}</pre>`,
               confirmButtonText: "OK",
             });
           } else {
