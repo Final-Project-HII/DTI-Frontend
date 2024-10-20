@@ -181,5 +181,5 @@ export default auth((req: any) => {
     }
   }
 
-  return NextResponse.next()
-})
+  return NextResponse.next();
+});

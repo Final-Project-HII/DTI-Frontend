@@ -46,7 +46,22 @@ export default function CategoryManagementPage() {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed && session?.user?.accessToken) {
-                deleteCategoryMutation.mutate({ id, token: session.user.accessToken });
+                deleteCategoryMutation.mutate(
+                    { id, token: session.user.accessToken },
+                    {
+                        onSuccess: (data) => {
+                            Swal.fire('Deleted!', 'Category has been deleted.', 'success');
+                        },
+                        onError: (error: any) => {
+                            // let errorMessage = 'An unexpected error occurred';
+                            // if (error.response && error.response.data) {
+                            //     errorMessage = error.response.data.message || errorMessage;
+                            // }
+                            const errorMessage = error.message;
+                            Swal.fire('Error', errorMessage, 'error');
+                        }
+                    }
+                );
             }
         });
     };

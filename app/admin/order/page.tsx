@@ -193,6 +193,7 @@ const AdminOrderManagement: React.FC = () => {
           const axiosError = error as AxiosError<{
             message: string;
             insufficientItems?: InsufficientStockItem[];
+            nonExistentProducts?: string[];
           }>;
           if (
             axiosError.response?.status === 400 &&
@@ -211,6 +212,18 @@ const AdminOrderManagement: React.FC = () => {
               icon: "error",
               title: "Insufficient Stock",
               html: `The following items have insufficient stock:<br><pre>${itemsList}</pre>`,
+              confirmButtonText: "OK",
+            });
+          } else if (
+            axiosError.response?.status === 404 &&
+            axiosError.response.data.message.includes("Product not found")
+          ) {
+            const nonExistentProducts = axiosError.response.data.nonExistentProducts || [];
+            const productList = nonExistentProducts.join(", ");
+            Swal.fire({
+              icon: "error",
+              title: "Product Not Found",
+              html: `The following products do not exist in the inventory:<br><pre>${productList}</pre>`,
               confirmButtonText: "OK",
             });
           } else {

@@ -9,13 +9,21 @@ export const fetchCategories = async (): Promise<Category[]> => {
     return response.data;
 };
 export const deleteCategory = async (id: number, token: string) => {
-    const response = await axios.delete(`${BASE_URL}/category/delete/${id}`, {
-        headers: {
-            Authorization: `Bearer ${token}`
+    try {
+        const response = await axios.delete(`${BASE_URL}/category/delete/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            throw error.response.data;
         }
-    });
-    return response.data;
+        throw error;
+    }
 };
+
 
 export const fetchProducts = async (queryKey: readonly unknown[]): Promise<ApiResponse> => {
     const [_, page, size, category, sort, direction, search] = queryKey as [string, string, string, string, string, string, string];
