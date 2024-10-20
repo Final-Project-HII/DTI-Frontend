@@ -218,6 +218,7 @@ const AdminOrderManagement: React.FC = () => {
 
           } else if (axiosError.response?.status === 500) {
             console.error("Server error:", axiosError.response.data);
+
             let errorMessage = axiosError.response.data.errorDetails || 
                                axiosError.response.data.message || 
                                "An unexpected error occurred on the server.";
