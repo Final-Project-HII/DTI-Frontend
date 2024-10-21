@@ -24,8 +24,6 @@ interface CartItemListProps {
 const CartItemList: React.FC<CartItemListProps> = ({ initialCartItems }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
   const { updateQuantity, removeItem } = useCart();
-
-
   const productIds = cartItems.map((item) => item.productId);
   const productDetails = useProductDetails(productIds);
 
@@ -35,7 +33,6 @@ const CartItemList: React.FC<CartItemListProps> = ({ initialCartItems }) => {
     }, 500),
     [updateQuantity]
   );
-
 
   const handleUpdateQuantity = (
     productId: number,
@@ -80,7 +77,6 @@ const CartItemList: React.FC<CartItemListProps> = ({ initialCartItems }) => {
         Hii Mart ({cartItems.length} product{cartItems.length !== 1 ? "s" : ""})
       </h2>
       {cartItems.map((item, index) => {
-
         const productDetail = productDetails[index].data as
           | ProductDataResponse
           | undefined;
@@ -143,7 +139,7 @@ const CartItemList: React.FC<CartItemListProps> = ({ initialCartItems }) => {
                   +
                 </Button>
               </div>
-              <p className="w-32 sm:w-40 text-right font-bold whitespace-nowrap">
+              <p className="w-28 sm:w-32 text-right font-bold whitespace-nowrap">
                 Rp {(item.price * item.quantity).toLocaleString()}
               </p>
             </div>
