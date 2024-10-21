@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useCart } from "@/hooks/useCart";
 import debounce from "lodash/debounce";
-import { ProductDataResponse } from "@/types/product";
 import { useProductDetails } from "@/hooks/useProduct";
+import { ProductDataResponse } from "@/types/product";
 
 interface CartItem {
   id: number;
@@ -25,6 +25,7 @@ const CartItemList: React.FC<CartItemListProps> = ({ initialCartItems }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
   const { updateQuantity, removeItem } = useCart();
 
+
   const productIds = cartItems.map((item) => item.productId);
   const productDetails = useProductDetails(productIds);
 
@@ -34,6 +35,7 @@ const CartItemList: React.FC<CartItemListProps> = ({ initialCartItems }) => {
     }, 500),
     [updateQuantity]
   );
+
 
   const handleUpdateQuantity = (
     productId: number,
@@ -78,6 +80,7 @@ const CartItemList: React.FC<CartItemListProps> = ({ initialCartItems }) => {
         Hii Mart ({cartItems.length} product{cartItems.length !== 1 ? "s" : ""})
       </h2>
       {cartItems.map((item, index) => {
+
         const productDetail = productDetails[index].data as
           | ProductDataResponse
           | undefined;
