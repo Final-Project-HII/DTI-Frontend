@@ -6,7 +6,6 @@ import debounce from "lodash/debounce";
 import { useProductDetails } from "@/hooks/useProduct";
 import { ProductDataResponse } from "@/types/product";
 
-
 interface CartItem {
   id: number;
   productId: number;
@@ -97,7 +96,7 @@ const CartItemList: React.FC<CartItemListProps> = ({ initialCartItems }) => {
               <div className="ml-4">
                 <h3 className="font-bold">{item.productName}</h3>
                 <p className="text-blue-600">Rp {item.price.toLocaleString()}</p>
-                <p className="text-sm text-gray-500">Stock: {totalStock - item.quantity}</p>
+                <p className="text-sm text-gray-500">Stock: {totalStock}</p>
               </div>
             </div>
             <div className="flex items-center justify-between w-full sm:w-auto mt-2 sm:mt-0">
@@ -109,7 +108,6 @@ const CartItemList: React.FC<CartItemListProps> = ({ initialCartItems }) => {
                   onClick={() =>
                     handleUpdateQuantity(item.productId, item.quantity - 1, totalStock)
                   }
-                  disabled={item.quantity <= 1}
                 >
                   -
                 </Button>
