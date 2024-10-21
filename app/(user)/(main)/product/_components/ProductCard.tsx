@@ -113,9 +113,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           Rp {product.price.toLocaleString()}
         </p>
         <p className="text-xs text-gray-500">Weight: {product.weight}g</p>
-        <p className="text-xs text-gray-500">
-          Stock: {remainingStock} {remainingStock === 1 ? 'item' : 'items'} left
-        </p>
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Button
