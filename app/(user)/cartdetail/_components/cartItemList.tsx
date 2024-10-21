@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useCart } from "@/hooks/useCart";
 import debounce from "lodash/debounce";
-import { useProductDetails, ProductDataResponse } from "@/hooks/useProductDetails";
+import { useProductDetails } from "@/hooks/useProduct";
+import { ProductDataResponse } from "@/types/product";
 
 interface CartItem {
   id: number;
