@@ -140,7 +140,7 @@ const CartItemList: React.FC<CartItemListProps> = ({ initialCartItems }) => {
                   +
                 </Button>
               </div>
-              <p className="w-32 sm:w-40 text-right font-bold whitespace-nowrap">
+              <p className="w-28 sm:w-32 text-right font-bold whitespace-nowrap">
                 Rp {(item.price * item.quantity).toLocaleString()}
               </p>
             </div>
