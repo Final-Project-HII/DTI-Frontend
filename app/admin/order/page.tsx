@@ -148,7 +148,7 @@ const AdminOrderManagement: React.FC = () => {
   );
 
   const handlePageChange = useCallback((newPage: number) => {
-    setCurrentPage(newPage);
+    setCurrentPage(newPage - 1); 
   }, []);
 
   const handlePageSizeChange = useCallback((newSize: number) => {
@@ -193,6 +193,8 @@ const AdminOrderManagement: React.FC = () => {
           const axiosError = error as AxiosError<{
             message: string;
             insufficientItems?: InsufficientStockItem[];
+            errorDetails?: string;
+
           }>;
           if (
             axiosError.response?.status === 400 &&
@@ -213,12 +215,21 @@ const AdminOrderManagement: React.FC = () => {
               html: `The following items have insufficient stock:<br><pre>${itemsList}</pre>`,
               confirmButtonText: "OK",
             });
+
+          } else if (axiosError.response?.status === 500) {
+            console.error("Server error:", axiosError.response.data);
+            Swal.fire({
+              icon: "error",
+              title: "Product Not Found",
+              html: "The product does not exist in the warehouse.",
+              confirmButtonText: "OK",
+            });
           } else {
             console.error("Error updating order status:", error);
             Swal.fire({
               icon: "error",
               title: "Error",
-              text: "An error occurred while updating the order status.",
+              text: "An unexpected error occurred while updating the order status.",
               confirmButtonText: "OK",
             });
           }
@@ -346,12 +357,12 @@ const AdminOrderManagement: React.FC = () => {
                 onOrderSelect={handleOrderSelect}
               />
               <AdminOrderPagination
-                currentPage={ordersData.data.number + 1}
-                setCurrentPage={handlePageChange}
-                pageSize={pageSize}
-                setPageSize={handlePageSizeChange}
-                totalItems={ordersData.data.totalElements}
-              />
+            currentPage={currentPage + 1} 
+            setCurrentPage={handlePageChange}
+            pageSize={pageSize}
+            setPageSize={handlePageSizeChange}
+            totalItems={ordersData.data.totalElements}
+          />
             </>
           ) : (
             <div>No orders found</div>

@@ -27,7 +27,9 @@ const OrderStatusModal: React.FC<OrderStatusModalProps> = ({
   onPaymentApproval,
   onCancelOrder,
 }) => {
-  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(
+    null
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const { data: session } = useSession();
 
@@ -108,7 +110,11 @@ const OrderStatusModal: React.FC<OrderStatusModalProps> = ({
       }
     }
 
-    if (nextStatus && order.status.toLowerCase() !== "cancelled" && order.status.toLowerCase() !== "delivered") {
+    if (
+      nextStatus &&
+      order.status.toLowerCase() !== "cancelled" &&
+      order.status.toLowerCase() !== "delivered"
+    ) {
       return <Button onClick={handleNextStep}>Next Step ({nextStatus})</Button>;
     }
 
@@ -138,7 +144,9 @@ const OrderStatusModal: React.FC<OrderStatusModalProps> = ({
           </div>
           <div className="grid grid-cols-3 items-center gap-4">
             <span className="font-medium text-right">Total Amount:</span>
-            <span className="col-span-2">{order.finalAmount}</span>
+            <span className="col-span-2">
+              Rp {order.finalAmount.toLocaleString("id-ID")}
+            </span>
           </div>
           {loading ? (
             <div>Loading payment details...</div>
@@ -153,10 +161,6 @@ const OrderStatusModal: React.FC<OrderStatusModalProps> = ({
               <div className="grid grid-cols-3 items-center gap-4">
                 <span className="font-medium text-right">Payment Status:</span>
                 <span className="col-span-2">{paymentDetails.status}</span>
-              </div>
-              <div className="grid grid-cols-3 items-center gap-4">
-                <span className="font-medium text-right">Payment Amount:</span>
-                <span className="col-span-2">{paymentDetails.amount}</span>
               </div>
               <div className="grid grid-cols-3 items-center gap-4">
                 <span className="font-medium text-right">Payment Date:</span>
