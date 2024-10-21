@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useCart } from "@/hooks/useCart";
 import debounce from "lodash/debounce";
-import { ProductDataResponse } from "@/types/product";
 import { useProductDetails } from "@/hooks/useProduct";
+import { ProductDataResponse } from "@/types/product";
 
 interface CartItem {
   id: number;
@@ -24,7 +24,6 @@ interface CartItemListProps {
 const CartItemList: React.FC<CartItemListProps> = ({ initialCartItems }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
   const { updateQuantity, removeItem } = useCart();
-
   const productIds = cartItems.map((item) => item.productId);
   const productDetails = useProductDetails(productIds);
 
