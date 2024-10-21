@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon, RefreshCw } from "lucide-react";
-import { format, startOfDay, endOfDay } from "date-fns";
+import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -35,13 +35,13 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
   const handleDateSelect = (newDate: Date | undefined) => {
     setSelectedDate(newDate);
     if (newDate) {
-      const startDate = startOfDay(newDate);
-      setDate(startDate);
+      const adjustedDate = new Date(newDate);
+      adjustedDate.setHours(12, 0, 0, 0);
+      setDate(adjustedDate);
     } else {
       setDate(null);
     }
   };
-
   return (
     <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-wrap gap-2">
