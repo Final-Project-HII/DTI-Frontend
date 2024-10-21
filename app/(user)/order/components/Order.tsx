@@ -11,6 +11,7 @@ import OrderCard from "./OrderCard";
 import OrderFilters from "./OrderFilters";
 import OrderHeader from "./OrderHeader";
 import { useRouter } from "next/navigation";
+import SearchBar from "./SearchBar";
 
 const OrderSkeleton: React.FC = () => (
   <div className="space-y-2">
@@ -28,6 +29,7 @@ const OrderList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [totalItems, setTotalItems] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { ordersData, loading, error } = useOrders(
     currentPage - 1,
@@ -40,10 +42,18 @@ const OrderList: React.FC = () => {
 
   useEffect(() => {
     if (ordersData && ordersData.data && ordersData.data.content) {
-      setFilteredOrders(ordersData.data.content);
-      setTotalItems(ordersData.data.totalElements);
+      let orders = ordersData.data.content;
+      
+      if (searchQuery) {
+        orders = orders.filter(order => 
+          order.invoiceId.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
+
+      setFilteredOrders(orders);
+      setTotalItems(searchQuery ? orders.length : ordersData.data.totalElements);
     }
-  }, [ordersData]);
+  }, [ordersData, searchQuery]);
 
   const allProductIds = filteredOrders.flatMap((order) =>
     order.items.map((item) => item.productId)
@@ -76,10 +86,16 @@ const OrderList: React.FC = () => {
   if (!session) return <div>Please log in to view your orders.</div>;
   if (error) return <div>Error loading orders: {error.message}</div>;
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex-grow space-y-4 mt-36 mb-8 mx-4 sm:mt-28 sm:mx-8 md:mx-16 lg:mx-28">
         <OrderHeader />
+        <SearchBar onSearch={handleSearch} />
         <OrderFilters
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
@@ -106,9 +122,7 @@ const OrderList: React.FC = () => {
               <OrderCard
                 key={order.id}
                 order={order}
-                productDetails={productDetailsMap.get(
-                  order.items[0]?.productId
-                )}
+                productDetails={productDetailsMap.get(order.items[0]?.productId)}
                 onOrderUpdate={handleOrderUpdate}
                 onNavigateToPayment={() => handleNavigateToPayment(order.id)}
               />
