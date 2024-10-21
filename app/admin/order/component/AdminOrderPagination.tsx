@@ -14,7 +14,7 @@ import {
   ChevronsRight,
 } from "lucide-react";
 
-interface OrderPaginationProps {
+interface AdminOrderPaginationProps {
   currentPage: number;
   setCurrentPage: (page: number) => void;
   pageSize: number;
@@ -22,7 +22,7 @@ interface OrderPaginationProps {
   totalItems: number;
 }
 
-const OrderPagination: React.FC<OrderPaginationProps> = ({
+const AdminOrderPagination: React.FC<AdminOrderPaginationProps> = ({
   currentPage,
   setCurrentPage,
   pageSize,
@@ -128,4 +128,4 @@ const OrderPagination: React.FC<OrderPaginationProps> = ({
   );
 };
 
-export default OrderPagination;
+export default AdminOrderPagination;

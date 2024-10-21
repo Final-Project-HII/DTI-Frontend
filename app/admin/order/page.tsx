@@ -148,7 +148,7 @@ const AdminOrderManagement: React.FC = () => {
   );
 
   const handlePageChange = useCallback((newPage: number) => {
-    setCurrentPage(newPage);
+    setCurrentPage(newPage - 1); 
   }, []);
 
   const handlePageSizeChange = useCallback((newSize: number) => {
@@ -357,12 +357,12 @@ const AdminOrderManagement: React.FC = () => {
                 onOrderSelect={handleOrderSelect}
               />
               <AdminOrderPagination
-                currentPage={ordersData.data.number + 1}
-                setCurrentPage={handlePageChange}
-                pageSize={pageSize}
-                setPageSize={handlePageSizeChange}
-                totalItems={ordersData.data.totalElements}
-              />
+            currentPage={currentPage + 1} 
+            setCurrentPage={handlePageChange}
+            pageSize={pageSize}
+            setPageSize={handlePageSizeChange}
+            totalItems={ordersData.data.totalElements}
+          />
             </>
           ) : (
             <div>No orders found</div>
