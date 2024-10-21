@@ -213,7 +213,7 @@ export default function CombinedDashboard() {
                         </CardHeader>
                         <CardContent>
                             <ProductSalesChart
-                                data={productSalesData?.data?.content?.slice(0, 5)?.map(product => ({
+                                data={productSalesData?.data?.content?.slice(0, 10)?.map(product => ({
                                     ...product,
                                     productName: product.productName.length > 12 ? `${product.productName.slice(0, 12)}...` : product.productName
                                 })) || []}
