@@ -29,28 +29,56 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
   }, []);
 
   useEffect(() => {
-    setQuantity(product.totalStock > 0 ? 1 : 0);
-  }, [product]);
-
+    const itemInCart = cartItems.find(item => item.productId === product.id);
+    if (itemInCart) {
+      setQuantity(itemInCart.quantity);
+    } else {
+      setQuantity(product.totalStock > 0 ? 1 : 0);
+    }
+  }, [cartItems, product.id, product.totalStock]);
 
   const handleAddToCart = async () => {
-    if (session?.user != undefined) {
-      await addToCart(product.id, quantity);
-      Swal.fire({
-        title: `${quantity} ${product.name}(s) added to your cart!`,
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false,
-        timerProgressBar: true,
-      });
-    } else {
+    if (!session?.user) {
       Swal.fire({
         title: "Error!",
         text: "Please login first before you can add the product to cart.",
         icon: "error",
       });
+      return;
+    }
+  
+    const itemInCart = cartItems.find(item => item.productId === product.id);
+    try {
+      if (itemInCart) {
+        // If item exists in cart, update quantity
+        await updateQuantity(product.id, quantity);
+        Swal.fire({
+          title: `Updated quantity to ${quantity}!`,
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+          timerProgressBar: true,
+        });
+      } else {
+        // If item is not in cart, add it
+        await addToCart(product.id, quantity);
+        Swal.fire({
+          title: `${quantity} ${product.name}(s) added to your cart!`,
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+          timerProgressBar: true,
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to update cart. Please try again.",
+        icon: "error",
+      });
     }
   };
+
   const decreaseQuantity = () => {
     setQuantity(Math.max(1, quantity - 1));
   };
