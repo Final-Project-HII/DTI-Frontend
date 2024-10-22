@@ -29,9 +29,13 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
   }, []);
 
   useEffect(() => {
-    setQuantity(product.totalStock > 0 ? 1 : 0);
-  }, [product]);
-
+    const itemInCart = cartItems.find(item => item.productId === product.id);
+    if (itemInCart) {
+      setQuantity(itemInCart.quantity);
+    } else {
+      setQuantity(product.totalStock > 0 ? 1 : 0);
+    }
+  }, [cartItems, product.id, product.totalStock]);
 
   const handleAddToCart = async () => {
     if (session?.user != undefined) {
