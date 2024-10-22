@@ -39,9 +39,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 
   const handleAddToCart = async () => {
     if (session?.user != undefined) {
-      await addToCart(product.id, quantity);
+      await updateQuantity(product.id, quantity); 
       Swal.fire({
-        title: `${quantity} ${product.name}(s) added to your cart!`,
+        title: `Updated quantity to ${quantity}!`,
         icon: "success",
         timer: 2000,
         showConfirmButton: false,
@@ -55,6 +55,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
       });
     }
   };
+
   const decreaseQuantity = () => {
     setQuantity(Math.max(1, quantity - 1));
   };
