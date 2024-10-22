@@ -36,6 +36,14 @@ const PaymentPage: React.FC = () => {
   const isPendingPayment = (status: string) =>
     status.toLowerCase() === "pending_payment";
 
+  // Add this function to check if the payment button should be disabled
+  const isPaymentButtonDisabled = () => {
+    if (!paymentMethod) return true;
+    if (paymentMethod === "PAYMENT_GATEWAY" && !selectedBank) return true;
+    if (paymentMethod === "PAYMENT_PROOF" && !proofImageUrl) return true;
+    return false;
+  };
+
   useEffect(() => {
     if (
       ordersData &&
@@ -46,7 +54,6 @@ const PaymentPage: React.FC = () => {
       const order = ordersData.data.content[0];
       setLatestOrder(order);
 
-      
       if (!isPendingPayment(order.status)) {
         Swal.fire({
           title: "Order Not Ready for Payment",
@@ -54,7 +61,7 @@ const PaymentPage: React.FC = () => {
           icon: "warning",
           confirmButtonText: "OK",
         }).then(() => {
-          router.push("/orders"); 
+          router.push("/orders");
         });
       }
     } else if (!orderLoading && !orderError) {
@@ -101,19 +108,19 @@ const PaymentPage: React.FC = () => {
       return;
     }
 
+    if (paymentMethod === "PAYMENT_GATEWAY" && !selectedBank) {
+      toast({
+        title: "Error",
+        description: "Please select a bank for payment gateway.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       let response;
       if (paymentMethod === "PAYMENT_GATEWAY") {
-        if (!selectedBank) {
-          toast({
-            title: "Error",
-            description: "Please select a bank for payment gateway.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
         response = await axios.post(
           `${API_BASE_URL}api/payments/create`,
           null,
@@ -171,7 +178,7 @@ const PaymentPage: React.FC = () => {
 
   if (orderLoading) return <PaymentPageSkeleton />;
   if (orderError) return <div>Error loading order: {orderError.message}</div>;
-  if (!latestOrder || !isPendingPayment(latestOrder.status)) return null; // We'll handle the redirect in the useEffect
+  if (!latestOrder || !isPendingPayment(latestOrder.status)) return null;
 
   return (
     <div className="container mx-auto px-4 py-8 mt-20">
@@ -191,7 +198,7 @@ const PaymentPage: React.FC = () => {
         totalAmount={latestOrder.finalAmount}
         onPayment={handlePayment}
         isLoading={isLoading}
-        isPaymentDisabled={!paymentMethod}
+        isPaymentDisabled={isPaymentButtonDisabled()}
       />
     </div>
   );
